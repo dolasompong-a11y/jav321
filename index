@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <title>JAV321 Gallery Hub - Turbo Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: { colors: { primary: '#e74c3c' } }
+            }
+        }
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+        body { font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .gallery-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        @media (hover: hover) {
+            .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        }
+        .dark body { background-color: #111827; color: #f3f4f6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+        
+        .modal-mobile-scroll { -webkit-overflow-scrolling: touch; }
+    </style>
+</head>
+<body class="bg-gray-100 transition-colors duration-200">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-colors duration-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="container mx-auto px-3 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+            
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-primary text-white px-3 py-1.5 rounded font-bold text-lg md:text-xl cursor-pointer shadow-sm active:scale-95 transition-transform" onclick="goHome()" title="กลับสู่หน้าแรก">JAV321</div>
+                    
+                    <button onclick="toggleTheme()" class="p-2 rounded-full active:bg-gray-100 hover:bg-gray-100 dark:active:bg-gray-700 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-yellow-400" title="สลับโหมดมืด/สว่าง">
+                        <i id="theme-icon" class="fas fa-moon text-[1.2rem]"></i>
+                    </button>
+
+                    <button onclick="loadLatest()" class="p-2 text-red-500 active:scale-90 hover:scale-110 transition-transform" title="รายการใหม่ล่าสุด">
+                        <i class="fas fa-fire text-xl md:text-2xl"></i>
+                    </button>
+                </div>
+                
+                <button onclick="clearHistory()" class="md:hidden text-orange-500 transition-colors bg-orange-50 dark:bg-gray-700 p-2 rounded-lg border border-orange-200 dark:border-gray-600 text-sm active:bg-orange-100" title="ล้างประวัติ">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+            <!-- Search & URL inputs -->
+            <div class="flex-1 w-full flex flex-col md:flex-row gap-2 max-w-5xl mt-1 md:mt-0">
+                <div class="flex flex-1 shadow-sm rounded-md overflow-hidden border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-colors">
+                    <input type="text" id="search-input" placeholder="ค้นหารหัสหนัง (เช่น SSIS-123)..." 
+                        class="w-full bg-gray-50 py-2.5 px-3 focus:outline-none dark:bg-gray-700 dark:text-white text-base md:text-sm">
+                    <button onclick="handleSearch()" class="bg-primary text-white px-5 active:bg-red-700 hover:bg-red-700 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="flex flex-1 shadow-sm rounded-md overflow-hidden border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-gray-500 transition-colors">
+                    <input type="text" id="url-input" placeholder="วางลิงก์ JAV321 ที่นี่..." 
+                        class="w-full bg-gray-50 py-2.5 px-3 focus:outline-none dark:bg-gray-700 dark:text-white text-base md:text-sm">
+                    <button onclick="handleUrlInput()" class="bg-gray-700 text-white px-4 active:bg-gray-900 hover:bg-gray-800 dark:bg-gray-600 font-bold text-sm transition-colors">
+                        Go
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="clearHistory()" class="hidden md:flex items-center text-orange-500 transition-colors bg-orange-50 dark:bg-gray-700 px-3 py-2 rounded-lg border border-orange-200 dark:border-gray-600 text-sm hover:bg-orange-100 whitespace-nowrap" title="ล้างประวัติการเข้าชม">
+                <i class="fas fa-trash-alt mr-2"></i> ล้างประวัติ
+            </button>
+        </div>
+
+        <!-- URL Bar -->
+        <div class="bg-gray-50 border-t border-gray-200 py-1.5 px-3 text-center dark:bg-gray-900 dark:border-gray-700 flex flex-col sm:flex-row justify-center items-center gap-1">
+            <span class="text-[10px] sm:text-[11px] uppercase font-bold text-gray-400">Current Link:</span>
+            <a href="#" id="display-active-url" target="_blank" class="text-[10px] sm:text-[11px] text-blue-500 hover:underline truncate max-w-full px-2">https://www.jav321.com/</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-3 py-5">
+        <!-- Control Bar -->
+        <div class="flex flex-row justify-between items-center mb-5 gap-2">
+            <nav class="flex text-xs md:text-sm text-gray-500 dark:text-gray-400 gap-1.5 items-center">
+                <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
+                <span id="status-text" class="font-bold text-gray-700 dark:text-gray-300">สแตนด์บาย</span>
+            </nav>
+            
+            <!-- Grid Size Controller -->
+            <div class="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-1 shadow-sm overflow-x-auto">
+                <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 px-1.5 border-r border-gray-200 dark:border-gray-700 mr-1 uppercase hidden sm:inline">ขนาด</span>
+                <button onclick="changeGridSize(2)" class="size-btn px-2 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-2">ใหญ่</button>
+                <button onclick="changeGridSize(4)" class="size-btn px-2 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-4">กลาง</button>
+                <button onclick="changeGridSize(6)" class="size-btn px-2 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-6">เล็ก</button>
+                <button onclick="changeGridSize(8)" class="size-btn px-2 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-8">จิ๋ว</button>
+            </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div id="gallery-grid" class="grid gap-3 md:gap-4">
+            <!-- ข้อมูลจะถูกโหลดที่นี่ -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="mt-8 mb-16 flex justify-center items-center gap-2 md:gap-4 hidden">
+            <button onclick="navPage(-1)" id="btn-prev" class="px-3 md:px-5 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm active:bg-gray-100 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 font-bold dark:text-white text-sm md:text-base">
+                <i class="fas fa-chevron-left md:mr-2"></i> <span class="hidden md:inline">ก่อนหน้า</span>
+            </button>
+            <span id="page-number" class="font-bold text-sm md:text-lg dark:text-white bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-lg">หน้า 1</span>
+            <button onclick="navPage(1)" id="btn-next" class="px-3 md:px-5 py-2.5 bg-primary text-white rounded-lg shadow-sm active:bg-red-800 hover:bg-red-700 font-bold text-sm md:text-base">
+                <span class="hidden md:inline">ถัดไป</span> <i class="fas fa-chevron-right md:ml-2"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-0 md:p-4 transition-opacity duration-300">
+        <button onclick="closeModal()" class="absolute top-3 right-3 md:top-6 md:right-6 bg-black/60 md:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl z-[110] hover:bg-red-500 active:bg-red-600 transition-colors shadow-lg backdrop-blur-sm border border-gray-600">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="bg-white dark:bg-gray-800 w-full h-[100dvh] md:max-w-6xl md:h-[90vh] md:rounded-xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative modal-mobile-scroll">
+            
+            <div id="modal-images" class="w-full md:w-2/3 h-auto md:h-full md:overflow-y-auto p-3 md:p-5 bg-gray-100 dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">
+            </div>
+
+            <div class="w-full md:w-1/3 p-4 md:p-6 h-auto md:h-full md:overflow-y-auto flex flex-col bg-white dark:bg-gray-800">
+                <span id="m-id" class="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold w-fit mb-3 shadow-sm tracking-wide"></span>
+                <h2 id="m-title" class="font-bold text-base md:text-lg mb-4 dark:text-white leading-snug"></h2>
+                
+                <div class="text-xs md:text-sm space-y-3 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600">
+                    <p id="m-star"><strong><i class="fas fa-user-circle text-pink-500 mr-2 text-base"></i> นักแสดง:</strong> กำลังสแกน...</p>
+                    <p id="m-maker"><strong><i class="fas fa-building text-purple-500 mr-2 text-base"></i> ค่าย:</strong> กำลังสแกน...</p>
+                    <p id="m-count"><strong><i class="fas fa-images text-orange-500 mr-2 text-base"></i> จำนวนรูป:</strong> กำลังสแกน...</p>
+                </div>
+                
+                <button onclick="downloadAll()" id="btn-dl" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-red-700 active:bg-red-800 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 transition-colors text-sm md:text-base">
+                    <i class="fas fa-file-archive text-lg"></i> ดาวน์โหลดรูปภาพทั้งหมด
+                </button>
+                <div id="dl-status" class="text-xs text-center mt-3 text-gray-500 dark:text-gray-400 hidden font-semibold">กำลังประมวลผล...</div>
+                
+                <div class="pb-10 md:pb-0"></div> 
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUrl = "https://www.jav321.com/";
+        let currentPage = 1;
+        const TARGET_URL = 'https://www.jav321.com/';
+
+        // --- Theme System ---
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI();
+        }
+
+        function updateThemeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('theme-icon');
+            if (isDark) icon.className = 'fas fa-sun text-yellow-400 text-[1.2rem]';
+            else icon.className = 'fas fa-moon text-gray-600 text-[1.2rem]';
+        }
+        updateThemeUI();
+
+        // --- Layout Grid System ---
+        function changeGridSize(cols) {
+            const grid = document.getElementById('gallery-grid');
+            grid.className = 'grid gap-3 md:gap-4'; 
+            
+            if (cols === 2) grid.classList.add('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4');
+            else if (cols === 4) grid.classList.add('grid-cols-2', 'sm:grid-cols-3', 'md:grid-cols-4', 'lg:grid-cols-5');
+            else if (cols === 6) grid.classList.add('grid-cols-3', 'sm:grid-cols-4', 'md:grid-cols-6', 'lg:grid-cols-7');
+            else if (cols === 8) grid.classList.add('grid-cols-4', 'sm:grid-cols-5', 'md:grid-cols-7', 'lg:grid-cols-9');
+            
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active', 'bg-gray-200', 'dark:bg-gray-600'));
+            const activeBtn = document.getElementById(`btn-grid-${cols}`);
+            if(activeBtn) activeBtn.classList.add('active', 'bg-gray-200', 'dark:bg-gray-600');
+        }
+
+        // --- 🚀 FAST Fetch System (Racing) ---
+        async function fetchHtml(url) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000); 
+            
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`
+            ];
+
+            try {
+                const promises = proxies.map(pUrl => 
+                    fetch(pUrl, { signal: controller.signal }).then(res => {
+                        if (!res.ok) throw new Error('Proxy failed');
+                        return res.text();
+                    })
+                );
+
+                const htmlContent = await Promise.any(promises);
+                clearTimeout(timeoutId);
+                return htmlContent;
+            } catch (e) {
+                clearTimeout(timeoutId);
+                throw new Error("All proxies failed or timeout.");
+            }
+        }
+
+        function getRobustImgTag(url, classNames) {
+            if (!url) return `<img src="https://placehold.co/400x600?text=No+Image" class="${classNames}">`;
+            const pList = [
+                url, 
+                `https://wsrv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}`, 
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+            ];
+            const firstSrc = pList.shift();
+            const fallback = `https://placehold.co/400x600?text=Blocked`;
+            const pStr = JSON.stringify(pList).replace(/'/g, "\\'");
+            const onErrorHandler = `try{let p=JSON.parse(this.getAttribute('data-p'));if(p.length>0){this.src=p.shift();this.setAttribute('data-p',JSON.stringify(p));}else{this.onerror=null;this.src='${fallback}';}}catch(e){this.onerror=null;this.src='${fallback}';}`;
+            
+            return `<img src="${firstSrc}" data-p='${pStr}' referrerpolicy="no-referrer" class="${classNames}" loading="lazy" decoding="async" onerror="${onErrorHandler}">`;
+        }
+
+        // --- Main Grid Data ---
+        async function loadPage(url) {
+            currentUrl = url;
+            document.getElementById('display-active-url').innerText = url;
+            document.getElementById('display-active-url').href = url;
+            
+            const pageMatch = url.match(/\/(\d+)\/?$/);
+            if (pageMatch && !url.includes('/video/')) {
+                currentPage = parseInt(pageMatch[1]);
+                document.getElementById('pagination').classList.remove('hidden');
+                document.getElementById('page-number').innerText = `หน้า ${currentPage}`;
+                document.getElementById('btn-prev').disabled = (currentPage <= 1);
+            } else {
+                document.getElementById('pagination').classList.add('hidden');
+            }
+
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-bolt fa-spin text-4xl text-primary mb-3"></i><br><span class="text-sm font-bold text-gray-500 dark:text-gray-400">กำลังสแกนและโหลดข้อมูลด้วยความเร็วสูง...</span></div>';
+
+            try {
+                const html = await fetchHtml(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const items = [];
+                const seen = new Set();
+
+                doc.querySelectorAll('a').forEach(a => {
+                    const img = a.querySelector('img');
+                    if (!img) return;
+                    let src = img.getAttribute('data-original') || img.src;
+                    let title = img.alt || a.innerText.trim();
+                    let href = a.href;
+                    if (href && !href.startsWith('http')) href = new URL(href, TARGET_URL).href;
+                    
+                    if (src.includes('logo') || src.includes('banner')) return;
+                    
+                    const idMatch = title.match(/[A-Z0-9]{2,8}-?[0-9]{2,6}/i);
+                    const id = idMatch ? idMatch[0].toUpperCase() : null;
+
+                    if (id && !seen.has(id)) {
+                        seen.add(id);
+                        items.push({ id, title, thumb: src, url: href });
+                    }
+                });
+
+                if(items.length === 0) throw new Error("No items found");
+                
+                grid.innerHTML = items.map(item => `
+                    <div class="gallery-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm cursor-pointer border border-transparent dark:border-gray-700" onclick="openModal('${item.id}', '${item.url}', '${item.thumb}', '${item.title.replace(/'/g, "\\'")}')">
+                        <div class="bg-gray-200 dark:bg-gray-700 relative pb-[150%]">
+                            <div class="absolute inset-0">
+                                ${getRobustImgTag(item.thumb, "w-full h-full object-cover")}
+                            </div>
+                        </div>
+                        <div class="p-2.5 md:p-3">
+                            <div class="text-[10px] md:text-xs font-bold text-red-500 mb-0.5 md:mb-1">${item.id}</div>
+                            <div class="text-[11px] md:text-[12px] line-clamp-2 dark:text-gray-200 font-medium leading-tight">${item.title}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-500"><i class="fas fa-exclamation-triangle text-3xl mb-2"></i><br>โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div>';
+            }
+        }
+
+        function navPage(direction) {
+            const pageMatch = currentUrl.match(/\/(\d+)\/?$/);
+            if (pageMatch) {
+                let newPage = parseInt(pageMatch[1]) + direction;
+                if (newPage < 1) newPage = 1;
+                const newUrl = currentUrl.replace(/\/\d+\/?$/, `/${newPage}`);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                loadPage(newUrl);
+            }
+        }
+
+        function goHome() { 
+            document.getElementById('search-input').value = '';
+            document.getElementById('url-input').value = '';
+            changeGridSize(6); 
+            loadPage(TARGET_URL); 
+        }
+        function loadLatest() { 
+            changeGridSize(6); 
+            loadPage(`${TARGET_URL}list/release_date/1`); 
+        }
+        function handleUrlInput() { 
+            const v = document.getElementById('url-input').value.trim(); 
+            if(v) { document.getElementById('url-input').blur(); loadPage(v.startsWith('http') ? v : 'https://'+v); }
+        }
+        function handleSearch() { 
+            const v = document.getElementById('search-input').value.trim(); 
+            if(v) { document.getElementById('search-input').blur(); loadPage(`${TARGET_URL}search?sn=${encodeURIComponent(v)}`); }
+        }
+
+        // --- History ---
+        function getVisitedHistory() { try { return JSON.parse(localStorage.getItem('javGalleryVisited')) || []; } catch (e) { return []; } }
+        function markAsVisited(id) {
+            const history = getVisitedHistory();
+            if (!history.includes(id)) {
+                history.push(id);
+                localStorage.setItem('javGalleryVisited', JSON.stringify(history));
+            }
+        }
+        function clearHistory() { if(confirm('คุณต้องการล้างประวัติการเข้าชมทั้งหมดหรือไม่?')) { localStorage.removeItem('javGalleryVisited'); location.reload(); } }
+
+        // --- Modal & High-Res Snapshot Logic ---
+        let currentImages = [];
+        
+        async function openModal(id, url, thumbUrl, title) {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; 
+            
+            document.getElementById('m-id').innerText = id;
+            document.getElementById('m-title').innerText = title || id;
+            document.getElementById('m-star').innerHTML = `<strong><i class="fas fa-user-circle text-pink-500 mr-2"></i> นักแสดง:</strong> กำลังสแกน...`;
+            document.getElementById('m-maker').innerHTML = `<strong><i class="fas fa-building text-purple-500 mr-2"></i> ค่าย:</strong> กำลังสแกน...`;
+            document.getElementById('m-count').innerHTML = `<strong><i class="fas fa-images text-orange-500 mr-2"></i> จำนวนรูป:</strong> โหลด...`;
+            document.getElementById('btn-dl').disabled = true;
+            
+            markAsVisited(id);
+
+            let highResCover = thumbUrl;
+            if(highResCover) highResCover = highResCover.replace('sn.jpg', 'pl.jpg').replace('-thumb.jpg', '.jpg').replace('ps.jpg', 'pl.jpg');
+            currentImages = [highResCover]; 
+            renderModalImages(currentImages);
+
+            try {
+                // Racing fetch HTML สำหรับเปิด Modal
+                const html = await fetchHtml(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                
+                const stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/star/"]')).map(a => `<a href="#" onclick="triggerDirectSearch('${a.innerText.trim()}', '${a.href}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${a.innerText.trim()}</a>`).filter(Boolean))];
+                const makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/company/"]')).map(a => `<a href="#" onclick="triggerDirectSearch('${a.innerText.trim()}', '${a.href}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${a.innerText.trim()}</a>`).filter(Boolean))];
+                
+                document.getElementById('m-star').innerHTML = `<strong><i class="fas fa-user-circle text-pink-500 mr-2"></i> นักแสดง:</strong> ${stars.length ? stars.join(', ') : '<span class="text-gray-400">-</span>'}`;
+                document.getElementById('m-maker').innerHTML = `<strong><i class="fas fa-building text-purple-500 mr-2"></i> ค่าย:</strong> ${makers.length ? makers.join(', ') : '<span class="text-gray-400">-</span>'}`;
+
+                // --- อัลกอริทึมสแกนรูปภาพ Scene ความคมชัดสูงแบบดั้งเดิม ---
+                const snapshotSet = new Set();
+                snapshotSet.add(highResCover); // เก็บปกใหญ่เป็นรูปที่ 1 เสมอ
+
+                // 1. วิธีหลัก: หาจากลิงก์แกลเลอรีภาพเนื้อเรื่องโดยตรง (แท็ก a ที่มี /snapshot/)
+                const snapshotLinks = doc.querySelectorAll('a[href*="/snapshot/"]');
+                snapshotLinks.forEach(a => {
+                    const innerImg = a.querySelector('img');
+                    let targetUrl = innerImg ? (innerImg.getAttribute('data-original') || innerImg.getAttribute('data-src') || innerImg.getAttribute('src')) : a.getAttribute('href');
+                    
+                    if (targetUrl) {
+                        let absoluteS = targetUrl.startsWith('http') ? targetUrl : new URL(targetUrl, TARGET_URL).href;
+                        // สูตรบังคับขยายภาพ DMM เป็นขนาดคมชัดสูงสุด 
+                        absoluteS = absoluteS.replace('sn.jpg', 'pl.jpg')
+                                             .replace('ps.jpg', 'pl.jpg')
+                                             .replace('-thumb.jpg', '.jpg')
+                                             .replace(/(\d+)t\.jpg/i, '$1.jpg'); // แก้พวก -1t.jpg เป็น -1.jpg
+                        snapshotSet.add(absoluteS);
+                    }
+                });
+
+                // 2. ท่าสำรอง: กรณีหาแท็ก <a> ของ snapshot ไม่เจอ ให้กวาดภาพทั้งหมดที่ดูเหมือน Scene
+                if (snapshotSet.size <= 1) {
+                    doc.querySelectorAll('img').forEach(img => {
+                        let s = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
+                        if (s && !s.includes('logo') && !s.includes('banner') && !s.includes('avatar') && !s.includes('blank')) {
+                            // เลือกเฉพาะรูปที่มาจาก DMM หรือมีแพทเทิร์นเป็นไฟล์ภาพ Scene
+                            if (s.includes('pics.dmm.co.jp') || s.includes('snapshot') || s.match(/-\d+\.jpg/i) || s.match(/-\d+t\.jpg/i)) {
+                                let absoluteS = s.startsWith('http') ? s : new URL(s, TARGET_URL).href;
+                                absoluteS = absoluteS.replace('sn.jpg', 'pl.jpg')
+                                                     .replace('ps.jpg', 'pl.jpg')
+                                                     .replace('-thumb.jpg', '.jpg')
+                                                     .replace(/(\d+)t\.jpg/i, '$1.jpg');
+                                snapshotSet.add(absoluteS);
+                            }
+                        }
+                    });
+                }
+
+                currentImages = Array.from(snapshotSet);
+                document.getElementById('m-count').innerHTML = `<strong><i class="fas fa-images text-orange-500 mr-2"></i> จำนวนรูป:</strong> <span class="text-gray-800 dark:text-gray-200 font-bold">${currentImages.length}</span> รูป`;
+                renderModalImages(currentImages);
+                document.getElementById('btn-dl').disabled = false;
+
+            } catch(e) {
+                console.warn("Failed to fetch detail page", e);
+                document.getElementById('m-count').innerHTML = `<strong><i class="fas fa-images text-orange-500 mr-2"></i> จำนวนรูป:</strong> <span class="text-red-500 text-xs">โหลด Snapshot ไม่สำเร็จ</span>`;
+                document.getElementById('btn-dl').disabled = false;
+            }
+        }
+
+        function triggerDirectSearch(name, url) {
+            closeModal();
+            let safeUrl = url;
+            if(!safeUrl.startsWith('http')) safeUrl = new URL(url, TARGET_URL).href;
+            loadPage(safeUrl);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderModalImages(images) {
+            const imgDiv = document.getElementById('modal-images');
+            imgDiv.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 pb-4 md:pb-10">' + 
+                images.map((src, i) => `
+                    <div class="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm ${i === 0 ? 'sm:col-span-2 bg-black' : 'bg-gray-100 dark:bg-gray-800'}">
+                        ${getRobustImgTag(src, `w-full h-auto object-contain ${i === 0 ? 'max-h-[50vh] md:max-h-[600px]' : ''}`)}
+                        <span class="absolute top-2 left-2 bg-black/70 text-white text-[9px] md:text-[10px] px-2 py-1 rounded font-bold">
+                            ${i === 0 ? 'COVER' : 'SCENE #'+i}
+                        </span>
+                    </div>
+                `).join('') + '</div>';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        // --- Download System ---
+        async function downloadAll() {
+            if (!currentImages.length) return;
+            const btn = document.getElementById('btn-dl');
+            const status = document.getElementById('dl-status');
+            const zip = new JSZip();
+            const id = document.getElementById('m-id').innerText;
+            
+            btn.disabled = true;
+            status.classList.remove('hidden');
+            status.innerHTML = `<i class="fas fa-circle-notch fa-spin text-primary mr-1"></i> กำลังดึงรูปภาพ (0/${currentImages.length})...`;
+            
+            try {
+                for (let i = 0; i < currentImages.length; i++) {
+                    status.innerHTML = `<i class="fas fa-circle-notch fa-spin text-primary mr-1"></i> กำลังโหลด (${i+1}/${currentImages.length})...`;
+                    const resp = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(currentImages[i])}`);
+                    const blob = await resp.blob();
+                    zip.file(`${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`, blob);
+                }
+                
+                status.innerHTML = `<i class="fas fa-cog fa-spin text-primary mr-1"></i> กำลังสร้างไฟล์ ZIP...`;
+                const content = await zip.generateAsync({type:"blob"});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `${id}_Gallery.zip`;
+                link.click();
+                status.innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i> ดาวน์โหลดเสร็จสิ้น!`;
+            } catch(e) {
+                status.innerHTML = `<i class="fas fa-times-circle text-red-500 mr-1"></i> เกิดข้อผิดพลาดในการโหลดรูป`;
+                alert('เกิดข้อผิดพลาด: เซิร์ฟเวอร์ต้นทางบล็อกการดาวน์โหลดภาพ');
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    status.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('search-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') handleSearch(); });
+        document.getElementById('url-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') handleUrlInput(); });
+
+        // Start
+        window.onload = () => {
+            changeGridSize(6);
+            loadLatest();
+        };
+    </script>
+</body>
+</html>

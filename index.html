@@ -21,7 +21,8 @@
         }
     </script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- แก้ไขลิงก์ Font Awesome ใช้ jsdelivr เพื่อความเสถียรบน GitHub Pages -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <style>
@@ -126,7 +127,7 @@
         </div>
     </main>
 
-    <!-- Modal (Responsive: Fullscreen on mobile, Popup on Desktop) -->
+    <!-- Modal -->
     <div id="modal" class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-0 md:p-4 transition-opacity duration-300">
         <button onclick="closeModal()" class="absolute top-3 right-3 md:top-6 md:right-6 bg-black/60 md:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl z-[110] hover:bg-red-500 active:bg-red-600 transition-colors shadow-lg backdrop-blur-sm border border-gray-600">
             <i class="fas fa-times"></i>
@@ -200,30 +201,42 @@
             if(activeBtn) activeBtn.classList.add('active', 'bg-gray-200', 'dark:bg-gray-600');
         }
 
+        // --- URL Resolver ---
+        function resolveUrl(path) {
+            if (!path) return '';
+            if (path.startsWith('http')) return path;
+            if (path.startsWith('//')) return 'https:' + path;
+            if (path.startsWith('/')) return TARGET_URL.replace(/\/$/, '') + path;
+            return TARGET_URL.replace(/\/$/, '') + '/' + path;
+        }
+
         // --- 🚀 FAST Fetch System (Anti-Cloudflare & Anti-Cache) ---
         async function fetchHtml(url) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000); // เผื่อเวลาให้ Proxy 12 วิ
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 วินาที
             
-            // ใส่ Cache Buster ป้องกัน Proxy จำหน้า Error ของ Cloudflare มาเสิร์ฟซ้ำ
-            const cleanUrl = url.split('#')[0];
-            const urlWithCb = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'cb=' + new Date().getTime();
+            // เอาพารามิเตอร์แปลกปลอมออก ป้องกัน Cloudflare บล็อกเมื่อรันบน GitHub Pages
+            const targetUrl = url.split('#')[0];
 
             const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(urlWithCb)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(urlWithCb)}`,
-                `https://corsproxy.io/?${encodeURIComponent(urlWithCb)}`
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
             ];
 
             try {
                 const promises = proxies.map(pUrl => 
-                    fetch(pUrl, { signal: controller.signal, headers: { 'Cache-Control': 'no-cache' } }).then(async res => {
+                    // เอา header cache-control ออก ป้องกันปัญหา CORS Preflight บน Host ฟรี
+                    fetch(pUrl, { signal: controller.signal }).then(async res => {
                         if (!res.ok) throw new Error('Proxy HTTP Error');
                         const text = await res.text();
                         
-                        // 🛡️ ป้องกันระบบรับเอาหน้าบล็อกของ Cloudflare มาแสดง (ซึ่งจะทำให้สแกนรูปไม่เจอ)
-                        if (text.includes('Just a moment...') || text.includes('cf-browser-verification') || text.length < 2000) {
+                        // ดักจับหน้าจอโหลดของ Cloudflare
+                        if (text.includes('Just a moment...') || text.includes('cf-browser-verification') || text.includes('DDoS protection by Cloudflare')) {
                             throw new Error('Blocked by Cloudflare');
+                        }
+                        if (text.length < 1000) {
+                            throw new Error('Response too short');
                         }
                         return text;
                     })
@@ -234,11 +247,22 @@
                 return htmlContent;
             } catch (e) {
                 clearTimeout(timeoutId);
+                
+                // ระบบสำรองขั้นสุดท้าย: เจาะผ่าน JSON Endpoint ของ AllOrigins
+                try {
+                    console.warn("Racing failed, trying JSON fallback...");
+                    const fallbackRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+                    const fallbackData = await fallbackRes.json();
+                    if (fallbackData && fallbackData.contents && !fallbackData.contents.includes('Just a moment...')) {
+                        return fallbackData.contents;
+                    }
+                } catch(fallbackErr) {}
+
                 throw new Error("All proxies failed or blocked by Cloudflare.");
             }
         }
 
-        // Robust Image loader to bypass blocks
+        // Robust Image loader
         function getRobustImgTag(url, classNames) {
             if (!url) return `<div class="${classNames} bg-gray-300 flex items-center justify-center text-xs">No Image</div>`;
             const pList = [
@@ -271,7 +295,7 @@
             }
 
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-bolt fa-spin text-4xl text-primary mb-3"></i><br><span class="text-sm font-bold text-gray-500 dark:text-gray-400">กำลังดึงข้อมูลและหลบหลีก Cloudflare...</span></div>';
+            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-bolt fa-spin text-4xl text-primary mb-3"></i><br><span class="text-sm font-bold text-gray-500 dark:text-gray-400">กำลังเชื่อมต่อข้อมูล...</span></div>';
 
             try {
                 const html = await fetchHtml(url);
@@ -282,12 +306,15 @@
                 doc.querySelectorAll('a').forEach(a => {
                     const img = a.querySelector('img');
                     if (!img) return;
-                    let src = img.getAttribute('data-original') || img.src;
-                    let title = img.alt || a.innerText.trim();
-                    let href = a.href;
-                    if (href && !href.startsWith('http')) href = new URL(href, TARGET_URL).href;
                     
-                    if (src.includes('logo') || src.includes('banner')) return;
+                    let rawSrc = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
+                    if (!rawSrc || rawSrc.includes('logo') || rawSrc.includes('banner')) return;
+                    
+                    let src = resolveUrl(rawSrc);
+                    let title = img.getAttribute('title') || img.getAttribute('alt') || a.innerText.trim() || 'Untitled';
+                    
+                    let rawHref = a.getAttribute('href');
+                    let href = resolveUrl(rawHref);
                     
                     const idMatch = title.match(/[A-Z0-9]{2,8}-?[0-9]{2,6}/i);
                     const id = idMatch ? idMatch[0].toUpperCase() : null;
@@ -350,8 +377,7 @@
         }
         function triggerDirectSearch(name, url) {
             closeModal();
-            let safeUrl = url;
-            if(!safeUrl.startsWith('http')) safeUrl = new URL(url, TARGET_URL).href;
+            let safeUrl = resolveUrl(url);
             loadPage(safeUrl);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -384,7 +410,6 @@
             
             markAsVisited(id);
 
-            // แสดงหน้าปกภาพใหญ่ก่อนทันที (Instant UI)
             let highResCover = thumbUrl;
             if(highResCover) highResCover = highResCover.replace('sn.jpg', 'pl.jpg').replace('-thumb.jpg', '.jpg').replace('ps.jpg', 'pl.jpg');
             currentImages = [highResCover]; 
@@ -394,50 +419,45 @@
                 const html = await fetchHtml(url);
                 const doc = new DOMParser().parseFromString(html, 'text/html');
                 
-                // กู้คืนระบบสร้างลิงก์ (Clickable Links) ให้นักแสดงและค่าย
                 const stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/star/"]')).map(a => {
                     let name = a.innerText.trim();
-                    let href = a.getAttribute('href');
+                    let href = resolveUrl(a.getAttribute('href'));
                     return name ? `<a href="#" onclick="triggerDirectSearch('${name.replace(/'/g, "\\'")}', '${href}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${name}</a>` : null;
                 }).filter(Boolean))];
                 
                 const makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/company/"]')).map(a => {
                     let name = a.innerText.trim();
-                    let href = a.getAttribute('href');
+                    let href = resolveUrl(a.getAttribute('href'));
                     return name ? `<a href="#" onclick="triggerDirectSearch('${name.replace(/'/g, "\\'")}', '${href}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${name}</a>` : null;
                 }).filter(Boolean))];
                 
                 document.getElementById('m-star').innerHTML = `<strong><i class="fas fa-user-circle text-pink-500 mr-2 text-base"></i> นักแสดง:</strong> ${stars.length ? stars.join(', ') : '<span class="text-gray-400">-</span>'}`;
                 document.getElementById('m-maker').innerHTML = `<strong><i class="fas fa-building text-purple-500 mr-2 text-base"></i> ค่าย:</strong> ${makers.length ? makers.join(', ') : '<span class="text-gray-400">-</span>'}`;
 
-                // อัลกอริทึมสแกนภาพ Snapshot ฉบับสมบูรณ์ (ดึงทุกซอกทุกมุม)
                 const snapshotSet = new Set();
                 snapshotSet.add(highResCover);
 
-                // ท่า 1: กวาดจากลิงก์ /snapshot/ โดยตรง
                 doc.querySelectorAll('a[href*="/snapshot/"]').forEach(a => {
-                    let s = a.getAttribute('href');
+                    let rawS = a.getAttribute('href');
+                    let s = resolveUrl(rawS);
                     let img = a.querySelector('img');
                     if (img) {
-                        let imgSrc = img.getAttribute('data-original') || img.getAttribute('data-src') || img.src;
-                        if (imgSrc && !imgSrc.includes('logo')) s = imgSrc;
+                        let rawImgSrc = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
+                        if (rawImgSrc && !rawImgSrc.includes('logo')) s = resolveUrl(rawImgSrc);
                     }
                     if (s) {
-                        if (!s.startsWith('http')) s = new URL(s, TARGET_URL).href;
-                        // บังคับแปลงไฟล์เล็กเป็นไฟล์ DMM Original
                         let large = s.replace(/(\d+)t\.jpg/i, '$1.jpg').replace('sn.jpg', 'pl.jpg').replace('ps.jpg', 'pl.jpg').replace('-thumb.jpg', '.jpg');
                         snapshotSet.add(large);
                     }
                 });
 
-                // ท่า 2: กวาดจาก img ทั้งหน้า เผื่อเว็บใช้วิธีซ่อน
                 if (snapshotSet.size <= 1) {
                     doc.querySelectorAll('img').forEach(img => {
-                        let s = img.getAttribute('data-original') || img.getAttribute('data-src') || img.src;
-                        if (!s || s.includes('logo') || s.includes('avatar') || s.includes('banner') || s.includes('now_printing')) return;
+                        let rawS = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
+                        if (!rawS || rawS.includes('logo') || rawS.includes('avatar') || rawS.includes('banner') || rawS.includes('now_printing')) return;
                         
+                        let s = resolveUrl(rawS);
                         if (s.includes('pics.dmm.co.jp') || s.includes('/snapshot/') || s.match(/-\d+\.jpg/i) || s.match(/-\d+t\.jpg/i) || s.includes('jp-')) {
-                            if (!s.startsWith('http')) s = new URL(s, TARGET_URL).href;
                             let large = s.replace(/(\d+)t\.jpg/i, '$1.jpg').replace('sn.jpg', 'pl.jpg').replace('ps.jpg', 'pl.jpg').replace('-thumb.jpg', '.jpg');
                             snapshotSet.add(large);
                         }
@@ -460,7 +480,6 @@
             }
         }
 
-        // Layout จัดเรียงรูปใน Modal (Cover รูปแรกใหญ่สุด + Snapshot 2 คอลัมน์)
         function renderModalImages(images, id) {
             const container = document.getElementById('modal-images');
             container.innerHTML = `
@@ -473,12 +492,10 @@
                             
                             ${getRobustImgTag(src, `w-full h-auto object-contain block ${i === 0 ? 'max-h-[50vh] md:max-h-[600px]' : ''}`)}
                             
-                            <!-- ปุ่มโหลดมือถือ (มุมล่างขวา) -->
                             <button onclick="event.stopPropagation(); downloadSingleImage('${src}', '${id}_${i === 0 ? 'cover' : i}.jpg')" class="absolute bottom-2 right-2 md:hidden bg-primary/90 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg z-30 active:scale-90 transition-transform">
                                 <i class="fas fa-download"></i>
                             </button>
                             
-                            <!-- ปุ่มโหลด Desktop (Hover) -->
                             <div class="hidden md:flex absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center z-20">
                                 <button onclick="event.stopPropagation(); downloadSingleImage('${src}', '${id}_${i === 0 ? 'cover' : i}.jpg')" class="bg-[#e74c3c] text-white px-5 py-2.5 rounded-full font-bold shadow-lg transform scale-90 group-hover:scale-105 transition-transform">
                                     <i class="fas fa-download mr-1"></i> โหลดรูปนี้
@@ -539,7 +556,7 @@
                 const filename = `${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`;
                 btn.innerHTML = `<i class="fas fa-spinner fa-spin text-lg"></i> โหลดไฟล์ที่ ${i+1}/${currentImages.length}`;
                 await downloadSingleImage(currentImages[i], filename);
-                await new Promise(r => setTimeout(r, 600)); // หน่วงเวลาป้องกันเบราว์เซอร์มองว่าเป็นสแปม
+                await new Promise(r => setTimeout(r, 600)); 
             }
             
             btn.innerHTML = `<i class="fas fa-check-circle text-lg"></i> โหลดเสร็จสิ้น!`;

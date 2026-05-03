@@ -200,22 +200,32 @@
             if(activeBtn) activeBtn.classList.add('active', 'bg-gray-200', 'dark:bg-gray-600');
         }
 
-        // --- 🚀 FAST Fetch System (Promise.any Racing) ---
+        // --- 🚀 FAST Fetch System (Anti-Cloudflare & Anti-Cache) ---
         async function fetchHtml(url) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); 
+            const timeoutId = setTimeout(() => controller.abort(), 12000); // เผื่อเวลาให้ Proxy 12 วิ
             
+            // ใส่ Cache Buster ป้องกัน Proxy จำหน้า Error ของ Cloudflare มาเสิร์ฟซ้ำ
+            const cleanUrl = url.split('#')[0];
+            const urlWithCb = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'cb=' + new Date().getTime();
+
             const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-                `https://corsproxy.io/?${encodeURIComponent(url)}`
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(urlWithCb)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(urlWithCb)}`,
+                `https://corsproxy.io/?${encodeURIComponent(urlWithCb)}`
             ];
 
             try {
                 const promises = proxies.map(pUrl => 
-                    fetch(pUrl, { signal: controller.signal }).then(res => {
-                        if (!res.ok) throw new Error('Proxy failed');
-                        return res.text();
+                    fetch(pUrl, { signal: controller.signal, headers: { 'Cache-Control': 'no-cache' } }).then(async res => {
+                        if (!res.ok) throw new Error('Proxy HTTP Error');
+                        const text = await res.text();
+                        
+                        // 🛡️ ป้องกันระบบรับเอาหน้าบล็อกของ Cloudflare มาแสดง (ซึ่งจะทำให้สแกนรูปไม่เจอ)
+                        if (text.includes('Just a moment...') || text.includes('cf-browser-verification') || text.length < 2000) {
+                            throw new Error('Blocked by Cloudflare');
+                        }
+                        return text;
                     })
                 );
 
@@ -224,7 +234,7 @@
                 return htmlContent;
             } catch (e) {
                 clearTimeout(timeoutId);
-                throw new Error("All proxies failed or timeout.");
+                throw new Error("All proxies failed or blocked by Cloudflare.");
             }
         }
 
@@ -261,7 +271,7 @@
             }
 
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-bolt fa-spin text-4xl text-primary mb-3"></i><br><span class="text-sm font-bold text-gray-500 dark:text-gray-400">กำลังสแกนและโหลดข้อมูลด้วยความเร็วสูง...</span></div>';
+            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-bolt fa-spin text-4xl text-primary mb-3"></i><br><span class="text-sm font-bold text-gray-500 dark:text-gray-400">กำลังดึงข้อมูลและหลบหลีก Cloudflare...</span></div>';
 
             try {
                 const html = await fetchHtml(url);
@@ -304,7 +314,7 @@
                     </div>
                 `).join('');
             } catch (e) {
-                grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-500"><i class="fas fa-exclamation-triangle text-3xl mb-2"></i><br>โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div>';
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-500"><i class="fas fa-exclamation-triangle text-3xl mb-2"></i><br>โหลดข้อมูลไม่สำเร็จ (เซิร์ฟเวอร์ปฏิเสธการเชื่อมต่อ)</div>';
             }
         }
 
@@ -444,7 +454,7 @@
 
             } catch(e) {
                 console.warn("Failed to fetch detail page", e);
-                document.getElementById('m-count').innerHTML = `<strong><i class="fas fa-images text-orange-500 mr-2 text-base"></i> จำนวนรูป:</strong> <span class="text-red-500 text-xs">โหลด Snapshot ไม่สำเร็จ</span>`;
+                document.getElementById('m-count').innerHTML = `<strong><i class="fas fa-images text-orange-500 mr-2 text-base"></i> จำนวนรูป:</strong> <span class="text-red-500 text-xs">ติดบล็อกบอทจากเซิร์ฟเวอร์ (ดึงได้เฉพาะหน้าปก)</span>`;
                 document.getElementById('btn-dl').disabled = false;
                 document.getElementById('btn-dl-individual').disabled = false;
             }

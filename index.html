@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="referrer" content="no-referrer">
-    <title>JAV321 & JVR Gallery Hub - Pro Edition</title>
+    <title>JAV321, JVR & JAVDatabase Gallery Hub - Pro Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght=300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
         .gallery-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         @media (hover: hover) {
@@ -68,14 +68,12 @@
                 </button>
             </div>
 
-            <!-- ฝั่งขวา: เปลี่ยนเป็นชุดปุ่มไอคอนสไตล์มินิมอล เพื่อประหยัดพื้นที่แสดงรูปสูงสุด -->
+            <!-- ฝั่งขวา: ปุ่มไอคอนควบคุมค้นหา วางลิงก์ และประวัติ -->
             <div class="flex items-center space-x-1.5 md:space-x-2">
-                <!-- ปุ่มเปิดป๊อปอัปช่องค้นหา -->
                 <button onclick="openSearchModal()" class="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all active:scale-90" title="เปิดช่องค้นหา">
                     <i class="fas fa-search text-base"></i>
                 </button>
                 
-                <!-- ปุ่มเปิดป๊อปอัปช่องวาง URL -->
                 <button onclick="openLinkInputModal()" class="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all active:scale-90" title="เปิดช่องวางลิงก์">
                     <i class="fas fa-link text-base"></i>
                 </button>
@@ -372,7 +370,6 @@
         let bookmarkList = [];
         let currentlyRenderedFavs = [];
 
-        // 🛡️ ป้องกัน SyntaxError จากชื่อเรื่องที่มีอักขระพิเศษทุกรูปแบบ
         function escapeQuotes(str) {
             return String(str || '')
                 .replace(/\\/g, '\\\\')
@@ -441,7 +438,12 @@
             if (val) {
                 closeSearchModal();
                 switchMainTab('home');
-                loadPage(`${TARGET_URL}search?sn=${encodeURIComponent(val)}`);
+                // หากใช้งานบนโดเมน JAVDatabase ให้ดึงผลลัพธ์ผ่าน Search Engine ของเว็บตรง
+                if (currentUrl.includes('javdatabase.com')) {
+                    loadPage(`https://www.javdatabase.com/?s=${encodeURIComponent(val)}`);
+                } else {
+                    loadPage(`${TARGET_URL}search?sn=${encodeURIComponent(val)}`);
+                }
             }
         }
 
@@ -521,7 +523,7 @@
             const targetUrl = url.split('#')[0];
 
             const proxies = [
-                targetUrl, // 🛡️ อนุญาตให้ดึงข้อมูลเว็บตรงทันที (ปลดล็อกความเร็วสูงสุด สำหรับผู้ใช้ที่เปลี่ยน DNS 8.8.8.8)
+                targetUrl, // อนุญาตให้ดึงข้อมูลเว็บตรงทันที (ปลดล็อกความเร็วสูงสุด สำหรับผู้ใช้ที่เปลี่ยน DNS 8.8.8.8)
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
                 `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
@@ -557,7 +559,6 @@
             }
         }
 
-        // 🛡️ ป้องกัน HTML Attribute Error จากการใช้เครื่องหมายคำพูดเดี่ยว
         function getRobustImgTag(url, classNames) {
             if (!url) return `<div class="${classNames} bg-gray-300 flex items-center justify-center text-xs">No Image</div>`;
             
@@ -569,8 +570,8 @@
 
             const pList = [
                 url, 
-                `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}`, 
-                `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`,
+                `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&cors=1`,
+                `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&cors=1`, 
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
             ];
@@ -602,13 +603,19 @@
             let showPagination = false;
             try {
                 let urlObj = new URL(url);
-                let isDetail = urlObj.pathname.includes('/video/') || urlObj.searchParams.has('id');
+                // เพิ่มเงื่อนไขเช็คหน้า Detail ของ JAVDatabase ด้วยโฟลเดอร์ /movies/
+                let isDetail = urlObj.pathname.includes('/video/') || urlObj.pathname.includes('/movies/') || urlObj.searchParams.has('id');
                 
                 if (!isDetail) {
-                    if (urlObj.searchParams.has('page')) {
+                    // เพิ่มระบบสกัดหน้า Pagination สำหรับ JAVDatabase
+                    const javDbPageMatch = url.match(/\/page\/(\d+)\/?/);
+                    if (javDbPageMatch) {
+                        currentPage = parseInt(javDbPageMatch[1]);
+                        showPagination = true;
+                    } else if (urlObj.searchParams.has('page')) {
                         currentPage = parseInt(urlObj.searchParams.get('page')) || 1;
                         showPagination = true;
-                    } else if (urlObj.hostname.includes('jvrlibrary.com')) {
+                    } else if (urlObj.hostname.includes('jvrlibrary.com') || urlObj.hostname.includes('javdatabase.com')) {
                         currentPage = 1;
                         showPagination = true;
                     } else {
@@ -655,7 +662,15 @@
                     let href = resolveUrl(rawHref, url);
                     
                     const idMatch = title.match(/([a-zA-Z]{2,8}-?\d{2,6}|\d{2,4}[a-zA-Z]{2,8}-?\d{2,6}|fc2-?[a-zA-Z]+-?\d{2,7})/i);
-                    const id = idMatch ? idMatch[0].toUpperCase() : null;
+                    let id = idMatch ? idMatch[0].toUpperCase() : null;
+
+                    // ระบบสกัดรหัสหนังจาก JAVDatabase URL Path (กรณีที่ภาพไม่มี Alt Text อธิบายรหัส)
+                    if (!id && href.includes('/movies/')) {
+                        const pathMatch = href.match(/\/movies\/([a-zA-Z0-9-]+)\/?$/);
+                        if (pathMatch && pathMatch[1]) {
+                            id = pathMatch[1].toUpperCase();
+                        }
+                    }
 
                     if (id && !seen.has(id)) {
                         seen.add(id);
@@ -745,6 +760,24 @@
             try {
                 let urlObj = new URL(currentUrl);
                 
+                // อัปเกรดระบบนำทางเปลี่ยนหน้าสำหรับ JAVDatabase ที่ใช้โครงสร้าง /page/X/
+                if (urlObj.hostname.includes('javdatabase.com') || currentUrl.includes('/page/')) {
+                    let newPage = currentPage + direction;
+                    if (newPage < 1) newPage = 1;
+                    
+                    let newUrl = currentUrl;
+                    if (currentUrl.match(/\/page\/(\d+)\/?/)) {
+                        newUrl = currentUrl.replace(/\/page\/(\d+)\/?/, `/page/${newPage}/`);
+                    } else {
+                        const cleanPath = urlObj.pathname.endsWith('/') ? urlObj.pathname : urlObj.pathname + '/';
+                        urlObj.pathname = cleanPath + `page/${newPage}/`;
+                        newUrl = urlObj.toString();
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    loadPage(newUrl);
+                    return;
+                }
+
                 if (urlObj.hostname.includes('jvrlibrary.com') || urlObj.searchParams.has('page')) {
                     let newPage = parseInt(urlObj.searchParams.get('page') || "1") + direction;
                     if (newPage < 1) newPage = 1;
@@ -847,7 +880,6 @@
             }
         }
 
-        // ไปข้างหน้า
         function navigateHistoryForward() {
             if (historyIndex < historyStack.length - 1) {
                 isNavigatingHistory = true;
@@ -930,18 +962,18 @@
             let actionType = 'add';
             let title = "หน้าเว็บเป้าหมาย";
             
-            if (currentUrl.includes('/star/')) {
+            if (currentUrl.includes('/star/') || currentUrl.includes('/idols/')) {
                 const decoded = decodeURIComponent(currentUrl);
-                const match = decoded.match(/\/star\/([^\/]+)/);
-                if (match) title = `นักแสดง: ${match[1]}`;
-            } else if (currentUrl.includes('/company/')) {
+                const match = decoded.match(/\/(star|idols)\/([^\/]+)/);
+                if (match) title = `นักแสดง: ${match[2]}`;
+            } else if (currentUrl.includes('/company/') || currentUrl.includes('/studios/')) {
                 const decoded = decodeURIComponent(currentUrl);
-                const match = decoded.match(/\/company\/([^\/]+)/);
-                if (match) title = `ค่าย: ${match[1]}`;
-            } else if (currentUrl.includes('search?sn=')) {
+                const match = decoded.match(/\/(company|studios)\/([^\/]+)/);
+                if (match) title = `ค่าย: ${match[2]}`;
+            } else if (currentUrl.includes('search?sn=') || currentUrl.includes('?s=')) {
                 const decoded = decodeURIComponent(currentUrl);
-                const match = decoded.match(/sn=([^&]+)/);
-                if (match) title = `ค้นหารหัส: ${match[1]}`;
+                const match = decoded.match(/(sn|s)=([^&]+)/);
+                if (match) title = `ค้นหารหัส: ${match[2]}`;
             } else if (currentUrl === TARGET_URL || currentUrl === `${TARGET_URL}list/release_date/1`) {
                 title = "หน้าแรกอัพเดทล่าสุด";
             }
@@ -1450,80 +1482,109 @@
                 }
                 document.getElementById('m-id').innerText = scannedCode;
 
-                let stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/star/"], a[href*="/actress"], a[href*="/idol"], a[href*="actress="], a[href*="star="], a[href*="idol="], a[href*="/cast?"], a[href*="cast="]')).map(a => {
-                    let name = a.innerText.trim();
-                    if(a.querySelector('img') && !name) return null;
-                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                }).filter(Boolean))];
-                
-                if(stars.length === 0) {
-                    for(const el of allTextNodes) {
-                        if(el.innerText.trim().match(/^(Casts?|Cast|นักแสดง|出演者)\s*:/i)) {
-                            let parent = el.parentElement;
-                            if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
-                            if(parent) {
-                                const links = Array.from(parent.querySelectorAll('a')).map(a => {
-                                    let name = a.innerText.trim();
-                                    if(a.querySelector('img') && !name) return null;
-                                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                                }).filter(Boolean);
-                                if(links.length > 0) stars = [...new Set(links)];
+                let stars = [];
+                let genres = [];
+                let makers = [];
+
+                // หากเป้าหมายคือ JAVDatabase ให้ดึงข้อมูลนักแสดง ค่าย และประเภทตาม Selector โดเมนของเขา
+                if (itemUrl.includes('javdatabase.com')) {
+                    stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/idols/"]')).map(a => {
+                        let name = a.innerText.trim();
+                        if (!name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${name}</a>`;
+                    }).filter(Boolean))];
+
+                    genres = [...new Set(Array.from(doc.querySelectorAll('a[href*="/genres/"]')).map(a => {
+                        let name = a.innerText.trim();
+                        if (!name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">${name}</a>`;
+                    }).filter(Boolean))];
+
+                    makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/studios/"], a[href*="/label/"]')).map(a => {
+                        let name = a.innerText.trim();
+                        if (!name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${name}</a>`;
+                    }).filter(Boolean))];
+                } else {
+                    // รูปแบบมาตรฐานสำหรับ JAV321 และ JVR Library
+                    stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/star/"], a[href*="/actress"], a[href*="/idol"], a[href*="actress="], a[href*="star="], a[href*="idol="], a[href*="/cast?"], a[href*="cast="]')).map(a => {
+                        let name = a.innerText.trim();
+                        if(a.querySelector('img') && !name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                    }).filter(Boolean))];
+                    
+                    if(stars.length === 0) {
+                        for(const el of allTextNodes) {
+                            if(el.innerText.trim().match(/^(Casts?|Cast|นักแสดง|出演者)\s*:/i)) {
+                                let parent = el.parentElement;
+                                if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
+                                if(parent) {
+                                    const links = Array.from(parent.querySelectorAll('a')).map(a => {
+                                        let name = a.innerText.trim();
+                                        if(a.querySelector('img') && !name) return null;
+                                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                                    }).filter(Boolean);
+                                    if(links.length > 0) stars = [...new Set(links)];
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
-                }
 
-                let genres = [...new Set(Array.from(doc.querySelectorAll('a[href*="/genre/"], a[href*="/category/"], a[href*="genre="], a[href*="category="]')).map(a => {
-                    let name = a.innerText.trim();
-                    if(a.querySelector('img') && !name) return null;
-                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                }).filter(Boolean))];
+                    genres = [...new Set(Array.from(doc.querySelectorAll('a[href*="/genre/"], a[href*="/category/"], a[href*="genre="], a[href*="category="]')).map(a => {
+                        let name = a.innerText.trim();
+                        if(a.querySelector('img') && !name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                    }).filter(Boolean))];
 
-                if(genres.length === 0) {
-                    for(const el of allTextNodes) {
-                        if(el.innerText.trim().match(/^(Genres?|แนวหนัง|ジャンล)\s*:/i)) {
-                            let parent = el.parentElement;
-                            if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
-                            if(parent) {
-                                const links = Array.from(parent.querySelectorAll('a')).map(a => {
-                                    let name = a.innerText.trim();
-                                    if(a.querySelector('img') && !name) return null;
-                                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                                }).filter(Boolean);
-                                if(links.length > 0) genres = [...new Set(links)];
+                    if(genres.length === 0) {
+                        for(const el of allTextNodes) {
+                            if(el.innerText.trim().match(/^(Genres?|แนวหนัง|ジャンล)\s*:/i)) {
+                                let parent = el.parentElement;
+                                if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
+                                if(parent) {
+                                    const links = Array.from(parent.querySelectorAll('a')).map(a => {
+                                        let name = a.innerText.trim();
+                                        if(a.querySelector('img') && !name) return null;
+                                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                                    }).filter(Boolean);
+                                    if(links.length > 0) genres = [...new Set(links)];
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
-                }
 
-                let makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/company/"], a[href*="/maker"], a[href*="/studio"], a[href*="maker="], a[href*="company="], a[href*="studio="]')).map(a => {
-                    let name = a.innerText.trim();
-                    if(a.querySelector('img') && !name) return null;
-                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                }).filter(Boolean))];
-                
-                if(makers.length === 0) {
-                    for(const el of allTextNodes) {
-                        if(el.innerText.trim().match(/^(Maker|Studio|ค่าย|สตูดิโอ|メーカー)\s*:/i)) {
-                            let parent = el.parentElement;
-                            if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
-                            if(parent) {
-                                const links = Array.from(parent.querySelectorAll('a')).map(a => {
-                                    let name = a.innerText.trim();
-                                    if(a.querySelector('img') && !name) return null;
-                                    let href = resolveUrl(a.getAttribute('href'), itemUrl);
-                                    return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
-                                }).filter(Boolean);
-                                if(links.length > 0) makers = [...new Set(links)];
+                    makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/company/"], a[href*="/maker"], a[href*="/studio"], a[href*="maker="], a[href*="company="], a[href*="studio="]')).map(a => {
+                        let name = a.innerText.trim();
+                        if(a.querySelector('img') && !name) return null;
+                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                    }).filter(Boolean))];
+                    
+                    if(makers.length === 0) {
+                        for(const el of allTextNodes) {
+                            if(el.innerText.trim().match(/^(Maker|Studio|ค่าย|สตูดิโอ|メーカー)\s*:/i)) {
+                                let parent = el.parentElement;
+                                if(parent && parent.querySelectorAll('a').length === 0) parent = parent.parentElement;
+                                if(parent) {
+                                    const links = Array.from(parent.querySelectorAll('a')).map(a => {
+                                        let name = a.innerText.trim();
+                                        if(a.querySelector('img') && !name) return null;
+                                        let href = resolveUrl(a.getAttribute('href'), itemUrl);
+                                        return name && name.length < 40 ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(name)}', '${escapeQuotes(href)}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline font-semibold">${escapeQuotes(name)}</a>` : null;
+                                    }).filter(Boolean);
+                                    if(links.length > 0) makers = [...new Set(links)];
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                 }
@@ -1547,10 +1608,13 @@
                     let altText = (img.getAttribute('alt')||'').toLowerCase();
                     
                     let isCurrentMovie = false;
+                    // เพิ่มการจับคู่รหัสแบบสากล ไม่มีขีด '-' เช่น ssis123 เพื่อดึงภาพจาก JAVDatabase ได้อย่างแม่นยำ
+                    const cleanId = id.toLowerCase().replace('-', '');
                     if (idPrefix && idNum) {
                         if (s.toLowerCase().includes(idPrefix) && s.toLowerCase().includes(idNum)) isCurrentMovie = true;
+                        else if (s.toLowerCase().includes(cleanId)) isCurrentMovie = true;
                         else if (altText.includes(id.toLowerCase())) isCurrentMovie = true;
-                    } else if (s.toLowerCase().includes(id.toLowerCase()) || altText.includes(id.toLowerCase())) {
+                    } else if (s.toLowerCase().includes(id.toLowerCase()) || s.toLowerCase().includes(cleanId) || altText.includes(id.toLowerCase())) {
                         isCurrentMovie = true;
                     }
 
@@ -1773,9 +1837,11 @@
             }
         });
 
+        // 🚀 ปรับปรุงระบบคลาวด์ดาวน์โหลดรูปภาพสำรองและระบบสลอตแข่งขัน CORS (PRO Anti-Blocking Engine)
         async function fetchBlobRacing(url) {
             if (url.startsWith('//')) url = 'https:' + url;
             
+            // ปรับเส้นทาง Mirror ของ DMM ไปยังเซิร์ฟเวอร์หลักก่อนส่งเข้า Proxy
             if (url.includes('/static/digital/')) {
                 url = url.replace(/^.*\/static\/digital\//, 'https://pics.dmm.co.jp/digital/');
             }
@@ -1784,8 +1850,8 @@
             const controller = new AbortController();
             const signal = controller.signal;
             
+            // ขบวนทัพยิง Proxy และ CORS-Bypass แบบไม่มีการจำกัดชนิด Content-Type
             const proxies = [
-                url, // ลองเปิดรับตรงก่อนเผื่อไม่โดนบล็อก CORS
                 `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&cors=1`,
                 `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&cors=1`,
                 `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -1794,17 +1860,21 @@
             ];
             
             try {
+                // ตัวเชื่อมต่อที่ได้รูปเร็วกว่าและไม่จำกัด Content-Type จะชนะ
                 const blob = await Promise.any(proxies.map(pUrl => 
                     fetch(pUrl, { signal }).then(res => {
                         if (!res.ok) throw new Error('Proxy error');
-                        const contentType = res.headers.get('content-type');
-                        if (contentType && contentType.includes('text/html')) throw new Error('CORS block');
-                        return res.blob();
+                        return res.blob(); // อ่านข้อมูลดิบโดยไม่ตรวจสอบ headers เพื่อความเสถียรสูงสุด
                     })
                 ));
-                controller.abort(); 
+                controller.abort(); // ยกเลิก Proxy อื่น ๆ เพื่อประหยัดแบนด์วิดท์
                 return blob;
             } catch(e) {
+                // หาก Proxy บล็อกหมด ลองยิงดึงตรงเด้งหลบ CORS เผื่อเครื่องผู้ใช้หลุดบล็อก
+                try {
+                    const directRes = await fetch(url);
+                    if (directRes.ok) return await directRes.blob();
+                } catch(directErr) {}
                 throw new Error("PRO Download Engine - All proxies failed");
             }
         }
@@ -1841,20 +1911,24 @@
                     const item = currentlyRenderedFavs[i];
                     if (btn) btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> กำลังโหลด (${completed + 1}/${currentlyRenderedFavs.length})`;
                     
-                    const blob = await fetchBlobRacing(item.thumb);
-                    const filename = `${item.isSnapshot ? `scene_${item.parentId}_${item.snapshotIndex}` : `cover_${item.id}`}.jpg`;
+                    try {
+                        const blob = await fetchBlobRacing(item.thumb);
+                        const filename = `${item.isSnapshot ? `scene_${item.parentId}_${item.snapshotIndex}` : `cover_${item.id}`}.jpg`;
+                        
+                        const objUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = objUrl;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(objUrl), 100);
+                        completed++;
+                    } catch (err) {
+                        console.warn(`Failed downloading favorite image at index ${i}:`, err);
+                    }
                     
-                    const objUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = objUrl;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(() => URL.revokeObjectURL(objUrl), 100);
-                    
-                    completed++;
-                    await new Promise(r => setTimeout(r, 220)); 
+                    await new Promise(r => setTimeout(r, 250)); // เว้นจังหวะความเร็ว 250ms เพื่อหลบเลี่ยง Anti-Spam
                 }
                 
                 if (btn) btn.innerHTML = `<i class="fas fa-check-circle mr-1"></i> เสร็จสิ้น!`;
@@ -1889,12 +1963,16 @@
                     const item = currentlyRenderedFavs[i];
                     if (btn) btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-1"></i> ดึงภาพ (${completed + 1}/${currentlyRenderedFavs.length})...`;
                     
-                    const blob = await fetchBlobRacing(item.thumb);
-                    const filename = `${item.isSnapshot ? `scene_${item.parentId}_${item.snapshotIndex}` : `cover_${item.id}`}.jpg`;
-                    zip.file(filename, blob);
+                    try {
+                        const blob = await fetchBlobRacing(item.thumb);
+                        const filename = `${item.isSnapshot ? `scene_${item.parentId}_${item.snapshotIndex}` : `cover_${item.id}`}.jpg`;
+                        zip.file(filename, blob);
+                        completed++;
+                    } catch (err) {
+                        console.warn(`Failed pulling to ZIP at index ${i}:`, err);
+                    }
                     
-                    completed++;
-                    await new Promise(r => setTimeout(r, 180)); 
+                    await new Promise(r => setTimeout(r, 200)); 
                 }
                 
                 if (btn) btn.innerHTML = `<i class="fas fa-cog fa-spin mr-1"></i> กำลังสร้าง ZIP...`;
@@ -1938,19 +2016,23 @@
                     const url = currentImages[i];
                     btn.innerHTML = `<i class="fas fa-spinner fa-spin text-lg"></i> ดึงภาพที่ (${completed + 1}/${currentImages.length})`;
                     
-                    const blob = await fetchBlobRacing(url);
-                    const filename = `${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`;
+                    try {
+                        const blob = await fetchBlobRacing(url);
+                        const filename = `${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`;
+                        
+                        const objUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = objUrl;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(objUrl), 100);
+                        completed++;
+                    } catch (err) {
+                        console.warn(`Failed single download inside modal index ${i}:`, err);
+                    }
                     
-                    const objUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = objUrl;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(() => URL.revokeObjectURL(objUrl), 100);
-                    
-                    completed++;
                     await new Promise(r => setTimeout(r, 220));
                 }
                 
@@ -1984,10 +2066,14 @@
                     const url = currentImages[i];
                     status.innerHTML = `<i class="fas fa-circle-notch fa-spin text-primary mr-1"></i> ดึงสกรีนช็อต (${completed + 1}/${currentImages.length})...`;
                     
-                    const blob = await fetchBlobRacing(url);
-                    zip.file(`${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`, blob);
+                    try {
+                        const blob = await fetchBlobRacing(url);
+                        zip.file(`${id}_${i === 0 ? 'cover' : 'scene_'+i}.jpg`, blob);
+                        completed++;
+                    } catch (err) {
+                        console.warn(`Failed adding to ZIP inside modal index ${i}:`, err);
+                    }
                     
-                    completed++;
                     await new Promise(r => setTimeout(r, 180));
                 }
                 
@@ -2010,7 +2096,6 @@
             }
         }
 
-        // Mapping function for Modal downloads
         function downloadAllIndividually() { downloadAllIndividuallyModal(); }
         function downloadAll() { downloadAllModal(); }
 

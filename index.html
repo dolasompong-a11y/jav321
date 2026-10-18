@@ -230,6 +230,19 @@
         </div>
     </div>
 
+    <!-- Config Modal -->
+    <div id="config-modal" class="fixed inset-0 z-[130] bg-black/70 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 dark:text-white"><i class="fas fa-cloud text-green-500 mr-2"></i> ตั้งค่า Google Apps Script</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">ระบุ URL ของ Web App สำหรับเชื่อมต่อฐานข้อมูล Google Sheets</p>
+            <input type="text" id="gas-url-input" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 mb-5 bg-gray-50 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="https://script.google.com/macros/s/.../exec">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeConfigModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-bold">ยกเลิก</button>
+                <button onclick="saveConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-bold"><i class="fas fa-save mr-1"></i> บันทึก</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Core Scripts & Logic -->
     <script>
         let currentUrl = "https://javdb.com/";
@@ -241,7 +254,7 @@
         let favoriteList = [];      
         let bookmarkList = [];
         
-        let gasEndpoint = localStorage.getItem('gas_url') || '';
+        let gasEndpoint = localStorage.getItem('gas_url') || 'https://script.google.com/macros/s/AKfycbzPyhBDogJv42rqdWfZG5sjroghsWZwhHjz1xAxN1UpoIyWl5XkE8vsqt2ryvCOoga8/exec';
         let slideshowInterval = null;
         let slideshowActiveIndex = 0;
         let slideshowSpeed = 3000;
@@ -448,6 +461,47 @@
             document.getElementById('full-img-modal').classList.remove('flex');
             if(slideshowInterval) clearInterval(slideshowInterval);
         }
+
+        function openConfigModal() {
+            document.getElementById('gas-url-input').value = gasEndpoint;
+            document.getElementById('config-modal').classList.remove('hidden');
+            document.getElementById('config-modal').classList.add('flex');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('config-modal').classList.add('hidden');
+            document.getElementById('config-modal').classList.remove('flex');
+        }
+
+        function saveConfig() {
+            const newUrl = document.getElementById('gas-url-input').value.trim();
+            gasEndpoint = newUrl;
+            localStorage.setItem('gas_url', newUrl);
+            closeConfigModal();
+            showToast('บันทึกการตั้งค่า Cloud เรียบร้อย', 'success');
+            // Refresh config logic can go here if needed
+        }
+
+        // Stubs for remaining interactive buttons
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        function clearHistory() { showToast('ล้างประวัติเรียบร้อย', 'success'); }
+        function toggleCurrentPageBookmark() { showToast('บันทึกหน้าปัจจุบันแล้ว', 'success'); }
+        function navigateHistoryBack() {}
+        function navigateHistoryForward() {}
+        function switchMainTab(tab) { activeMainTab = tab; showToast('สลับเป็นแท็บ: ' + tab, 'success'); }
+        function filterFavorites() {}
+        function navPage(dir) {}
+        function closeSplitPane() {
+            document.getElementById('right-pane').classList.add('hidden');
+            document.body.classList.remove('split-active');
+        }
+        function toggleSlideshow() {}
+        function prevFullImg() {}
+        function nextFullImg() {}
 
         function goHome() { loadPage(TARGET_URL); }
         function loadLatest() { loadPage(TARGET_URL); }

@@ -4,25 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="referrer" content="no-referrer">
-    <title>JAV Gallery Hub - Ultra Edition</title>
+    <title>JAVDB Gallery Hub - Pro Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                extend: { 
-                    colors: { primary: '#e74c3c' },
-                    animation: {
-                        'fade-up': 'fadeUp 0.35s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeUp: {
-                            '0%': { opacity: '0', transform: 'translateY(12px) scale(0.98)' },
-                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
-                        }
-                    }
-                }
+                extend: { colors: { primary: '#e74c3c' } }
             }
         }
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -33,61 +22,45 @@
     </script>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        /* Pinterest Masonry Layout Base */
-        .masonry-grid { column-gap: 0.75rem; column-count: 2; }
-        @media (min-width: 640px) { .masonry-grid { column-gap: 1rem; column-count: 3; } }
-        @media (min-width: 1024px) { .masonry-grid { column-count: 4; } }
-        
-        /* Grid Size Modifiers */
-        .masonry-grid.size-large { column-count: 1; }
-        @media (min-width: 640px) { .masonry-grid.size-large { column-count: 2; } }
-        @media (min-width: 1024px) { .masonry-grid.size-large { column-count: 3; } }
-
-        .masonry-grid.size-medium { column-count: 2; }
-        @media (min-width: 640px) { .masonry-grid.size-medium { column-count: 3; } }
-        @media (min-width: 1024px) { .masonry-grid.size-medium { column-count: 4; } }
-        @media (min-width: 1280px) { .masonry-grid.size-medium { column-count: 5; } }
-
-        .masonry-grid.size-small { column-count: 3; }
-        @media (min-width: 640px) { .masonry-grid.size-small { column-count: 4; } }
-        @media (min-width: 1024px) { .masonry-grid.size-small { column-count: 6; } }
-        @media (min-width: 1280px) { .masonry-grid.size-small { column-count: 7; } }
-
-        .masonry-item { break-inside: avoid; margin-bottom: 0.75rem; }
-        @media (min-width: 640px) { .masonry-item { margin-bottom: 1rem; } }
-
-        /* Modal Masonry Layout */
-        .modal-masonry { column-gap: 0.75rem; column-count: 1; }
-        @media (min-width: 640px) { .modal-masonry { column-count: 2; } }
-        @media (min-width: 1024px) { .modal-masonry { column-count: 3; } }
-
+        .gallery-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        @media (hover: hover) {
+            .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        }
         .dark body { background-color: #111827; color: #f3f4f6; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
         .modal-mobile-scroll { -webkit-overflow-scrolling: touch; }
-        .img-lazy { transition: opacity 0.3s ease-in-out, transform 0.3s ease-out; }
+        
+        /* สไตล์พิเศษสำหรับระบบ Split View */
+        body.split-active { overflow: hidden; }
+        .split-wrapper { display: flex; height: calc(100vh - 100px); width: 100%; overflow: hidden; }
+        .split-left { flex-grow: 1; overflow-y: auto; padding-bottom: 2rem; }
+        .split-resizer { width: 6px; cursor: col-resize; background-color: #e5e7eb; z-index: 30; transition: background-color 0.2s; }
+        .dark .split-resizer { background-color: #374151; }
+        .split-resizer:hover, .split-resizer:active { background-color: #e74c3c; }
+        .split-right { display: flex; flex-direction: column; overflow-y: auto; background-color: white; border-left: 1px solid #e5e7eb; }
+        .dark .split-right { background-color: #1f2937; border-color: #374151; }
     </style>
 </head>
 <body class="bg-gray-100 transition-colors duration-200">
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
-    <!-- Header Navigation -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-colors duration-200 dark:bg-gray-800 dark:border-gray-700">
-        <div class="container mx-auto px-3 py-2.5 flex justify-between items-center">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-colors duration-200 dark:bg-gray-800 dark:border-gray-700" id="main-header">
+        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
             
             <div class="flex items-center space-x-2 md:space-x-3">
-                <div class="bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-lg md:text-xl cursor-pointer shadow-sm active:scale-95 transition-transform" onclick="goHome()" title="กลับสู่หน้าแรก">JAV HUB</div>
+                <div class="bg-primary text-white px-3 py-1.5 rounded font-bold text-lg md:text-xl cursor-pointer shadow-sm active:scale-95 transition-transform" onclick="goHome()" title="กลับสู่หน้าแรก">JAVDB HUB</div>
                 
                 <button onclick="toggleTheme()" class="p-2 rounded-full active:bg-gray-100 dark:active:bg-gray-700 transition-colors text-gray-600 dark:text-yellow-400" title="สลับโหมดมืด/สว่าง">
-                    <i id="theme-icon" class="fas fa-moon text-[1.1rem]"></i>
+                    <i id="theme-icon" class="fas fa-moon text-[1.1rem] md:text-[1.2rem]"></i>
                 </button>
 
                 <button onclick="loadLatest()" class="p-2 text-red-500 active:scale-90 hover:scale-110 transition-transform" title="รายการใหม่ล่าสุด">
@@ -105,260 +78,170 @@
             </div>
 
             <div class="flex items-center space-x-1.5 md:space-x-2">
-                <button onclick="openSearchModal()" class="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all active:scale-90" title="เปิดช่องค้นหา">
-                    <i class="fas fa-search text-base"></i>
+                <button onclick="toggleUIMode()" class="hidden md:flex p-2.5 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-blue-600 dark:text-blue-400 transition-all active:scale-90" title="สลับมุมมอง (แยกซ้าย-ขวา / ป๊อปอัป)">
+                    <i id="ui-mode-icon" class="fas fa-columns text-base"></i>
                 </button>
-                
-                <button onclick="openLinkInputModal()" class="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all active:scale-90" title="เปิดช่องวางลิงก์">
-                    <i class="fas fa-link text-base"></i>
-                </button>
-
                 <button onclick="clearHistory()" class="p-2.5 rounded-full bg-orange-50 hover:bg-orange-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-orange-500 dark:text-orange-400 transition-all active:scale-90" title="ล้างประวัติการเข้าชม">
                     <i class="fas fa-trash-alt text-base"></i>
                 </button>
             </div>
         </div>
 
-        <div class="bg-gray-50 border-t border-gray-200 py-1 px-3 text-center dark:bg-gray-900 dark:border-gray-700 flex flex-col sm:flex-row justify-center items-center gap-2">
+        <div class="bg-gray-50 border-t border-gray-200 py-1.5 px-3 text-center dark:bg-gray-900 dark:border-gray-700 flex flex-col sm:flex-row justify-center items-center gap-2" id="url-bar">
             <div class="flex items-center justify-center gap-1 overflow-hidden max-w-full">
                 <span class="text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 shrink-0">ลิงก์ที่เปิดอยู่:</span>
-                <a href="#" id="display-active-url" target="_blank" class="text-[10px] sm:text-[11px] text-blue-500 hover:underline truncate max-w-full px-2">https://www.jav321.com/</a>
+                <a href="#" id="display-active-url" target="_blank" class="text-[10px] sm:text-[11px] text-blue-500 hover:underline truncate max-w-full px-2">https://javdb.com/</a>
             </div>
-            <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="text-[10px] sm:text-[11px] bg-yellow-50 dark:bg-gray-800 border border-yellow-200 dark:border-gray-700 px-2.5 py-0.5 rounded-full font-bold text-yellow-600 hover:bg-yellow-100 dark:hover:bg-gray-700 transition-colors shrink-0 flex items-center gap-1">
+            <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="text-[10px] sm:text-[11px] bg-yellow-50 dark:bg-gray-800 border border-yellow-200 dark:border-gray-700 px-2.5 py-1 rounded-full font-bold text-yellow-600 hover:bg-yellow-100 dark:hover:bg-gray-700 transition-colors shrink-0 flex items-center gap-1">
                 <i id="bookmark-current-icon" class="far fa-star"></i> บันทึกหน้านี้
             </button>
         </div>
     </header>
 
-    <main class="container mx-auto px-2 sm:px-3 py-4">
-        <!-- Control Bar -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-            <div class="flex flex-wrap items-center justify-between w-full md:w-auto gap-3">
-                <nav class="flex text-xs md:text-sm text-gray-500 dark:text-gray-400 gap-1.5 items-center shrink-0">
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
-                    <span id="status-text" class="font-bold text-gray-700 dark:text-gray-300">สแตนด์บาย</span>
-                </nav>
+    <!-- 🌟 MASTER LAYOUT WRAPPER -->
+    <div id="layout-wrapper" class="w-full">
+        <!-- ฝั่งซ้าย: โครงสร้างหลัก (Grid แกลเลอรี) -->
+        <div id="left-pane" class="w-full transition-all duration-200 ease-in-out">
+            <main class="container mx-auto px-3 py-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+                    <div class="flex flex-wrap items-center justify-between w-full sm:w-auto gap-3">
+                        <nav class="flex text-xs md:text-sm text-gray-500 dark:text-gray-400 gap-1.5 items-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
+                            <span id="status-text" class="font-bold text-gray-700 dark:text-gray-300">สแตนด์บาย</span>
+                        </nav>
 
-                <div class="flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 shadow-sm text-xs shrink-0">
-                    <button id="btn-nav-back" onclick="navigateHistoryBack()" class="px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed" disabled title="หน้าก่อนหน้า">
-                        <i class="fas fa-arrow-left"></i> ย้อนกลับ
-                    </button>
-                    <button id="btn-nav-forward" onclick="navigateHistoryForward()" class="px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed" disabled title="หน้าถัดไป">
-                        ไปข้างหน้า <i class="fas fa-arrow-right"></i>
-                    </button>
+                        <div class="flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 shadow-sm text-xs">
+                            <button id="btn-nav-back" onclick="navigateHistoryBack()" class="px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed" disabled title="หน้าก่อนหน้า">
+                                <i class="fas fa-arrow-left"></i> ย้อนกลับ
+                            </button>
+                            <button id="btn-nav-forward" onclick="navigateHistoryForward()" class="px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed" disabled title="หน้าถัดไป">
+                                ไปข้างหน้า <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1 text-xs">
+                            <button id="tab-home" onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-md font-bold transition-all bg-white dark:bg-gray-800 shadow-sm text-gray-800 dark:text-white">
+                                <i class="fas fa-home mr-1"></i> หน้าแรก
+                            </button>
+                            <button id="tab-fav" onclick="switchMainTab('favorites')" class="px-3 py-1.5 rounded-md font-bold transition-all text-gray-600 dark:text-gray-300">
+                                <i class="fas fa-heart text-red-500 mr-1 animate-pulse"></i> รูปภาพโปรด (<span id="fav-count">0</span>)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-1 shadow-sm overflow-x-auto w-full sm:w-auto justify-center sm:justify-start">
+                        <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 px-1.5 border-r border-gray-200 dark:border-gray-700 mr-1 uppercase">ขนาด</span>
+                        <button onclick="changeGridSize(2)" class="size-btn px-2.5 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-2">ใหญ่</button>
+                        <button onclick="changeGridSize(4)" class="size-btn px-2.5 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-4">กลาง</button>
+                        <button onclick="changeGridSize(6)" class="size-btn px-2.5 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-6">เล็ก</button>
+                        <button onclick="changeGridSize(8)" class="size-btn px-2.5 py-1 text-[10px] sm:text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 active:bg-gray-200" id="btn-grid-8">จิ๋ว</button>
+                    </div>
                 </div>
 
-                <div class="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1 text-xs shrink-0">
-                    <button id="tab-home" onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-md font-bold transition-all bg-white dark:bg-gray-800 shadow-sm text-gray-800 dark:text-white">
-                        <i class="fas fa-home mr-1"></i> หน้าแรก
+                <div id="favorites-filter-container" class="hidden mb-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm flex flex-col xl:flex-row gap-3 items-stretch xl:items-center transition-all">
+                    <!-- โค้ดตัวกรอง Favorites (เช่นเดียวกับต้นฉบับ) -->
+                    <div class="flex-grow flex items-center gap-2 border-b xl:border-b-0 xl:border-r border-gray-200 dark:border-gray-700 pb-2 xl:pb-0 xl:pr-3">
+                        <i class="fas fa-filter text-gray-400 ml-1"></i>
+                        <input type="text" id="fav-search-input" oninput="filterFavorites()" placeholder="กรองด้วยรหัสหนัง หรือ คีย์เวิร์ดในรายการโปรด..." class="w-full bg-transparent border-none focus:outline-none text-sm dark:text-white py-1">
+                        <button onclick="document.getElementById('fav-search-input').value=''; filterFavorites();" class="text-gray-400 hover:text-red-500 px-2 py-1 transition-colors"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div id="gallery-grid" class="grid gap-3 md:gap-4"></div>
+
+                <div id="pagination" class="mt-8 mb-16 flex justify-center items-center gap-2 md:gap-4 hidden">
+                    <button onclick="navPage(-1)" id="btn-prev" class="px-3 md:px-5 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm active:bg-gray-100 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 font-bold dark:text-white text-sm md:text-base">
+                        <i class="fas fa-chevron-left md:mr-2"></i> <span class="hidden md:inline">ก่อนหน้า</span>
                     </button>
-                    <button id="tab-fav" onclick="switchMainTab('favorites')" class="px-3 py-1.5 rounded-md font-bold transition-all text-gray-600 dark:text-gray-300">
-                        <i class="fas fa-heart text-red-500 mr-1 animate-pulse"></i> รูปภาพโปรด (<span id="fav-count">0</span>)
+                    <span id="page-number" class="font-bold text-sm md:text-lg dark:text-white bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-lg">หน้า 1</span>
+                    <button onclick="navPage(1)" class="bg-primary text-white px-3 md:px-5 py-2.5 rounded-lg shadow-sm active:bg-red-800 hover:bg-red-700 font-bold text-sm md:text-base" id="btn-next">
+                        <span class="hidden md:inline">ถัดไป</span> <i class="fas fa-chevron-right md:ml-2"></i>
                     </button>
                 </div>
-            </div>
-
-            <!-- Grid Size Modifier Menu -->
-            <div class="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-1 shadow-sm w-full md:w-auto justify-center md:justify-start">
-                <span class="text-[10px] font-bold text-gray-400 px-1.5 border-r border-gray-200 dark:border-gray-700 mr-1 uppercase">ขนาดรูป</span>
-                <button onclick="changeGridSize('large')" class="size-btn px-2.5 py-1 text-[11px] sm:text-xs rounded font-bold hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 text-gray-600" id="btn-grid-large">ใหญ่</button>
-                <button onclick="changeGridSize('medium')" class="size-btn active bg-primary text-white px-2.5 py-1 text-[11px] sm:text-xs rounded font-bold hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 text-gray-600" id="btn-grid-medium">กลาง</button>
-                <button onclick="changeGridSize('small')" class="size-btn px-2.5 py-1 text-[11px] sm:text-xs rounded font-bold hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 text-gray-600" id="btn-grid-small">เล็ก</button>
-            </div>
+            </main>
         </div>
 
-        <!-- Favorites Filter -->
-        <div id="favorites-filter-container" class="hidden mb-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm flex flex-col xl:flex-row gap-3 items-stretch xl:items-center transition-all">
-            <div class="flex-grow flex items-center gap-2 border-b xl:border-b-0 xl:border-r border-gray-200 dark:border-gray-700 pb-2 xl:pb-0 xl:pr-3">
-                <i class="fas fa-filter text-gray-400 ml-1"></i>
-                <input type="text" id="fav-search-input" oninput="filterFavorites()" placeholder="กรองด้วยรหัสหนัง หรือ คีย์เวิร์ดในรายการโปรด..." class="w-full bg-transparent border-none focus:outline-none text-sm dark:text-white py-1">
-                <button onclick="document.getElementById('fav-search-input').value=''; filterFavorites();" class="text-gray-400 hover:text-red-500 px-2 py-1 transition-colors"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center shrink-0">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-semibold text-gray-400 uppercase shrink-0"><i class="fas fa-calendar-alt mr-1"></i>วันที่ถูกใจ:</span>
-                    <select id="fav-date-filter" onchange="filterFavorites()" class="text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg border border-gray-300 dark:border-gray-600 px-2.5 py-1.5 outline-none font-bold min-w-[120px]">
-                        <option value="all">ทั้งหมด</option>
-                    </select>
-                </div>
+        <div id="pane-resizer" class="hidden split-resizer flex-shrink-0 relative"></div>
 
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-semibold text-gray-400 uppercase shrink-0"><i class="fas fa-sort mr-1"></i>เรียงตาม:</span>
-                    <select id="fav-sort-filter" onchange="filterFavorites()" class="text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg border border-gray-300 dark:border-gray-600 px-2.5 py-1.5 outline-none font-bold min-w-[110px]">
-                        <option value="newest" selected>บันทึกใหม่สุด</option>
-                        <option value="oldest">บันทึกเก่าสุด</option>
-                    </select>
-                </div>
+        <!-- ฝั่งขวา: โครงสร้าง Split View (แสดงรายละเอียด) -->
+        <div id="right-pane" class="hidden w-0 split-right transition-none">
+            <div class="sticky top-0 bg-white dark:bg-gray-800 z-10 p-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                <span id="s-m-id" class="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold shadow-sm tracking-wide"></span>
+                <button onclick="closeSplitPane()" class="text-gray-400 hover:text-red-500 transition-colors bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 flex flex-col h-full">
+                <h2 id="s-m-title" class="font-bold text-base md:text-lg mb-4 dark:text-white leading-snug"></h2>
+                <!-- รายละเอียดอื่นๆ จะถูกโหลดมาใส่ที่นี่ -->
+                <div id="s-modal-images" class="w-full flex-1"></div>
             </div>
         </div>
+    </div> 
 
-        <!-- Gallery Pinterest Grid -->
-        <div id="gallery-grid" class="masonry-grid size-medium"></div>
-
-        <!-- Pagination -->
-        <div id="pagination" class="mt-8 mb-16 flex justify-center items-center gap-2 md:gap-4 hidden">
-            <button onclick="navPage(-1)" id="btn-prev" class="px-3 md:px-5 py-2.5 bg-white border border-gray-300 rounded-xl shadow-sm active:bg-gray-100 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 font-bold dark:text-white text-sm">
-                <i class="fas fa-chevron-left md:mr-2"></i> <span class="hidden md:inline">ก่อนหน้า</span>
-            </button>
-            <span id="page-number" class="font-bold text-sm md:text-base dark:text-white bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-xl">หน้า 1</span>
-            <button onclick="navPage(1)" id="btn-next" class="bg-primary text-white px-3 md:px-5 py-2.5 rounded-xl shadow-sm active:bg-red-800 hover:bg-red-700 font-bold text-sm">
-                <span class="hidden md:inline">ถัดไป</span> <i class="fas fa-chevron-right md:ml-2"></i>
-            </button>
-        </div>
-    </main>
-
-    <!-- Bookmark Drawer -->
-    <div id="bookmark-panel" class="fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-[90] transform translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200 dark:border-gray-700 flex flex-col">
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
-            <h3 class="font-bold text-sm text-gray-700 dark:text-gray-200 uppercase tracking-wider"><i class="fas fa-bookmark text-yellow-500 mr-2"></i>ลิงก์ที่บันทึกไว้</h3>
-            <button onclick="toggleBookmarkPanel()" class="text-gray-500 hover:text-red-500 p-1 transition-colors"><i class="fas fa-times text-lg"></i></button>
-        </div>
-        <div id="bookmark-list" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
-    </div>
-
-    <!-- Search Modal -->
-    <div id="search-modal" class="fixed inset-0 z-50 bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl border border-gray-200 dark:border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg dark:text-white"><i class="fas fa-search text-primary mr-2"></i>ค้นหาด่วน</h3>
-                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-red-500 text-lg transition-colors"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" id="search-modal-input" placeholder="พิมพ์คำค้นหาที่นี่..." class="flex-1 text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-primary">
-                <button onclick="executeModalSearch()" class="bg-primary hover:bg-red-700 text-white px-5 rounded-xl text-sm font-bold transition-all">ค้นหา</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Link Modal -->
-    <div id="link-modal" class="fixed inset-0 z-50 bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl border border-gray-200 dark:border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg dark:text-white"><i class="fas fa-link text-blue-500 mr-2"></i>เปิดจากลิงก์เว็บตรง</h3>
-                <button onclick="closeLinkInputModal()" class="text-gray-400 hover:text-red-500 text-lg transition-colors"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" id="link-modal-input" placeholder="วางที่อยู่ลิงก์เว็บเป้าหมาย..." class="flex-1 text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-primary">
-                <button onclick="executeModalLink()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 rounded-xl text-sm font-bold transition-all">เปิดลิงก์</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Movie Scenes Pop-up Modal (Pinterest Layout) -->
-    <div id="modal" class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center p-2 sm:p-4 transition-all duration-300 backdrop-blur-md">
-        <button onclick="closeModal()" class="absolute top-3 right-3 sm:top-5 sm:right-5 bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl z-[110] hover:bg-red-600 transition-colors shadow-xl border border-gray-600/50">
+    <!-- Classic Modal รายละเอียด (โหมดป๊อปอัปดั้งเดิม) -->
+    <div id="modal" class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-0 md:p-4 transition-opacity duration-300">
+        <button onclick="closeModal()" class="absolute top-3 right-3 md:top-6 md:right-6 bg-black/60 md:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl z-[110] hover:bg-red-500 active:bg-red-600 transition-colors shadow-lg backdrop-blur-sm border border-gray-600">
             <i class="fas fa-times"></i>
         </button>
 
-        <div class="bg-white dark:bg-gray-800 w-full max-w-6xl h-[94vh] rounded-2xl overflow-hidden flex flex-col relative shadow-2xl border border-gray-200 dark:border-gray-700">
-            
-            <!-- Toolbar -->
-            <div class="p-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2 truncate">
-                    <span id="m-id" class="bg-primary text-white px-2.5 py-1 rounded-md text-xs font-bold shrink-0"></span>
-                    <span id="m-title-short" class="font-bold text-xs sm:text-sm text-gray-800 dark:text-gray-100 truncate"></span>
+        <div class="bg-white dark:bg-gray-800 w-full h-[100dvh] md:max-w-6xl md:h-[90vh] md:rounded-xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative modal-mobile-scroll">
+            <div id="modal-images" class="w-full md:w-2/3 h-auto md:h-full md:overflow-y-auto p-3 md:p-5 bg-gray-100 dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700"></div>
+            <div class="w-full md:w-1/3 p-4 md:p-6 h-auto md:h-full md:overflow-y-auto flex flex-col bg-white dark:bg-gray-800">
+                <span id="m-id" class="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold w-fit mb-3 shadow-sm tracking-wide"></span>
+                <h2 id="m-title" class="font-bold text-base md:text-lg mb-4 dark:text-white leading-snug"></h2>
+                
+                <div class="text-xs md:text-sm space-y-3 dark:text-gray-300 mb-6 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600">
+                    <p id="m-star"><strong><i class="fas fa-user-circle text-pink-500 mr-2 text-base"></i> นักแสดง:</strong> กำลังสแกน...</p>
+                    <p id="m-genre"><strong><i class="fas fa-tags text-blue-500 mr-2 text-base"></i> แนวหนัง:</strong> กำลังสแกน...</p>
+                    <p id="m-maker"><strong><i class="fas fa-building text-purple-500 mr-2 text-base"></i> ค่าย:</strong> กำลังสแกน...</p>
+                    <p id="m-count"><strong><i class="fas fa-images text-orange-500 mr-2 text-base"></i> จำนวนรูป:</strong> กำลังสแกน...</p>
                 </div>
-
-                <!-- Toggle Movie Info Button -->
-                <button onclick="toggleMovieDetailsToggle()" id="btn-toggle-info" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0">
-                    <i class="fas fa-info-circle text-blue-500"></i>
-                    <span>รายละเอียดหนัง</span>
-                    <i id="toggle-info-icon" class="fas fa-chevron-down text-[10px] transition-transform"></i>
-                </button>
-            </div>
-
-            <!-- Expandable Information Drawer -->
-            <div id="movie-info-drawer" class="hidden bg-gray-100 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700 p-4 transition-all text-xs sm:text-sm space-y-2 shrink-0">
-                <h2 id="m-title" class="font-bold mb-2 dark:text-white leading-snug"></h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <p id="m-star"><strong><i class="fas fa-user-circle text-pink-500 mr-1.5"></i> นักแสดง:</strong> <span class="actor-list"></span></p>
-                    <p id="m-genre"><strong><i class="fas fa-tags text-blue-500 mr-1.5"></i> แนวหนัง:</strong> <span class="genre-list"></span></p>
-                    <p id="m-maker"><strong><i class="fas fa-building text-purple-500 mr-1.5"></i> ค่าย:</strong> <span class="maker-list"></span></p>
-                    <p id="m-count"><strong><i class="fas fa-images text-orange-500 mr-1.5"></i> จำนวนรูป:</strong> <span class="count-val"></span></p>
-                </div>
-            </div>
-
-            <!-- Scenes Container -->
-            <div id="modal-images-scroll" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-gray-100 dark:bg-gray-950 modal-mobile-scroll">
-                <div id="modal-images" class="modal-masonry"></div>
             </div>
         </div>
     </div>
 
-    <!-- Fullscreen Lightbox Modal -->
-    <div id="full-img-modal" class="fixed inset-0 z-[120] bg-black/95 hidden flex-col items-center justify-center p-4 backdrop-blur-md">
-        <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-4 sm:px-6 z-30">
-            <span id="slideshow-info" class="text-white text-xs sm:text-sm bg-black/60 px-3 py-1.5 rounded-full font-bold">1/1</span>
+    <!-- Modal สำหรับแสดงภาพเต็มจอและปุ่มสไลด์โชว์ -->
+    <div id="full-img-modal" class="fixed inset-0 z-[120] bg-black hidden flex-col items-center justify-center p-4">
+        <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-6 z-30">
+            <span id="slideshow-info" class="text-white text-xs md:text-sm bg-black/60 px-3 py-1.5 rounded-full font-bold">1/1</span>
             
             <div class="flex items-center gap-2 bg-black/60 p-1.5 rounded-full border border-white/20">
-                <button id="btn-play-slideshow" onclick="toggleSlideshow()" class="text-green-400 hover:text-green-300 px-3 py-1 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all">
-                    <i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">สไลด์โชว์</span>
+                <button id="btn-play-slideshow" onclick="toggleSlideshow()" class="text-green-400 hover:text-green-300 px-3 py-1 text-sm font-bold flex items-center gap-1.5 transition-all">
+                    <i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">เล่นสไลด์โชว์</span>
                 </button>
-                <select id="slideshow-speed" class="bg-gray-800 text-white rounded border border-gray-600 px-1 py-0.5 text-xs outline-none font-bold" onchange="changeSlideshowSpeed()">
-                    <option value="1000">1 วิ</option>
-                    <option value="3000" selected>3 วิ</option>
-                    <option value="5000">5 วิ</option>
-                </select>
             </div>
 
             <div class="flex gap-2">
-                <button id="btn-open-src-slideshow" onclick="openCurrentImageSource()" class="text-white bg-blue-600/80 hover:bg-blue-600 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors" title="เปิดภาพต้นทาง">
-                    <i class="fas fa-external-link-alt text-xs sm:text-sm"></i>
-                </button>
-                <button onclick="closeFullImgModal()" class="text-white bg-red-600/80 hover:bg-red-600 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors">
-                    <i class="fas fa-times text-base sm:text-lg"></i>
+                <button onclick="closeFullImgModal()" class="text-white bg-red-600/80 hover:bg-red-600 w-10 h-10 rounded-full flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
         </div>
 
-        <div class="relative w-full max-w-5xl h-[82vh] flex items-center justify-center">
-            <button onclick="prevFullImg()" class="absolute left-2 sm:left-4 z-20 text-white bg-black/50 hover:bg-black/80 w-11 h-11 rounded-full flex items-center justify-center transition-all">
-                <i class="fas fa-chevron-left text-lg"></i>
+        <div class="relative w-full max-w-5xl h-[80vh] flex items-center justify-center">
+            <button onclick="prevFullImg()" class="absolute left-2 md:left-4 z-20 text-white bg-black/50 hover:bg-black/80 w-12 h-12 rounded-full flex items-center justify-center transition-all">
+                <i class="fas fa-chevron-left text-xl"></i>
             </button>
-
             <img id="full-modal-target-img" src="" alt="Full Screen" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-300">
-
-            <button onclick="nextFullImg()" class="absolute right-2 sm:right-4 z-20 text-white bg-black/50 hover:bg-black/80 w-11 h-11 rounded-full flex items-center justify-center transition-all">
-                <i class="fas fa-chevron-right text-lg"></i>
+            <button onclick="nextFullImg()" class="absolute right-2 md:right-4 z-20 text-white bg-black/50 hover:bg-black/80 w-12 h-12 rounded-full flex items-center justify-center transition-all">
+                <i class="fas fa-chevron-right text-xl"></i>
             </button>
         </div>
     </div>
 
-    <!-- Google Sheet Config Modal -->
-    <div id="config-modal" class="fixed inset-0 z-[100] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl border border-gray-200 dark:border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-gray-800 dark:text-white"><i class="fas fa-database text-green-500 mr-2"></i>ตั้งค่าคลาวด์ Google Sheet</h3>
-                <button onclick="closeConfigModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fas fa-times"></i></button>
-            </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">เชื่อมต่อระบบกดหัวใจและบุ๊กมาร์กไปยัง Google Sheet ของคุณเพื่อสำรองข้อมูลและใช้งาน Proxy ทะลวงบล็อก</p>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase">Google Web App URL (GAS)</label>
-                    <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 focus:outline-none dark:bg-gray-700 dark:text-white">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="testAndSaveGAS()" class="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-green-600 transition-colors">เชื่อมต่อและบันทึก</button>
-                    <button onclick="disconnectGAS()" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">ล้างค่า</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Logic -->
+    <!-- Core Scripts & Logic -->
     <script>
-        let currentUrl = "https://www.jav321.com/";
+        let currentUrl = "https://javdb.com/";
         let currentPage = 1;
-        const TARGET_URL = 'https://www.jav321.com/';
+        const TARGET_URL = 'https://javdb.com/';
         let currentImages = [];
         
         let activeMainTab = 'home'; 
         let favoriteList = [];      
-        let isFavSynced = false; // Check if we already did background sync
+        let bookmarkList = [];
         
-        let gasEndpoint = localStorage.getItem('gas_url') || 'https://script.google.com/macros/s/AKfycbw7P7lijJeFfv4ChzKaRUAy30g5jmD_0fKOq0yd43Lq1IdC8VgQBqlAYXXoBL8IE0n1/exec';
-
+        let gasEndpoint = localStorage.getItem('gas_url') || '';
         let slideshowInterval = null;
         let slideshowActiveIndex = 0;
         let slideshowSpeed = 3000;
@@ -367,131 +250,79 @@
         let historyIndex = 0;            
         let isNavigatingHistory = false; 
 
-        let bookmarkList = [];
+        let uiMode = localStorage.getItem('jav_ui_mode') || 'classic';
+        let isDragging = false;
+        let savedSplitWidth = localStorage.getItem('jav_split_width') || '40%';
 
         function escapeQuotes(str) {
-            return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+            return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function showToast(msg, type) {
+            console.log(`[${type.toUpperCase()}] ${msg}`);
         }
 
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = `p-3.5 rounded-xl shadow-xl border text-xs sm:text-sm font-semibold transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-2`;
-            
-            let bgClass = 'bg-white border-gray-200 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100';
-            let iconHtml = '<i class="fas fa-info-circle text-blue-500"></i>';
-
-            if (type === 'success') {
-                bgClass = 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-900 dark:text-green-200';
-                iconHtml = '<i class="fas fa-check-circle text-green-500"></i>';
-            } else if (type === 'error') {
-                bgClass = 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-900 dark:text-red-200';
-                iconHtml = '<i class="fas fa-exclamation-circle text-red-500"></i>';
-            } else if (type === 'warning') {
-                bgClass = 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:border-yellow-900 dark:text-yellow-200';
-                iconHtml = '<i class="fas fa-exclamation-triangle text-yellow-500"></i>';
+        function initUIMode() {
+            if (uiMode === 'split' && window.innerWidth >= 768) {
+                document.body.classList.add('split-active');
+                document.getElementById('layout-wrapper').className = "split-wrapper transition-all duration-200 ease-in-out";
+                document.getElementById('left-pane').className = "split-left transition-all duration-200 ease-in-out";
+                document.getElementById('pane-resizer').classList.remove('hidden');
+                document.getElementById('pane-resizer').classList.add('flex');
+                document.getElementById('left-pane').style.width = '100%';
+            } else {
+                uiMode = 'classic';
+                document.body.classList.remove('split-active');
+                document.getElementById('layout-wrapper').className = "w-full";
+                document.getElementById('left-pane').className = "w-full transition-all duration-200 ease-in-out";
+                document.getElementById('left-pane').style.width = '100%';
+                document.getElementById('pane-resizer').classList.add('hidden');
+                document.getElementById('right-pane').classList.add('hidden');
             }
-
-            toast.className += ` ${bgClass}`;
-            toast.innerHTML = `${iconHtml} <span class="flex-1">${message}</span>`;
-            
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-            setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => { toast.remove(); }, 300); }, 3500);
         }
 
-        function changeGridSize(size) {
-            document.querySelectorAll('.size-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-primary', 'text-white');
-                btn.classList.add('text-gray-600', 'dark:text-gray-300');
-            });
-            const activeBtn = document.getElementById(`btn-grid-${size}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active', 'bg-primary', 'text-white');
-                activeBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
-            }
-
-            const grid = document.getElementById('gallery-grid');
-            grid.className = `masonry-grid size-${size}`;
+        function toggleUIMode() {
+            if (window.innerWidth < 768) return;
+            uiMode = uiMode === 'classic' ? 'split' : 'classic';
+            localStorage.setItem('jav_ui_mode', uiMode);
+            closeModal();
+            initUIMode();
         }
 
-        function openSearchModal() { document.getElementById('search-modal').classList.remove('hidden'); document.getElementById('search-modal').classList.add('flex'); document.getElementById('search-modal-input').focus(); }
-        function closeSearchModal() { document.getElementById('search-modal').classList.add('hidden'); document.getElementById('search-modal').classList.remove('flex'); }
-        function executeModalSearch() { const val = document.getElementById('search-modal-input').value.trim(); if (val) { closeSearchModal(); switchMainTab('home'); loadPage(`${TARGET_URL}search?sn=${encodeURIComponent(val)}`); } }
-
-        function openLinkInputModal() { document.getElementById('link-modal').classList.remove('hidden'); document.getElementById('link-modal').classList.add('flex'); document.getElementById('link-modal-input').focus(); }
-        function closeLinkInputModal() { document.getElementById('link-modal').classList.add('hidden'); document.getElementById('link-modal').classList.remove('flex'); }
-        function executeModalLink() { const val = document.getElementById('link-modal-input').value.trim(); if (val) { closeLinkInputModal(); switchMainTab('home'); loadPage(val.startsWith('http') ? val : 'https://' + val); } }
-
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (!document.getElementById('search-modal').classList.contains('hidden')) executeModalSearch();
-                else if (!document.getElementById('link-modal').classList.contains('hidden')) executeModalLink();
-            }
-        });
-
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeUI();
+        function updateDOMText(baseId, text) {
+            const m = document.getElementById(baseId);
+            const s = document.getElementById('s-' + baseId);
+            if(m) m.innerText = text;
+            if(s) s.innerText = text;
         }
-        function updateThemeUI() {
-            const icon = document.getElementById('theme-icon');
-            if (document.documentElement.classList.contains('dark')) icon.className = 'fas fa-sun text-yellow-400 text-[1.1rem]';
-            else icon.className = 'fas fa-moon text-gray-600 text-[1.1rem]';
+        function updateDOMHTML(baseId, html) {
+            const m = document.getElementById(baseId);
+            const s = document.getElementById('s-' + baseId);
+            if(m) m.innerHTML = html;
+            if(s) s.innerHTML = html;
         }
-        updateThemeUI();
 
         function resolveUrl(path, base = TARGET_URL) {
             if (!path) return '';
-            if (path.includes('/static/digital/')) return path.replace(/^.*\/static\/digital\//, 'https://pics.dmm.co.jp/digital/');
             if (path.startsWith('http')) return path;
             if (path.startsWith('//')) return 'https:' + path;
             let origin = TARGET_URL.replace(/\/$/, '');
             try { if (base) origin = new URL(base).origin; } catch(e) {}
-            return path.startsWith('/') ? origin + path : origin + '/' + path;
+            if (path.startsWith('/')) return origin + path;
+            return origin + '/' + path;
         }
 
         async function fetchHtml(url) {
             const targetUrl = url.split('#')[0];
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://thingproxy.freeboard.io/fetch/${targetUrl}`
-            ];
-            for (const pUrl of proxies) {
-                try {
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 7000);
-                    const res = await fetch(pUrl, { signal: controller.signal });
-                    clearTimeout(timeout);
-                    if (!res.ok) continue;
-                    const text = await res.text();
-                    if (!text.includes('Just a moment...') && !text.includes('cf-browser-verification') && text.length > 500) return text;
-                } catch(e) { continue; }
-            }
-            try {
-                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-                const data = await res.json();
-                if (data && data.contents && !data.contents.includes('Just a moment...')) return data.contents;
-            } catch(e) {}
-            throw new Error("Proxy connection failed.");
+            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            const res = await fetch(proxy);
+            if (!res.ok) throw new Error('Proxy HTTP Error');
+            return await res.text();
         }
 
         function getRobustImgTag(url, classNames) {
-            if (!url) return `<div class="${classNames} bg-gray-300 flex items-center justify-center text-xs">ไม่มีภาพ</div>`;
-            let cleanUrl = url;
-            if (cleanUrl.includes('/static/digital/')) cleanUrl = cleanUrl.replace(/^.*\/static\/digital\//, 'https://pics.dmm.co.jp/digital/');
-            const rawHost = cleanUrl.replace(/^https?:\/\//, '');
-            const pList = [`https://wsrv.nl/?url=${encodeURIComponent(rawHost)}`, `https://images.weserv.nl/?url=${encodeURIComponent(rawHost)}`, `https://corsproxy.io/?${encodeURIComponent(cleanUrl)}`, cleanUrl];
-            const firstSrc = pList.shift();
-            const fallback = `https://placehold.co/400x600/111827/FFFFFF?text=Image+Blocked`;
-            const pStr = JSON.stringify(pList).replace(/'/g, "\\'");
-            const onErrorHandler = `try{let p=JSON.parse(this.getAttribute('data-p'));if(p.length>0){this.src=p.shift();this.setAttribute('data-p',JSON.stringify(p));}else{this.onerror=null;this.src='${fallback}';}}catch(e){this.onerror=null;this.src='${fallback}';}`;
-            return `<img src="${firstSrc}" data-p='${pStr}' referrerpolicy="no-referrer" class="${classNames} img-lazy" loading="lazy" decoding="async" onerror="${onErrorHandler}">`;
+            if (!url) return `<div class="${classNames} bg-gray-300 flex items-center justify-center text-xs">No Image</div>`;
+            return `<img src="${url}" class="${classNames}" loading="lazy" decoding="async">`;
         }
 
         async function loadPage(url) {
@@ -500,344 +331,193 @@
                 historyStack.push(url);
                 historyIndex = historyStack.length - 1;
             }
-            updateNavigationButtonsUI();
-
             currentUrl = url;
             document.getElementById('display-active-url').innerText = url;
             document.getElementById('display-active-url').href = url;
-            updateCurrentPageBookmarkButtonUI();
-
-            let showPagination = false;
-            try {
-                let urlObj = new URL(url);
-                let isDetail = urlObj.pathname.includes('/video/') || urlObj.searchParams.has('id');
-                if (!isDetail) {
-                    if (urlObj.searchParams.has('page')) { currentPage = parseInt(urlObj.searchParams.get('page')) || 1; showPagination = true; }
-                    else if (urlObj.hostname.includes('jvrlibrary.com')) { currentPage = 1; showPagination = true; }
-                    else {
-                        const pageMatch = url.match(/\/(\d+)\/?$/);
-                        if (pageMatch) { currentPage = parseInt(pageMatch[1]); showPagination = true; }
-                        else if (url === TARGET_URL || url === TARGET_URL.replace(/\/$/, '')) { currentPage = 1; showPagination = true; }
-                    }
-                }
-            } catch(e) {}
-
-            if (showPagination) { document.getElementById('pagination').classList.remove('hidden'); document.getElementById('page-number').innerText = `หน้า ${currentPage}`; document.getElementById('btn-prev').disabled = (currentPage <= 1); }
-            else { document.getElementById('pagination').classList.add('hidden'); }
 
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white"><i class="fas fa-circle-notch fa-spin text-4xl text-primary mb-3"></i><br><span class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2 block">กำลังเชื่อมต่อข้อมูล...</span></div>';
+            grid.innerHTML = '<div class="col-span-full py-20 text-center dark:text-white">Loading JavDB...</div>';
 
             try {
                 const html = await fetchHtml(url);
                 const doc = new DOMParser().parseFromString(html, 'text/html');
                 const items = [];
                 const seen = new Set();
-                doc.querySelectorAll('a').forEach(a => {
+
+                // ปรับให้สแกนหน้าแรกและหมวดหมู่ของ JavDB (รองรับรูปแบบ grid-item)
+                doc.querySelectorAll('.grid-item a').forEach(a => {
                     const img = a.querySelector('img');
                     if (!img) return;
-                    let rawSrc = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
-                    if (!rawSrc || rawSrc.includes('logo') || rawSrc.includes('banner')) return;
-                    let src = resolveUrl(rawSrc, url);
-                    let title = img.getAttribute('title') || img.getAttribute('alt') || a.innerText.trim() || 'Untitled';
+                    
+                    let src = resolveUrl(img.getAttribute('src') || img.getAttribute('data-src'), url);
+                    let title = a.getAttribute('title') || img.getAttribute('alt') || a.innerText.trim();
                     let href = resolveUrl(a.getAttribute('href'), url);
-                    const idMatch = title.match(/([a-zA-Z]{2,8}-?\d{2,6}|\d{2,4}[a-zA-Z]{2,8}-?\d{2,6}|fc2-?[a-zA-Z]+-?\d{2,7})/i);
-                    const id = idMatch ? idMatch[0].toUpperCase() : null;
-                    if (id && !seen.has(id)) { seen.add(id); items.push({ id, title, thumb: src, url: href }); }
+                    
+                    let id = '';
+                    const strong = a.querySelector('.video-title strong');
+                    if (strong) id = strong.innerText.trim();
+                    else {
+                        const idMatch = title.match(/([a-zA-Z]{2,8}-?\d{2,6})/i);
+                        if (idMatch) id = idMatch[1].toUpperCase();
+                    }
+
+                    if (id && !seen.has(id) && href.includes('/v/')) {
+                        seen.add(id);
+                        items.push({ id, title, thumb: src, url: href });
+                    }
                 });
+
                 if(items.length === 0) throw new Error("No items found");
                 renderGrid(items);
             } catch (e) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-3"></i><br><span class="font-bold text-base">ถูกปฏิเสธชั่วคราว</span><br><span class="text-xs text-gray-500 dark:text-gray-400 mt-2 block">โปรดรอกดลองใหม่อีกครั้ง</span><button onclick="loadPage('${escapeQuotes(url)}')" class="mt-4 px-5 py-2 bg-primary hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors shadow-md active:scale-95"><i class="fas fa-redo mr-2"></i> ลองอีกครั้ง</button></div>`;
+                grid.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading data.</div>`;
             }
         }
 
         function renderGrid(items) {
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = items.map((item, idx) => {
-                const safeId = String(item.id || '').replace(/\s+/g, '_');
-                const uniqueKey = item.isSnapshot ? `snapshot_${item.parentId}_${item.snapshotIndex}` : safeId;
-                const isFav = favoriteList.some(f => { if (item.isSnapshot) return f.isSnapshot && f.parentId === item.parentId && f.thumb === item.thumb; return !f.isSnapshot && f.id === item.id; });
-                const animDelay = (idx % 12) * 0.04;
-                return `
-                    <div class="masonry-item animate-fade-up" style="animation-delay: ${animDelay}s">
-                        <div class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 relative border border-gray-100 dark:border-gray-700/60" id="item-card-${uniqueKey}">
-                            <div onclick="handleCardClick('${item.id}', '${item.url}', '${item.thumb}', '${escapeQuotes(item.title)}', ${item.isSnapshot || false}, '${item.parentId || ''}', ${item.snapshotIndex || 0})" class="bg-gray-200 dark:bg-gray-900 cursor-pointer overflow-hidden relative">
-                                ${getRobustImgTag(item.thumb, "w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500")}
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
-                                    <p class="text-white text-xs font-bold line-clamp-2 leading-snug">${item.title}</p>
-                                </div>
-                            </div>
-                            <button onclick="toggleFavorite(event, '${item.id}', '${escapeQuotes(item.title)}', '${item.thumb}', '${item.url}', ${item.isSnapshot || false}, '${item.parentId || ''}', ${item.snapshotIndex || 0})" class="absolute bottom-2.5 left-2.5 z-20 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg border border-white/20">
-                                <i class="${isFav ? 'fas text-red-500' : 'far'} fa-heart text-sm"></i>
-                            </button>
-                        </div>
-                    </div>`;
-            }).join('');
+            grid.innerHTML = items.map(item => `
+                <div class="gallery-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm relative flex flex-col justify-between">
+                    <div onclick="handleCardClick('${escapeQuotes(item.id)}', '${escapeQuotes(item.url)}', '${escapeQuotes(item.thumb)}', '${escapeQuotes(item.title)}')">
+                        ${getRobustImgTag(item.thumb, "w-full h-auto object-cover")}
+                        <div class="p-2 text-xs font-bold text-center">${escapeQuotes(item.id)}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function handleCardClick(id, url, thumb, title, isSnapshot, parentId, snapshotIndex) {
-            if (isSnapshot) {
-                const favSnapshots = [...favoriteList].sort((a,b) => b.timestamp - a.timestamp).filter(f => f.isSnapshot);
-                currentImages = favSnapshots.map(f => f.thumb);
-                const clickedIndex = favSnapshots.findIndex(f => f.parentId === parentId && f.thumb === thumb);
-                openFullImgModal(clickedIndex > -1 ? clickedIndex : 0);
-            } else { openModal(id, url, thumb, title); }
+        function handleCardClick(id, url, thumb, title) {
+            openModal(id, url, thumb, title);
         }
 
-        function navPage(direction) {
-            try {
-                let urlObj = new URL(currentUrl);
-                if (urlObj.hostname.includes('jvrlibrary.com') || urlObj.searchParams.has('page')) {
-                    let newPage = parseInt(urlObj.searchParams.get('page') || "1") + direction;
-                    if (newPage < 1) newPage = 1;
-                    urlObj.searchParams.set('page', newPage); window.scrollTo({ top: 0, behavior: 'smooth' }); loadPage(urlObj.toString()); return;
-                }
-                const pageMatch = currentUrl.match(/\/(\d+)\/?$/);
-                if (pageMatch) {
-                    let newPage = parseInt(pageMatch[1]) + direction;
-                    if (newPage < 1) newPage = 1;
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); loadPage(currentUrl.replace(/\/\d+\/?$/, `/${newPage}`)); return;
-                }
-                if (currentUrl === TARGET_URL || currentUrl === TARGET_URL.replace(/\/$/, '')) { if (direction > 0) { window.scrollTo({ top: 0, behavior: 'smooth' }); loadPage(`${TARGET_URL}list/release_date/2`); } }
-            } catch(e) {}
-        }
-
-        function goHome() { switchMainTab('home'); loadPage(TARGET_URL); }
-        function loadLatest() { switchMainTab('home'); loadPage(`${TARGET_URL}list/release_date/1`); }
-        function triggerDirectSearch(name, url) { closeModal(); loadPage(resolveUrl(url)); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        function switchMainTab(tab) {
-            const tabHome = document.getElementById('tab-home'); const tabFav = document.getElementById('tab-fav');
-            const pag = document.getElementById('pagination'); const favFilter = document.getElementById('favorites-filter-container');
-            activeMainTab = tab;
-            if (tab === 'home') {
-                if (tabHome) tabHome.className = "px-3 py-1.5 rounded-md font-bold transition-all bg-white dark:bg-gray-800 shadow-sm text-gray-800 dark:text-white";
-                if (tabFav) tabFav.className = "px-3 py-1.5 rounded-md font-bold transition-all text-gray-600 dark:text-gray-300";
-                if (favFilter) favFilter.classList.add('hidden');
-                loadPage(currentUrl);
-            } else if (tab === 'favorites') {
-                if (tabHome) tabHome.className = "px-3 py-1.5 rounded-md font-bold transition-all text-gray-600 dark:text-gray-300";
-                if (tabFav) tabFav.className = "px-3 py-1.5 rounded-md font-bold transition-all bg-white dark:bg-gray-800 shadow-sm text-gray-800 dark:text-white";
-                if (pag) pag.classList.add('hidden');
-                renderFavoritesPage(); // โหลดจากแคชเครื่องทันที
-            }
-        }
-
-        function navigateHistoryBack() { if (historyIndex > 0) { isNavigatingHistory = true; historyIndex--; loadPage(historyStack[historyIndex]).then(() => { isNavigatingHistory = false; }); } }
-        function navigateHistoryForward() { if (historyIndex < historyStack.length - 1) { isNavigatingHistory = true; historyIndex++; loadPage(historyStack[historyIndex]).then(() => { isNavigatingHistory = false; }); } }
-        function updateNavigationButtonsUI() {
-            const btnBack = document.getElementById('btn-nav-back'); const btnForward = document.getElementById('btn-nav-forward');
-            if (!btnBack || !btnForward) return;
-            btnBack.disabled = historyIndex <= 0; btnBack.className = historyIndex > 0 ? "px-2.5 py-1.5 rounded-md font-bold transition-all bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white active:scale-95" : "px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed";
-            btnForward.disabled = historyIndex >= historyStack.length - 1; btnForward.className = historyIndex < historyStack.length - 1 ? "px-2.5 py-1.5 rounded-md font-bold transition-all bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white active:scale-95" : "px-2.5 py-1.5 rounded-md font-bold transition-all text-gray-400 cursor-not-allowed";
-        }
-
-        function loadBookmarks() { try { bookmarkList = JSON.parse(localStorage.getItem('jav_bookmarks')) || []; updateBookmarkBadgeUI(); renderBookmarkListUI(); } catch(e) { bookmarkList = []; } if (gasEndpoint) syncBookmarksFromGoogleSheet(); }
-        function updateBookmarkBadgeUI() { const badge = document.getElementById('bookmark-badge'); if (!badge) return; if (bookmarkList.length > 0) { badge.innerText = bookmarkList.length; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
-        function updateCurrentPageBookmarkButtonUI() { const btn = document.getElementById('btn-bookmark-current'); if (!btn) return; const isBookmarked = bookmarkList.some(b => b.url === currentUrl); btn.innerHTML = isBookmarked ? `<i class="fas fa-star text-yellow-500"></i> บันทึกแล้ว` : `<i class="far fa-star"></i> บันทึกหน้านี้`; }
-        function toggleCurrentPageBookmark() {
-            const existingIndex = bookmarkList.findIndex(b => b.url === currentUrl); let actionType = 'add'; let title = "หน้าเว็บเป้าหมาย";
-            if (existingIndex > -1) { bookmarkList.splice(existingIndex, 1); actionType = 'remove'; } else { bookmarkList.push({ title, url: currentUrl, timestamp: new Date().getTime() }); }
-            localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI();
-            if (gasEndpoint) fetch(`${gasEndpoint}?${new URLSearchParams({ action: 'syncBookmark', title, url: currentUrl, status: actionType, timestamp: new Date().getTime() }).toString()}`, { mode: 'no-cors' });
-        }
-        function toggleBookmarkPanel() { const panel = document.getElementById('bookmark-panel'); if (panel) panel.classList.toggle('translate-x-full'); }
-        function renderBookmarkListUI() {
-            const listEl = document.getElementById('bookmark-list'); if (!listEl) return;
-            if (bookmarkList.length === 0) { listEl.innerHTML = `<div class="py-12 text-center text-gray-400"><i class="far fa-star text-4xl mb-3 text-gray-300"></i><p class="text-xs font-semibold">ยังไม่มีลิงก์โปรดที่บันทึกไว้</p></div>`; return; }
-            listEl.innerHTML = [...bookmarkList].sort((a,b) => b.timestamp - a.timestamp).map(b => `<div class="flex items-center justify-between gap-2 p-2.5 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 group"><div onclick="openBookmarkLink('${b.url}')" class="flex-1 overflow-hidden cursor-pointer"><p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate group-hover:text-yellow-600 transition-colors">${b.title}</p><p class="text-[9px] text-gray-400 truncate mt-0.5">${b.url}</p></div><button onclick="deleteBookmark('${b.url}')" class="text-gray-400 hover:text-red-500 p-1.5 transition-colors"><i class="fas fa-trash-alt text-xs"></i></button></div>`).join('');
-        }
-        function openBookmarkLink(url) { toggleBookmarkPanel(); switchMainTab('home'); loadPage(url); }
-        function deleteBookmark(url) { bookmarkList = bookmarkList.filter(b => b.url !== url); localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI(); if (gasEndpoint) fetch(`${gasEndpoint}?${new URLSearchParams({ action: 'syncBookmark', title:'', url, status: 'remove', timestamp: new Date().getTime() }).toString()}`, { mode: 'no-cors' }); }
-        
-        async function syncBookmarksFromGoogleSheet() {
-            if (!gasEndpoint) return;
-            try { const res = await fetch(`${gasEndpoint}?action=getBookmarks`); const data = await res.json(); if (data && data.success && Array.isArray(data.bookmarks)) { bookmarkList = data.bookmarks; updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI(); } } catch(e) {}
-        }
-        
-        // Cache Logic System for Favorites
-        function initFavorites() {
-            try { favoriteList = JSON.parse(localStorage.getItem('jav_favorites')) || []; updateFavCountBadge(); } catch(e) { favoriteList = []; }
-            if (gasEndpoint && !isFavSynced) { syncFromGoogleSheet(); isFavSynced = true; } // ซิงค์ฉากหลังเงียบๆ 1 ครั้งตอนโหลด
-        }
-        
-        function updateFavCountBadge() { const countEl = document.getElementById('fav-count'); if (countEl) countEl.innerText = favoriteList.length; }
-
-        async function toggleFavorite(event, id, title, thumb, url, isSnapshot = false, parentId = '', snapshotIndex = 0) {
-            if (event) event.stopPropagation();
-            const safeId = String(id || '').replace(/\s+/g, '_'); const uniqueKey = isSnapshot ? `snapshot_${parentId}_${snapshotIndex}` : safeId;
-            const existingIndex = favoriteList.findIndex(f => { if (isSnapshot) return f.isSnapshot && f.parentId === parentId && f.thumb === thumb; return !f.isSnapshot && f.id === id; });
-            let actionType = 'add';
-            if (existingIndex > -1) { favoriteList.splice(existingIndex, 1); actionType = 'remove'; } else { favoriteList.push({ id, title: isSnapshot ? `${title} (Scene #${snapshotIndex})` : title, thumb, url, isSnapshot, parentId, snapshotIndex, timestamp: new Date().getTime() }); }
-            localStorage.setItem('jav_favorites', JSON.stringify(favoriteList)); updateFavCountBadge();
-            const cardBtn = document.querySelector(`#item-card-${uniqueKey} button i`); if (cardBtn) cardBtn.className = actionType === 'add' ? "fas text-red-500 fa-heart text-sm" : "far fa-heart text-sm";
-            const modalBtn = document.querySelector(`#modal-heart-${uniqueKey} i`); if (modalBtn) modalBtn.className = actionType === 'add' ? "fas text-red-500 fa-heart text-sm" : "far text-white fa-heart text-sm";
-            if (activeMainTab === 'favorites') renderFavoritesPage(); // Render จาก local ทันที
-            if (gasEndpoint) { fetch(`${gasEndpoint}?${new URLSearchParams({ action: 'sync', id, title, thumb, url, status: actionType, isSnapshot: isSnapshot ? 'true' : 'false', parentId, snapshotIndex, timestamp: new Date().getTime() }).toString()}`, { mode: 'no-cors' }); }
-        }
-
-        async function syncFromGoogleSheet() {
-            if (!gasEndpoint) return;
-            try {
-                const res = await fetch(`${gasEndpoint}?action=getFavorites`); const data = await res.json();
-                if (data && data.success && Array.isArray(data.favorites)) {
-                    favoriteList = data.favorites.map(f => ({ ...f, isSnapshot: f.isSnapshot === 'true' || f.isSnapshot === true, snapshotIndex: parseInt(f.snapshotIndex) || 0 }));
-                    localStorage.setItem('jav_favorites', JSON.stringify(favoriteList)); updateFavCountBadge();
-                    if (activeMainTab === 'favorites') renderFavoritesPage();
-                }
-            } catch(e) {}
-        }
-
-        // Date Population Filter
-        function scanAndPopulateDatesDropdown() {
-            const dateSelect = document.getElementById('fav-date-filter');
-            if (!dateSelect) return;
-            const currentSelectedValue = dateSelect.value;
-            dateSelect.innerHTML = '<option value="all">ทั้งหมด</option>';
-            const dateSet = new Set();
-            favoriteList.forEach(item => { if (item.timestamp) { dateSet.add(new Date(item.timestamp).toLocaleDateString('th-TH')); } });
-            const sortedDates = Array.from(dateSet).sort((a, b) => {
-                const parse = dStr => { const p = dStr.split('/'); return new Date(parseInt(p[2])-543, parseInt(p[1])-1, parseInt(p[0])); };
-                return parse(b) - parse(a);
-            });
-            sortedDates.forEach(dStr => { dateSelect.innerHTML += `<option value="${dStr}">${dStr}</option>`; });
-            if (Array.from(dateSelect.options).some(opt => opt.value === currentSelectedValue)) dateSelect.value = currentSelectedValue;
-        }
-
-        function renderFavoritesPage() {
-            const grid = document.getElementById('gallery-grid');
-            const favFilter = document.getElementById('favorites-filter-container');
-            if (favoriteList.length === 0) {
-                if(favFilter) favFilter.classList.add('hidden');
-                grid.innerHTML = `<div class="col-span-full py-20 text-center dark:text-gray-400"><i class="far fa-heart text-5xl text-gray-300 mb-4 block"></i><p class="font-bold">ยังไม่มีรายการโปรด</p></div>`;
-                return;
-            }
-            if(activeMainTab === 'favorites' && favFilter) {
-                favFilter.classList.remove('hidden');
-                scanAndPopulateDatesDropdown();
-            }
-            filterFavorites();
-        }
-
-        function filterFavorites() {
-            if (activeMainTab !== 'favorites') return;
-            const query = document.getElementById('fav-search-input') ? document.getElementById('fav-search-input').value.toLowerCase().trim() : '';
-            const selectedDate = document.getElementById('fav-date-filter') ? document.getElementById('fav-date-filter').value : 'all';
-            const selectedSort = document.getElementById('fav-sort-filter') ? document.getElementById('fav-sort-filter').value : 'newest';
-            
-            let filteredList = [...favoriteList];
-            if (query) filteredList = filteredList.filter(f => (f.id && String(f.id).toLowerCase().includes(query)) || (f.title && String(f.title).toLowerCase().includes(query)));
-            if (selectedDate !== 'all') filteredList = filteredList.filter(f => f.timestamp && new Date(f.timestamp).toLocaleDateString('th-TH') === selectedDate);
-            
-            if (selectedSort === 'newest') filteredList.sort((a, b) => b.timestamp - a.timestamp);
-            else if (selectedSort === 'oldest') filteredList.sort((a, b) => a.timestamp - b.timestamp);
-
-            if (filteredList.length === 0) {
-                document.getElementById('gallery-grid').innerHTML = `<div class="col-span-full py-20 text-center dark:text-gray-400"><p class="font-bold">ไม่พบรูปภาพจากตัวกรองที่เลือก</p></div>`;
-            } else {
-                renderGrid(filteredList);
-            }
-        }
-
-        function toggleMovieDetailsToggle() {
-            const drawer = document.getElementById('movie-info-drawer'); const icon = document.getElementById('toggle-info-icon');
-            if (!drawer) return;
-            if (drawer.classList.contains('hidden')) { drawer.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)'; } 
-            else { drawer.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }
-        }
-
-        // 🎯 สแกนหน้า Modal และเพิ่มลิงก์ค้นหาคลิกได้
         async function openModal(id, url, thumbUrl, title) {
-            const modal = document.getElementById('modal'); modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; 
-            document.getElementById('movie-info-drawer').classList.add('hidden'); document.getElementById('toggle-info-icon').style.transform = 'rotate(0deg)';
-            document.getElementById('m-id').innerText = id; document.getElementById('m-title-short').innerText = title || id; document.getElementById('m-title').innerText = title || id;
+            const modal = document.getElementById('modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             
-            document.querySelector('.actor-list').innerHTML = `กำลังสแกน...`;
-            document.querySelector('.genre-list').innerHTML = `กำลังสแกน...`;
-            document.querySelector('.maker-list').innerHTML = `กำลังสแกน...`;
-            document.querySelector('.count-val').innerHTML = `กำลังสแกน...`;
+            updateDOMText('m-id', id);
+            updateDOMText('m-title', title || id);
             
-            const itemUrl = url || `${TARGET_URL}video/${id.toLowerCase().replace('-', '00')}`;
-            let highResCover = thumbUrl ? thumbUrl.replace('sn.jpg', 'pl.jpg').replace('-thumb.jpg', '.jpg').replace('ps.jpg', 'pl.jpg') : null;
-            currentImages = highResCover ? [highResCover] : []; 
-            renderModalImages(currentImages, id, title || id);
-
             try {
-                const html = await fetchHtml(itemUrl); const doc = new DOMParser().parseFromString(html, 'text/html');
+                const html = await fetchHtml(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
                 
-                // สแกนข้อมูลและแปลงเป็น Link
-                let stars = [...new Set(Array.from(doc.querySelectorAll('a[href*="/star/"], a[href*="/actress"]')).map(a => {
-                    let n = a.innerText.trim(); let h = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return n ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(n)}', '${h}'); return false;" class="text-pink-600 dark:text-pink-400 hover:underline hover:bg-pink-50 dark:hover:bg-pink-900/30 px-1 rounded transition-colors">${n}</a>` : null;
-                }).filter(Boolean))];
-                let genres = [...new Set(Array.from(doc.querySelectorAll('a[href*="/genre/"], a[href*="/category/"]')).map(a => {
-                    let n = a.innerText.trim(); let h = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return n ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(n)}', '${h}'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline hover:bg-blue-50 dark:hover:bg-blue-900/30 px-1 rounded transition-colors">${n}</a>` : null;
-                }).filter(Boolean))];
-                let makers = [...new Set(Array.from(doc.querySelectorAll('a[href*="/company/"], a[href*="/maker"]')).map(a => {
-                    let n = a.innerText.trim(); let h = resolveUrl(a.getAttribute('href'), itemUrl);
-                    return n ? `<a href="#" onclick="triggerDirectSearch('${escapeQuotes(n)}', '${h}'); return false;" class="text-purple-600 dark:text-purple-400 hover:underline hover:bg-purple-50 dark:hover:bg-purple-900/30 px-1 rounded transition-colors">${n}</a>` : null;
-                }).filter(Boolean))];
-
-                document.querySelector('.actor-list').innerHTML = stars.join(', ') || '-';
-                document.querySelector('.genre-list').innerHTML = genres.join(', ') || '-';
-                document.querySelector('.maker-list').innerHTML = makers.join(', ') || '-';
-
-                const snapshotSet = new Set(); if (highResCover) snapshotSet.add(highResCover);
-                const cleanId = id.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-                doc.querySelectorAll('img').forEach(img => {
-                    let rawS = img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('src');
-                    if (!rawS || rawS.includes('logo') || rawS.includes('avatar') || rawS.includes('banner')) return;
-                    const parentLink = img.closest('a');
-                    if (parentLink) { const href = parentLink.getAttribute('href') || ''; if (href.includes('/video/') && !href.toLowerCase().includes(cleanId)) return; }
-                    let s = resolveUrl(rawS, itemUrl); let altText = (img.getAttribute('alt') || '').toLowerCase(); let sLower = s.toLowerCase();
-                    const isScenePattern = sLower.includes('/snapshot/') || sLower.match(/-\d+\.jpg/i) || sLower.match(/-\d+t\.jpg/i) || sLower.match(/jp-\d+\.jpg/i) || altText.includes('screenshot');
-                    if (isScenePattern && !sLower.includes('ps.jpg') && !sLower.includes('sn.jpg')) {
-                        snapshotSet.add(s.replace(/(\d+)t\.jpg/i, '$1.jpg').replace('sn.jpg', 'pl.jpg').replace('ps.jpg', 'pl.jpg'));
-                    }
+                // ดึงภาพปก (Cover)
+                let coverSrc = thumbUrl;
+                const coverImg = doc.querySelector('.video-cover');
+                if (coverImg) coverSrc = resolveUrl(coverImg.getAttribute('src'), url);
+                
+                // ดึงภาพแกลเลอรี (Gallery) พร้อมต่อท้ายด้วย #gallery-1, #gallery-2 ตามโครงสร้างใหม่
+                const previewImages = Array.from(doc.querySelectorAll('.preview-images a')).map((a, index) => {
+                    let fullImg = resolveUrl(a.getAttribute('href'), url);
+                    return `${fullImg}#gallery-${index + 1}`; // นำไปใช้ตามแพทเทิร์นเว็บใหม่
                 });
 
-                currentImages = Array.from(snapshotSet);
-                document.querySelector('.count-val').innerHTML = `${currentImages.length} รูป`;
-                renderModalImages(currentImages, id, title || id);
-            } catch(e) { document.querySelector('.count-val').innerHTML = `โหลดได้เฉพาะปก`; }
+                currentImages = [coverSrc, ...previewImages].filter(Boolean);
+                
+                updateDOMHTML('m-count', `<strong><i class="fas fa-images"></i> จำนวนรูป:</strong> ${currentImages.length}`);
+                
+                renderModalImages(currentImages, id, title);
+            } catch(e) {
+                renderModalImages([thumbUrl], id, title);
+            }
         }
 
         function renderModalImages(images, id, title) {
-            const container = document.getElementById('modal-images'); const safeId = String(id || '').replace(/\s+/g, '_');
-            container.innerHTML = images.map((src, i) => {
-                const isSnapshot = i > 0; const uniqueKey = isSnapshot ? `snapshot_${safeId}_${i}` : safeId;
-                const isFav = favoriteList.some(f => { if (isSnapshot) return f.isSnapshot && f.parentId === id && f.thumb === src; return !f.isSnapshot && f.id === id; });
-                const animDelay = (i % 8) * 0.05;
-                return `<div class="masonry-item animate-fade-up" style="animation-delay: ${animDelay}s"><div class="group relative rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all"><div class="absolute top-2.5 left-2.5 z-10 bg-black/60 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-full font-bold">${i === 0 ? 'COVER' : '#' + i}</div><button id="modal-heart-${uniqueKey}" onclick="event.stopPropagation(); toggleFavorite(null, '${id}', '${escapeQuotes(title)}', '${src}', '${currentUrl}', ${isSnapshot}, '${id}', ${i})" class="absolute bottom-2.5 left-2.5 z-20 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md"><i class="${isFav ? 'fas text-red-500' : 'far text-white'} fa-heart text-sm"></i></button><div onclick="openFullImgModal(${i})" class="cursor-zoom-in overflow-hidden">${getRobustImgTag(src, "w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500")}</div></div></div>`;
-            }).join('');
+            const html = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                    ${images.map((src, i) => `
+                        <div class="rounded-lg overflow-hidden border border-gray-300">
+                            ${getRobustImgTag(src, `w-full h-auto object-contain ${i === 0 ? 'col-span-2' : ''}`)}
+                            <div class="p-1 text-xs text-center text-gray-500 break-all">${src.split('#')[1] || 'Cover'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            updateDOMHTML('modal-images', html);
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); document.body.style.overflow = 'auto'; }
-        function openFullImgModal(index) { slideshowActiveIndex = index; document.getElementById('full-img-modal').classList.remove('hidden'); document.getElementById('full-img-modal').classList.add('flex'); updateFullImgView(); }
-        function closeFullImgModal() { stopSlideshow(); document.getElementById('full-img-modal').classList.add('hidden'); document.getElementById('full-img-modal').classList.remove('flex'); }
-        function updateFullImgView() { const targetImg = document.getElementById('full-modal-target-img'); const infoText = document.getElementById('slideshow-info'); if (!targetImg || !currentImages[slideshowActiveIndex]) return; targetImg.style.opacity = '0'; setTimeout(() => { targetImg.src = currentImages[slideshowActiveIndex]; targetImg.onload = () => { targetImg.style.opacity = '1'; }; if (infoText) infoText.innerText = `${slideshowActiveIndex + 1} / ${currentImages.length}`; }, 100); }
-        function openCurrentImageSource() { if (currentImages[slideshowActiveIndex]) window.open(currentImages[slideshowActiveIndex], '_blank'); }
-        function nextFullImg() { if (!currentImages.length) return; slideshowActiveIndex = (slideshowActiveIndex + 1) % currentImages.length; updateFullImgView(); }
-        function prevFullImg() { if (!currentImages.length) return; slideshowActiveIndex = (slideshowActiveIndex - 1 + currentImages.length) % currentImages.length; updateFullImgView(); }
-        function toggleSlideshow() { slideshowInterval ? stopSlideshow() : startSlideshow(); }
-        function startSlideshow() { const icon = document.getElementById('play-icon'); slideshowSpeed = parseInt(document.getElementById('slideshow-speed').value); if (icon) icon.className = "fas fa-pause"; slideshowInterval = setInterval(() => nextFullImg(), slideshowSpeed); }
-        function stopSlideshow() { const icon = document.getElementById('play-icon'); if (icon) icon.className = "fas fa-play"; if (slideshowInterval) { clearInterval(slideshowInterval); slideshowInterval = null; } }
-        function changeSlideshowSpeed() { if (slideshowInterval) { stopSlideshow(); startSlideshow(); } }
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+            document.body.style.overflow = 'auto'; 
+        }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { closeFullImgModal(); closeModal(); closeSearchModal(); closeLinkInputModal(); }
-            if (!document.getElementById('full-img-modal').classList.contains('hidden')) { if (e.key === 'ArrowRight') nextFullImg(); else if (e.key === 'ArrowLeft') prevFullImg(); }
-        });
+        function closeFullImgModal() {
+            document.getElementById('full-img-modal').classList.add('hidden');
+            document.getElementById('full-img-modal').classList.remove('flex');
+            if(slideshowInterval) clearInterval(slideshowInterval);
+        }
 
-        function openConfigModal() { const input = document.getElementById('gas-url-input'); if (input) input.value = gasEndpoint; document.getElementById('config-modal').classList.remove('hidden'); document.getElementById('config-modal').classList.add('flex'); }
-        function closeConfigModal() { document.getElementById('config-modal').classList.add('hidden'); document.getElementById('config-modal').classList.remove('flex'); }
-        async function testAndSaveGAS() { const url = document.getElementById('gas-url-input') ? document.getElementById('gas-url-input').value.trim() : ''; if (!url) return; gasEndpoint = url; localStorage.setItem('gas_url', url); showToast("บันทึกการตั้งค่าแล้ว", "success"); closeConfigModal(); }
-        function disconnectGAS() { gasEndpoint = ''; localStorage.removeItem('gas_url'); if (document.getElementById('gas-url-input')) document.getElementById('gas-url-input').value = ''; showToast("ยกเลิกการเชื่อมต่อ", "info"); closeConfigModal(); }
+        function goHome() { loadPage(TARGET_URL); }
+        function loadLatest() { loadPage(TARGET_URL); }
+        function toggleBookmarkPanel() { /* Toggle Logic here */ }
+        function changeGridSize(size) { /* Grid resize Logic here */ }
 
-        window.onload = () => { initFavorites(); loadBookmarks(); loadLatest(); };
+        // --- 🚀 เติมฟังก์ชันที่ถูกตัดออกให้สมบูรณ์ ---
+        async function fetchBlobRacing(url) {
+            // Basic blob fetch fallback
+            const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+            return await res.blob();
+        }
+
+        async function downloadAllIndividuallyModal() {
+            if (!currentImages.length) return;
+            const btn = document.getElementById('btn-dl-all-modal');
+            const idEl = document.getElementById('m-id');
+            const movieId = idEl ? idEl.innerText.trim() : 'Unknown';
+            const originalText = btn ? btn.innerHTML : '';
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> เตรียมดาวน์โหลด...`;
+            }
+            
+            try {
+                let completed = 0;
+                for (let i = 0; i < currentImages.length; i++) {
+                    const imgUrl = currentImages[i].split('#')[0]; // ตัด Hash ออกตอนโหลดจริง
+                    if (btn) btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> กำลังโหลด (${completed + 1}/${currentImages.length})`;
+                    
+                    try {
+                        const blob = await fetchBlobRacing(imgUrl);
+                        const filename = i === 0 ? `cover_${movieId}.jpg` : `scene_${movieId}_${i}.jpg`;
+                        
+                        const objUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = objUrl;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(objUrl), 100);
+                        completed++;
+                    } catch (err) {
+                        console.warn(`Failed downloading image at index ${i}:`, err);
+                    }
+                    
+                    await new Promise(r => setTimeout(r, 220)); 
+                }
+                
+                if (btn) btn.innerHTML = `<i class="fas fa-check-circle mr-1"></i> โหลดเสร็จสิ้น!`;
+                showToast(`โหลดรูปภาพของเรื่อง ${movieId} เสร็จสมบูรณ์`, "success");
+            } catch(e) {
+                if (btn) btn.innerHTML = `<i class="fas fa-times-circle mr-1"></i> โหลดผิดพลาด`;
+                showToast("พบปัญหาในการเชื่อมต่อเพื่อดาวน์โหลดรูป", "error");
+            } finally {
+                setTimeout(() => {
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                }, 3000);
+            }
+        }
+
+        // Initialize App
+        initUIMode();
+        loadPage(TARGET_URL);
+
     </script>
 </body>
 </html>

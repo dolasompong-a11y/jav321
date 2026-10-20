@@ -59,17 +59,17 @@
         <button onclick="toggleTheme()" class="p-2 text-gray-600 dark:text-yellow-400" title="สลับธีม"><i id="theme-icon" class="fas fa-moon"></i></button>
         <button onclick="loadLatest()" class="p-2 text-red-500" title="หน้า JAVDB"><i class="fas fa-fire text-lg"></i></button>
         <button onclick="openConfigModal()" class="p-2 text-green-600 dark:text-green-400" title="ตั้งค่า Google Apps Script"><i class="fas fa-cloud text-lg"></i></button>
-        <button onclick="toggleBookmarkPanel()" class="p-2 text-yellow-500 relative" title="ลิงก์ที่บันทึก"><i class="fas fa-bookmark text-lg"></i><span id="bookmark-badge" class="hidden absolute -top-1 -right-1 bg-yellow-600 text-white text-[9px] w-4 h-4 rounded-full items-center justify-center">0</span></button>
+        <button onclick="toggleBookmarkPanel()" class="p-2 text-yellow-500 relative" title="ลิงก์ที่บันทึก"><i class="fas fa-bookmark text-lg"></i><span id="bookmark-badge" class="absolute -top-1 -right-1 min-w-[1.1rem] h-4 px-1 text-[9px] leading-4 rounded-full bg-red-500 text-white hidden">0</span></button>
       </div>
       <div class="flex items-center gap-1.5">
         <button onclick="openSearchModal()" class="p-2.5 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-gray-100" title="ค้นหา"><i class="fas fa-search"></i></button>
         <button onclick="openLinkInputModal()" class="p-2.5 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-gray-100" title="วางลิงก์"><i class="fas fa-link"></i></button>
-        <button onclick="clearHistory()" class="p-2.5 rounded-full bg-orange-50 text-orange-500 dark:bg-gray-700" title="ล้างประวัติในหน้านี้"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="clearHistory()" class="p-2.5 rounded-full bg-orange-50 text-orange-500 dark:bg-gray-700" title="ล้างประวัติในหน้านี้"><i class="fas fa-history"></i></button>
       </div>
     </div>
     <div class="bg-gray-50 border-t border-gray-200 py-1.5 px-3 dark:bg-gray-900 dark:border-gray-700 flex flex-wrap items-center justify-center gap-2">
-      <div class="flex min-w-0 items-center gap-1 overflow-hidden"><span class="text-[10px] sm:text-xs text-gray-400 font-bold shrink-0">ลิงก์ที่เปิดอยู่:</span><a id="display-active-url" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="text-[10px] sm:text-xs text-blue-500 truncate">https://javdb.com/</a></div>
-      <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="text-[10px] bg-yellow-50 dark:bg-gray-800 border border-yellow-200 dark:border-gray-700 px-2.5 py-0.5 rounded-full font-bold text-yellow-700 dark:text-yellow-400"><i class="far fa-star"></i> บันทึกหน้านี้</button>
+      <div class="flex min-w-0 items-center gap-1 overflow-hidden"><span class="text-[10px] sm:text-xs text-gray-400 font-bold shrink-0">ลิงก์ที่เปิดอยู่:</span><a id="display-active-url" class="text-[10px] sm:text-xs text-blue-600 hover:underline truncate max-w-[12rem] sm:max-w-[22rem]" href="https://javdb.com/" target="_blank" rel="noopener noreferrer">https://javdb.com/</a></div>
+      <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="text-[10px] bg-yellow-50 dark:bg-gray-800 border border-yellow-200 dark:border-gray-700 px-2.5 py-0.5 rounded-full text-yellow-700 dark:text-yellow-300"><i class="far fa-star"></i> บันทึกหน้า</button>
       <a class="text-[10px] text-gray-400 hover:underline" href="https://javdb.com/" target="_blank" rel="noopener noreferrer">เปิด JAVDB ต้นทาง <i class="fas fa-external-link-alt"></i></a>
     </div>
   </header>
@@ -77,14 +77,14 @@
   <main class="container mx-auto px-2 sm:px-3 py-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
       <div class="flex flex-wrap gap-2 items-center">
-        <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-300"><span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span><span id="status-text" class="font-bold">พร้อมทำงาน</span></div>
+        <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-300"><span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span><span id="status-text" class="font-medium">พร้อมใช้งาน</span></div>
         <div class="flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 text-xs">
           <button id="btn-nav-back" onclick="navigateHistoryBack()" disabled class="px-2.5 py-1.5 rounded-md text-gray-400"> <i class="fas fa-arrow-left"></i> ย้อนกลับ</button>
           <button id="btn-nav-forward" onclick="navigateHistoryForward()" disabled class="px-2.5 py-1.5 rounded-md text-gray-400">ถัดไป <i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1 text-xs">
           <button id="tab-home" onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-md font-bold bg-white dark:bg-gray-800 shadow-sm"><i class="fas fa-home mr-1"></i> หน้าแรก</button>
-          <button id="tab-fav" onclick="switchMainTab('favorites')" class="px-3 py-1.5 rounded-md font-bold text-gray-600 dark:text-gray-300"><i class="fas fa-heart text-red-500 mr-1"></i> รายการโปรด (<span id="fav-count">0</span>)</button>
+          <button id="tab-fav" onclick="switchMainTab('favorites')" class="px-3 py-1.5 rounded-md font-bold text-gray-600 dark:text-gray-300"><i class="fas fa-heart text-red-500 mr-1"></i> รายการโปรด <span id="fav-count" class="ml-1 bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]">0</span></button>
         </div>
       </div>
       <div class="flex items-center justify-center md:justify-end gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-1">
@@ -95,8 +95,8 @@
       </div>
     </div>
     <div id="favorites-filter-container" class="hidden mb-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 flex flex-col sm:flex-row gap-2">
-      <input id="fav-search-input" oninput="filterFavorites()" placeholder="กรองรายการโปรดด้วยรหัสหรือชื่อ..." class="flex-1 min-w-0 bg-transparent border rounded-lg dark:border-gray-600 px-3 py-2 text-sm">
-      <select id="fav-sort-filter" onchange="filterFavorites()" class="bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm"><option value="newest">บันทึกใหม่สุด</option><option value="oldest">บันทึกเก่าสุด</option><option value="title">เรียงตามชื่อ</option></select>
+      <input id="fav-search-input" oninput="filterFavorites()" placeholder="กรองรายการโปรดด้วยรหัสหรือชื่อ..." class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+      <select id="fav-sort-filter" onchange="filterFavorites()" class="bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm"><option value="newest">บันทึกล่าสุด</option><option value="oldest">บันทึกเก่าสุด</option><option value="title">เรียงตามชื่อ</option></select>
     </div>
     <div id="gallery-grid" class="masonry-grid size-medium"></div>
     <div id="pagination" class="mt-8 mb-16 flex justify-center items-center gap-3 hidden">
@@ -104,25 +104,25 @@
       <span id="page-number" class="font-bold text-sm bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-xl">หน้า 1</span>
       <button onclick="navPage(1)" id="btn-next" class="px-4 py-2 bg-primary text-white rounded-xl">ถัดไป <i class="fas fa-chevron-right"></i></button>
     </div>
-    <p class="text-center text-[10px] text-gray-400 pb-6">JAV Gallery Hub ใช้แสดงรายการและภาพจาก JAVDB ตามลิงก์ต้นทาง การโหลดข้อมูลขึ้นอยู่กับการเข้าถึงของ JAVDB และบริการพร็อกซีที่ตั้งค่าไว้</p>
+    <p class="text-center text-[10px] text-gray-400 pb-6">JAV Gallery Hub ใช้แสดงรายการและภาพจาก JAVDB ตามลิงก์ต้นทาง การแสดงผลรวมถึงภาพที่โหลดจากเว็บต้นทางอาจต้องมีการเชื่อมต่ออินเทอร์เน็ต</p>
   </main>
 
-  <aside id="bookmark-panel" class="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white dark:bg-gray-800 shadow-2xl z-[90] translate-x-full transition-transform duration-300 border-l border-gray-200 dark:border-gray-700 flex flex-col">
-    <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center"><h3 class="font-bold text-sm"><i class="fas fa-bookmark text-yellow-500 mr-2"></i>ลิงก์ที่บันทึกไว้</h3><button onclick="toggleBookmarkPanel()" class="p-1 text-gray-500"><i class="fas fa-times"></i></button></div>
+  <aside id="bookmark-panel" class="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white dark:bg-gray-800 shadow-2xl z-[90] translate-x-full transition-transform duration-300 border-l border-gray-200 dark:border-gray-700">
+    <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center"><h3 class="font-bold text-sm"><i class="fas fa-bookmark text-yellow-500 mr-2"></i>ลิงก์ที่บันทึก</h3><button onclick="toggleBookmarkPanel()" class="text-gray-500"><i class="fas fa-times"></i></button></div>
     <div id="bookmark-list" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
   </aside>
 
   <div id="search-modal" class="fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-search text-primary mr-2"></i>ค้นหาใน JAVDB</h3><button onclick="closeSearchModal()" class="text-gray-400"><i class="fas fa-times"></i></button></div>
-      <div class="flex gap-2"><input id="search-modal-input" type="text" placeholder="พิมพ์รหัสหรือคำค้นหา..." class="flex-1 min-w-0 text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl py-3 px-4"><button onclick="executeModalSearch()" class="bg-primary text-white px-5 rounded-xl text-sm font-bold">ค้นหา</button></div>
+      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-search text-primary mr-2"></i>ค้นหาใน JAVDB</h3><button onclick="closeSearchModal()" class="text-gray-500"><i class="fas fa-times"></i></button></div>
+      <div class="flex gap-2"><input id="search-modal-input" type="text" placeholder="พิมพ์รหัสหรือคำค้นหา..." class="flex-1 min-w-0 text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"><button onclick="executeModalSearch()" class="bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold">ค้นหา</button></div>
       <p class="text-[11px] text-gray-400 mt-3">ระบบจะเปิดเส้นทางค้นหาแบบ <code>/search?q=คำค้น</code> ของ JAVDB</p>
     </div>
   </div>
   <div id="link-modal" class="fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-link text-blue-500 mr-2"></i>เปิดจากลิงก์ JAVDB</h3><button onclick="closeLinkInputModal()" class="text-gray-400"><i class="fas fa-times"></i></button></div>
-      <input id="link-modal-input" type="url" placeholder="https://javdb.com/v/WwWE7g#gallery-1" class="w-full text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl py-3 px-4">
+      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-link text-blue-500 mr-2"></i>เปิดจากลิงก์ JAVDB</h3><button onclick="closeLinkInputModal()" class="text-gray-500"><i class="fas fa-times"></i></button></div>
+      <input id="link-modal-input" type="url" placeholder="https://javdb.com/v/WwWE7g#gallery-1" class="w-full text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-300">
       <button onclick="executeModalLink()" class="mt-3 w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold">เปิดลิงก์</button>
     </div>
   </div>
@@ -130,24 +130,28 @@
   <div id="modal" class="fixed inset-0 z-[110] bg-black/90 hidden items-center justify-center p-2 sm:p-4 backdrop-blur-md">
     <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/70 text-white rounded-full w-10 h-10 z-[120]"><i class="fas fa-times"></i></button>
     <div class="bg-white dark:bg-gray-800 w-full max-w-6xl h-[94vh] rounded-2xl overflow-hidden flex flex-col relative shadow-2xl">
-      <div class="p-3 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 flex items-center justify-between gap-3 shrink-0"><div class="min-w-0"><span id="m-id" class="bg-primary text-white px-2 py-1 rounded text-xs font-bold mr-2"></span><span id="m-title-short" class="font-bold text-xs sm:text-sm truncate"></span></div><div class="flex gap-2 shrink-0"><a id="m-source-link" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg text-xs bg-gray-200 dark:bg-gray-700">หน้า JAVDB <i class="fas fa-external-link-alt"></i></a><button onclick="toggleMovieDetailsToggle()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 dark:bg-gray-700"><i class="fas fa-info-circle text-blue-500"></i> รายละเอียด</button></div></div>
-      <div id="movie-info-drawer" class="hidden bg-gray-100 dark:bg-gray-900 border-b dark:border-gray-700 p-3 sm:p-4 text-xs sm:text-sm space-y-2 shrink-0 max-h-[38vh] overflow-y-auto"><h2 id="m-title" class="font-bold mb-2"></h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-white dark:bg-gray-800 p-3 rounded-xl"><p><strong><i class="fas fa-hashtag text-pink-500 mr-1"></i>รหัส:</strong><span id="m-code" class="block mt-1"></span></p><p><strong><i class="fas fa-calendar text-blue-500 mr-1"></i>วันที่ออก:</strong><span id="m-date" class="block mt-1"></span></p><div><strong><i class="fas fa-user-tie text-purple-500 mr-1"></i>Director:</strong><div id="m-directors" class="mt-1 flex flex-wrap gap-1.5"></div></div><div><strong><i class="fas fa-building text-indigo-500 mr-1"></i>Maker:</strong><div id="m-makers" class="mt-1 flex flex-wrap gap-1.5"></div></div><div><strong><i class="fas fa-layer-group text-teal-500 mr-1"></i>Series:</strong><div id="m-series" class="mt-1 flex flex-wrap gap-1.5"></div></div><div><strong><i class="fas fa-tags text-orange-500 mr-1"></i>Tags:</strong><div id="m-tags" class="mt-1 flex flex-wrap gap-1.5"></div></div><div class="lg:col-span-3"><strong><i class="fas fa-user-circle text-pink-500 mr-1"></i>Actor(s):</strong><div id="m-actors" class="mt-1 flex flex-wrap gap-1.5"></div></div></div></div>
-      <div id="modal-images-scroll" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-gray-100 dark:bg-gray-950 modal-scroll"><p id="gallery-note" class="text-xs text-gray-500 dark:text-gray-400 mb-3"></p><div id="modal-images" class="modal-masonry"></div></div>
+      <div class="p-3 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 flex items-center justify-between gap-3 shrink-0"><div class="min-w-0"><span id="m-id" class="bg-primary text-white px-2 py-1 rounded-full text-[10px] font-bold">JAVDB</span><span id="m-title-short" class="ml-2 text-sm font-bold truncate">กำลังโหลด...</span></div><button onclick="toggleMovieDetailsToggle()" class="text-xs text-gray-500 dark:text-gray-300">ข้อมูล</button></div>
+      <div id="movie-info-drawer" class="hidden bg-gray-100 dark:bg-gray-900 border-b dark:border-gray-700 p-3 sm:p-4 text-xs sm:text-sm space-y-2 shrink-0 max-h-[38vh] overflow-y-auto"><h2 id="m-title" class="font-bold text-base">กำลังโหลด...</h2><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><div><p class="text-gray-500">รหัส</p><p id="m-code" class="font-bold">—</p></div><div><p class="text-gray-500">วันที่</p><p id="m-date" class="font-bold">—</p></div></div><div><p class="text-gray-500">ผู้กำกับ</p><div id="m-directors" class="mt-1 flex flex-wrap gap-1"></div></div><div><p class="text-gray-500">ผู้ผลิต</p><div id="m-makers" class="mt-1 flex flex-wrap gap-1"></div></div><div><p class="text-gray-500">ซีรีส์</p><div id="m-series" class="mt-1 flex flex-wrap gap-1"></div></div><div><p class="text-gray-500">นักแสดง</p><div id="m-actors" class="mt-1 flex flex-wrap gap-1"></div></div><div><p class="text-gray-500">แท็ก</p><div id="m-tags" class="mt-1 flex flex-wrap gap-1"></div></div><a id="m-source-link" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="inline-block text-blue-600 underline">เปิดหน้าต้นทาง</a></div>
+      <div id="modal-images-scroll" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-gray-100 dark:bg-gray-950 modal-scroll"><p id="gallery-note" class="text-xs text-gray-500 dark:text-gray-400 mb-3"></p><div id="modal-images" class="masonry-grid modal-masonry"></div></div>
     </div>
   </div>
 
   <div id="full-img-modal" class="fixed inset-0 z-[130] bg-black/95 hidden flex-col items-center justify-center p-4" style="pointer-events:auto">
-    <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-4 sm:px-6 z-50" style="pointer-events:none"><span id="slideshow-info" class="text-white text-xs bg-black/60 px-3 py-1.5 rounded-full">1/1</span><div class="flex items-center gap-2 bg-black/60 p-1.5 rounded-full border border-white/20"><button id="btn-play-slideshow" type="button" onclick="toggleSlideshow(); return false" style="pointer-events:auto" class="text-green-400 px-3 py-1 text-xs font-bold"><i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">สไลด์โชว์</span></button><select id="slideshow-speed" style="pointer-events:auto" class="bg-gray-800 text-white rounded border border-gray-600 px-1 py-0.5 text-xs" onchange="changeSlideshowSpeed()"><option value="1000">1 วิ</option><option value="3000" selected>3 วิ</option><option value="5000">5 วิ</option></select></div><button type="button" onclick="closeFullImgModal(); return false" style="pointer-events:auto" class="text-white bg-red-600 w-9 h-9 rounded-full"><i class="fas fa-times"></i></button></div>
-    <div class="relative w-full max-w-5xl h-[82vh] flex items-center justify-center" style="isolation:isolate"><button type="button" aria-label="ภาพก่อนหน้า" onclick="prevFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute left-2 sm:left-4 text-white bg-black/60 hover:bg-black/90 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-chevron-left"></i></button><img id="full-modal-target-img" src="" alt="ภาพจากแกลเลอรี" draggable="false" style="pointer-events:none;user-select:none;z-index:1" class="max-w-full max-h-full object-contain rounded-lg"><button type="button" aria-label="ภาพถัดไป" onclick="nextFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute right-2 sm:right-4 text-white bg-black/60 hover:bg-black/90 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-chevron-right"></i></button></div>
-    <button type="button" onclick="openCurrentImageSource(); return false" style="z-index:60;pointer-events:auto" class="mt-3 text-xs text-gray-300 underline">เปิดภาพต้นฉบับในแท็บใหม่</button>
+    <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-4 sm:px-6 z-50" style="pointer-events:none"><span id="slideshow-info" class="text-white text-xs bg-black/60 px-3 py-1 rounded-full">1 / 1</span><button type="button" onclick="closeFullImgModal()" class="bg-black/70 text-white rounded-full w-9 h-9" style="pointer-events:auto"><i class="fas fa-times"></i></button></div>
+    <div class="relative w-full max-w-5xl h-[82vh] flex items-center justify-center" style="isolation:isolate"><button type="button" aria-label="ภาพก่อนหน้า" onclick="prevFullImg()" class="absolute left-2 sm:left-4 z-30 bg-black/50 text-white rounded-full w-10 h-10"><i class="fas fa-chevron-left"></i></button><img id="full-modal-target-img" alt="Full size preview" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-opacity duration-200" style="opacity:1"><button type="button" aria-label="ภาพถัดไป" onclick="nextFullImg()" class="absolute right-2 sm:right-4 z-30 bg-black/50 text-white rounded-full w-10 h-10"><i class="fas fa-chevron-right"></i></button></div>
+    <div class="mt-3 flex items-center gap-2 text-white text-xs">
+      <button type="button" onclick="toggleSlideshow()" class="bg-black/60 px-3 py-1.5 rounded-full"><i id="play-icon" class="fas fa-play"></i> <span id="slideshow-label">เล่นสไลด์</span></button>
+      <label class="flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full"><span>ความเร็ว</span><input id="slideshow-speed" type="range" min="500" max="6000" step="500" value="3000" onchange="changeSlideshowSpeed()" class="accent-red-500"></label>
+      <button type="button" onclick="openCurrentImageSource(); return false" class="text-gray-300 underline">เปิดภาพต้นฉบับ</button>
+    </div>
   </div>
 
   <div id="config-modal" class="fixed inset-0 z-[140] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-database text-green-500 mr-2"></i>ตั้งค่า Google Apps Script</h3><button onclick="closeConfigModal()" class="text-gray-400"><i class="fas fa-times"></i></button></div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">ใส่ Web App URL ที่ระบบเดิมใช้สำหรับ fetchHtml และซิงค์รายการโปรด หากไม่ตั้งค่า ระบบจะลองใช้บริการ CORS proxy สาธารณะ ซึ่งอาจใช้งานไม่ได้กับหน้าเว็บที่จำกัดการเข้าถึง</p>
-      <label for="gas-url-input" class="block text-xs font-bold text-gray-400 mb-1.5">Google Web App URL</label><input id="gas-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl py-2.5 px-3">
-      <div class="flex gap-2 mt-4"><button onclick="testAndSaveGAS()" class="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-sm font-bold">บันทึก URL</button><button onclick="disconnectGAS()" class="bg-gray-200 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold">ล้างค่า</button></div>
+      <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg"><i class="fas fa-database text-green-500 mr-2"></i>ตั้งค่า Google Apps Script</h3><button onclick="closeConfigModal()" class="text-gray-500"><i class="fas fa-times"></i></button></div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">ใส่ Web App URL ที่ระบบเดิมใช้สำหรับ fetchHtml และซิงค์รายการโปรด/ลิงก์</p>
+      <label for="gas-url-input" class="block text-xs font-bold text-gray-400 mb-1.5">Google Web App URL</label><input id="gas-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-sm bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-300">
+      <div class="flex gap-2 mt-4"><button onclick="testAndSaveGAS()" class="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-sm font-bold">บันทึก URL</button><button onclick="disconnectGAS()" class="flex-1 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 py-2.5 rounded-xl text-sm font-bold">ยกเลิก</button></div>
     </div>
   </div>
 
@@ -174,6 +178,17 @@ let loadRequestToken = 0;
 
 try { gasEndpoint = localStorage.getItem('gas_url') || ''; } catch (_) {}
 
+function safeReadJson(key, fallback = []) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
@@ -192,29 +207,34 @@ function isJavdbUrl(value) {
 }
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
+  if (!container) return;
   const toast = document.createElement('div');
-  const palette = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : type === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-white border-gray-200 text-gray-800';
-  const icon = type === 'success' ? 'check-circle text-green-500' : type === 'error' ? 'exclamation-circle text-red-500' : type === 'warning' ? 'exclamation-triangle text-yellow-500' : 'info-circle text-blue-500';
+  const palette = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : type === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-blue-50 border-blue-200 text-blue-800';
+  const iconClass = type === 'success' ? 'fas fa-check-circle text-green-500' : type === 'error' ? 'fas fa-exclamation-circle text-red-500' : type === 'warning' ? 'fas fa-exclamation-triangle text-yellow-500' : 'fas fa-info-circle text-blue-500';
   toast.className = `pointer-events-auto p-3 rounded-xl shadow-xl border text-xs font-semibold flex items-center gap-2 ${palette} dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700`;
-  toast.innerHTML = `<i class="fas fa-${icon}"></i><span>${escapeHtml(message)}</span>`;
+  toast.innerHTML = `<i class="${escapeHtml(iconClass)}"></i><span>${escapeHtml(message)}</span>`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3600);
 }
 function setStatus(text, kind = 'ok') {
-  document.getElementById('status-text').textContent = text;
+  const target = document.getElementById('status-text');
+  if (target) target.textContent = text;
   const dot = document.getElementById('status-dot');
-  dot.className = 'w-2.5 h-2.5 rounded-full ' + (kind === 'error' ? 'bg-red-500' : kind === 'loading' ? 'bg-yellow-400 animate-pulse' : 'bg-green-500 animate-pulse');
+  if (dot) dot.className = 'w-2.5 h-2.5 rounded-full ' + (kind === 'error' ? 'bg-red-500' : kind === 'loading' ? 'bg-yellow-400 animate-pulse' : 'bg-green-500 animate-pulse');
 }
 function updateActiveUrl(url) {
   currentUrl = url;
   const a = document.getElementById('display-active-url');
-  a.textContent = url;
-  a.href = url;
+  if (a) {
+    a.textContent = url;
+    a.href = url;
+  }
   updateCurrentPageBookmarkButtonUI();
 }
 function updateNavigationButtonsUI() {
   const back = document.getElementById('btn-nav-back');
   const forward = document.getElementById('btn-nav-forward');
+  if (!back || !forward) return;
   back.disabled = historyIndex <= 0;
   forward.disabled = historyIndex >= historyStack.length - 1;
   back.className = 'px-2.5 py-1.5 rounded-md ' + (back.disabled ? 'text-gray-400' : 'bg-gray-100 dark:bg-gray-700');
@@ -225,29 +245,37 @@ function changeGridSize(size) {
   document.querySelectorAll('.size-btn').forEach(btn => btn.className = 'size-btn px-2.5 py-1 text-xs rounded font-bold text-gray-600 dark:text-gray-300');
   const active = document.getElementById(`btn-grid-${size}`);
   if (active) active.className = 'size-btn active bg-primary text-white px-2.5 py-1 text-xs rounded font-bold';
-  document.getElementById('gallery-grid').className = `masonry-grid size-${size}`;
+  const grid = document.getElementById('gallery-grid');
+  if (grid) grid.className = `masonry-grid size-${size}`;
 }
 function toggleTheme() {
   const dark = document.documentElement.classList.toggle('dark');
   try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (_) {}
   updateThemeUI();
 }
-function updateThemeUI() { document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun text-yellow-400' : 'fas fa-moon'; }
-function openModalBox(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); }
-function closeModalBox(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); }
-function openSearchModal() { openModalBox('search-modal'); setTimeout(() => document.getElementById('search-modal-input').focus(), 20); }
+function updateThemeUI() { const icon = document.getElementById('theme-icon'); if (icon) icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun text-yellow-400' : 'fas fa-moon'; }
+function openModalBox(id) { const el = document.getElementById(id); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); }
+function closeModalBox(id) { const el = document.getElementById(id); if (!el) return; el.classList.add('hidden'); el.classList.remove('flex'); }
+function openSearchModal() { openModalBox('search-modal'); setTimeout(() => document.getElementById('search-modal-input')?.focus(), 20); }
 function closeSearchModal() { closeModalBox('search-modal'); }
-function openLinkInputModal() { openModalBox('link-modal'); setTimeout(() => document.getElementById('link-modal-input').focus(), 20); }
+function openLinkInputModal() { openModalBox('link-modal'); setTimeout(() => document.getElementById('link-modal-input')?.focus(), 20); }
 function closeLinkInputModal() { closeModalBox('link-modal'); }
+function closeAllModals() {
+  closeFullImgModal();
+  closeModal();
+  closeSearchModal();
+  closeLinkInputModal();
+  closeConfigModal();
+}
 function executeModalSearch() {
-  const q = document.getElementById('search-modal-input').value.trim();
+  const q = document.getElementById('search-modal-input')?.value.trim();
   if (!q) return;
   closeSearchModal(); setMainTab('home');
   const url = new URL('/search', TARGET_URL); url.searchParams.set('q', q); url.searchParams.set('f', 'all');
   loadPage(url.href);
 }
 function executeModalLink() {
-  const value = document.getElementById('link-modal-input').value.trim();
+  const value = document.getElementById('link-modal-input')?.value.trim();
   if (!value) return;
   const url = safeUrl(value.startsWith('http') ? value : `https://${value}`, TARGET_URL);
   if (!url || !isJavdbUrl(url)) { showToast('กรุณาใส่ลิงก์ JAVDB ที่ขึ้นต้นด้วย https://javdb.com/', 'warning'); return; }
@@ -255,11 +283,11 @@ function executeModalLink() {
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
-    if (!document.getElementById('search-modal').classList.contains('hidden')) executeModalSearch();
-    else if (!document.getElementById('link-modal').classList.contains('hidden')) executeModalLink();
+    if (!document.getElementById('search-modal')?.classList.contains('hidden')) executeModalSearch();
+    else if (!document.getElementById('link-modal')?.classList.contains('hidden')) executeModalLink();
   }
-  if (e.key === 'Escape') { closeFullImgModal(); closeModal(); closeSearchModal(); closeLinkInputModal(); closeConfigModal(); }
-  if (!document.getElementById('full-img-modal').classList.contains('hidden')) {
+  if (e.key === 'Escape') closeAllModals();
+  if (!document.getElementById('full-img-modal')?.classList.contains('hidden')) {
     if (e.key === 'ArrowRight') nextFullImg();
     if (e.key === 'ArrowLeft') prevFullImg();
   }
@@ -294,18 +322,17 @@ async function fetchHtml(url) {
       clearTimeout(timer);
       if (!response.ok) continue;
       let body = await response.text();
-      if (proxy.includes('/get?') ) { try { const obj = JSON.parse(body); body = obj.contents || ''; } catch (_) {} }
+      if (proxy.includes('/get?')) { try { const obj = JSON.parse(body); body = obj.contents || ''; } catch (_) {} }
       if (body.length > 500 && !/Just a moment\.\.\.|cf-browser-verification|Attention Required/i.test(body)) return body;
     } catch (_) { if (timer) clearTimeout(timer); }
   }
-  throw new Error('ดึงข้อมูลจาก JAVDB ไม่สำเร็จ (อาจติด 403/ระบบป้องกันบอต หรือบริการพร็อกซีไม่ตอบสนอง) ลองเปิด JAVDB ต้นทางโดยตรง หรือตั้งค่า Google Apps Script');
+  throw new Error('ดึงข้อมูลจาก JAVDB ไม่สำเร็จ (อาจติด 403/ระบบป้องกันบอต หรือบริการพร็อพซี/เซิร์ฟเวอร์ไม่ตอบ)');
 }
 function getImgSrc(img) {
   if (!img) return '';
   return img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('src') || '';
 }
 function getBestImage(img, link, base) {
-  // Prefer the full-size image linked by the preview tile; otherwise use the lazy-loaded thumbnail.
   const href = link?.getAttribute('href') || '';
   const imageFile = /\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i;
   const candidate = imageFile.test(href) ? href : getImgSrc(img);
@@ -356,34 +383,39 @@ async function loadPage(url, opts = {}) {
   }
   updateNavigationButtonsUI(); updateActiveUrl(normalized);
   const token = ++loadRequestToken;
-  const grid = document.getElementById('gallery-grid'); grid.innerHTML = loadingMarkup();
-  document.getElementById('pagination').classList.add('hidden');
+  const grid = document.getElementById('gallery-grid');
+  if (grid) grid.innerHTML = loadingMarkup();
+  const pagination = document.getElementById('pagination');
+  if (pagination) pagination.classList.add('hidden');
   setStatus('กำลังโหลดข้อมูล', 'loading');
   try {
     const html = await fetchHtml(normalized);
     if (token !== loadRequestToken) return;
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const items = extractMovieItems(doc, normalized);
-    if (!items.length) throw new Error('ไม่พบการ์ดรายการ JAVDB ในหน้า HTML ที่ได้รับ อาจมีการเปลี่ยนโครงสร้างหรือการตอบกลับเป็นหน้าแจ้งเตือน');
+    if (!items.length) throw new Error('ไม่พบการ์ดรายการ JAVDB ในหน้า HTML ที่ได้รับ อาจมีการเปลี่ยนโครงสร้างเว็บไซต์');
     const pageNum = Math.max(1, Number(new URL(normalized).searchParams.get('page')) || 1);
     currentPage = pageNum;
     renderGrid(items);
-    document.getElementById('page-number').textContent = `หน้า ${currentPage}`;
-    document.getElementById('pagination').classList.remove('hidden');
-    document.getElementById('btn-prev').disabled = currentPage <= 1;
+    const pageNumber = document.getElementById('page-number');
+    if (pageNumber) pageNumber.textContent = `หน้า ${currentPage}`;
+    if (pagination) pagination.classList.remove('hidden');
+    const btnPrev = document.getElementById('btn-prev');
+    if (btnPrev) btnPrev.disabled = currentPage <= 1;
     setStatus(`โหลดรายการได้ ${items.length} เรื่อง`);
   } catch (error) {
     if (token !== loadRequestToken) return;
     setStatus('โหลดไม่สำเร็จ', 'error');
-    grid.innerHTML = `<div class="py-16 text-center text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-3"></i><p class="font-bold">โหลดข้อมูล JAVDB ไม่สำเร็จ</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xl mx-auto">${escapeHtml(error.message)}</p><div class="mt-4 flex flex-wrap justify-center gap-2"><button onclick="loadPage('${escapeHtml(normalized)}')" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold"><i class="fas fa-redo mr-1"></i>ลองอีกครั้ง</button><a href="${escapeHtml(normalized)}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-bold">เปิดต้นทาง</a></div></div>`;
+    if (grid) grid.innerHTML = `<div class="py-16 text-center text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-3"></i><p class="font-bold">โหลดข้อมูล JAVDB ไม่สำเร็จ</p><p class="text-xs mt-2">${escapeHtml(error.message || 'เกิดข้อผิดพลาด')}</p></div>`;
   }
 }
 function renderGrid(items) {
   const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
   if (!items.length) { grid.innerHTML = '<div class="py-16 text-center text-gray-400">ไม่พบรายการ</div>'; return; }
   grid.innerHTML = items.map((item, idx) => {
-    const fav = favoriteList.some(f => f.isSnapshot ? false : f.id === item.id);
-    return `<div class="masonry-item animate-fade-up" style="animation-delay:${(idx%12)*.03}s"><div class="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 dark:border-gray-700"><button data-action="open-item" data-index="${idx}" class="block w-full text-left bg-gray-200 dark:bg-gray-900 cursor-pointer overflow-hidden relative"><img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-auto object-cover img-lazy group-hover:scale-105" onerror="this.onerror=null;this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span class=\'block p-8 text-xs text-gray-500\'>รูปภาพไม่พร้อมใช้งาน</span>')"><span class="absolute top-2 left-2 bg-black/65 text-white text-[10px] font-bold rounded px-2 py-0.5">${escapeHtml(item.code || item.id)}</span><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3"><p class="text-white text-xs font-bold line-clamp-3">${escapeHtml(item.title)}</p></div></button><button data-action="favorite-item" data-index="${idx}" class="absolute bottom-2.5 left-2.5 z-10 w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center border border-white/20"><i class="${fav?'fas text-red-500':'far'} fa-heart"></i></button><div class="p-2"><p class="text-[11px] leading-snug text-gray-700 dark:text-gray-200 line-clamp-2">${escapeHtml(item.title)}</p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-500 break-all">เปิดหน้ารายละเอียด <i class="fas fa-external-link-alt"></i></a></div></div></div>`;
+    const fav = favoriteList.some(f => !f.isSnapshot && f.id === item.id);
+    return `<div class="masonry-item animate-fade-up" style="animation-delay:${(idx%12)*.03}s"><div class="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700"><button type="button" data-action="open-item" data-index="${idx}" class="block w-full text-left"><img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" class="w-full h-auto object-cover bg-gray-100 dark:bg-gray-900" loading="lazy"><div class="p-3"><div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="text-[11px] font-bold text-primary">${escapeHtml(item.code || item.id)}</p><h3 class="text-sm font-bold leading-relaxed truncate">${escapeHtml(item.title || item.id)}</h3></div><button type="button" data-action="favorite-item" data-index="${idx}" class="shrink-0 text-xl ${fav ? 'text-red-500' : 'text-gray-300'}"><i class="${fav ? 'fas fa-heart' : 'far fa-heart'}"></i></button></div></div></button></div></div>`;
   }).join('');
   grid.querySelectorAll('[data-action="open-item"]').forEach(btn => btn.addEventListener('click', () => { const item = items[Number(btn.dataset.index)]; if (item) openMovieModal(item.url, item, ''); }));
   grid.querySelectorAll('[data-action="favorite-item"]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const item = items[Number(btn.dataset.index)]; if (item) toggleFavorite(item, btn); }));
@@ -399,37 +431,48 @@ function loadLatest() { switchMainTab('home'); }
 function setMainTab(tab) {
   activeMainTab = tab;
   const home = document.getElementById('tab-home'), fav = document.getElementById('tab-fav');
-  home.className = 'px-3 py-1.5 rounded-md font-bold ' + (tab === 'home' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300');
-  fav.className = 'px-3 py-1.5 rounded-md font-bold ' + (tab === 'favorites' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300');
+  if (home) home.className = 'px-3 py-1.5 rounded-md font-bold ' + (tab === 'home' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300');
+  if (fav) fav.className = 'px-3 py-1.5 rounded-md font-bold ' + (tab === 'favorites' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300');
   const filter = document.getElementById('favorites-filter-container');
-  if (tab === 'home') filter.classList.add('hidden');
-  else { filter.classList.remove('hidden'); filterFavorites(); }
+  if (tab === 'home') filter?.classList.add('hidden');
+  else { filter?.classList.remove('hidden'); filterFavorites(); }
 }
 function switchMainTab(tab) {
   if (tab === 'home') { setMainTab('home'); loadPage(TARGET_URL); }
   else setMainTab('favorites');
 }
-function navigateHistoryBack() { if (historyIndex > 0) { historyIndex--; isNavigatingHistory = true; loadPage(historyStack[historyIndex], {recordHistory:false}).finally(() => {isNavigatingHistory=false;updateNavigationButtonsUI();}); } }
-function navigateHistoryForward() { if (historyIndex < historyStack.length - 1) { historyIndex++; isNavigatingHistory = true; loadPage(historyStack[historyIndex], {recordHistory:false}).finally(() => {isNavigatingHistory=false;updateNavigationButtonsUI();}); } }
+function navigateHistoryBack() { if (historyIndex > 0) { historyIndex--; isNavigatingHistory = true; loadPage(historyStack[historyIndex], {recordHistory:false}).finally(() => {isNavigatingHistory = false;}); } }
+function navigateHistoryForward() { if (historyIndex < historyStack.length - 1) { historyIndex++; isNavigatingHistory = true; loadPage(historyStack[historyIndex], {recordHistory:false}).finally(() => {isNavigatingHistory = false;}); } }
 function clearHistory() { historyStack = [currentUrl]; historyIndex = 0; updateNavigationButtonsUI(); showToast('ล้างประวัติการนำทางของหน้านี้แล้ว', 'success'); }
 
 function openMovieModal(url, item, hash = '') {
   return openMovieModalAsync(url, item, hash);
 }
 async function openMovieModalAsync(url, item, hash = '') {
-  const modal = document.getElementById('modal');
   openModalBox('modal'); document.body.style.overflow = 'hidden';
-  document.getElementById('movie-info-drawer').classList.add('hidden');
+  document.getElementById('movie-info-drawer')?.classList.add('hidden');
   currentMovie = {...item, url};
   const routeId = item.id || (new URL(url)).pathname.split('/').filter(Boolean)[1] || 'JAVDB';
-  document.getElementById('m-id').textContent = item.code || routeId;
-  document.getElementById('m-title-short').textContent = item.title || routeId;
-  document.getElementById('m-title').textContent = item.title || routeId;
-  document.getElementById('m-source-link').href = url;
-  for (const id of ['m-code','m-date']) document.getElementById(id).textContent = 'กำลังอ่านข้อมูล…';
-  for (const id of ['m-directors','m-makers','m-series','m-actors','m-tags']) document.getElementById(id).innerHTML = '<span class="text-gray-400">กำลังอ่านข้อมูล…</span>';
-  document.getElementById('gallery-note').textContent = 'กำลังค้นหารูปปกและภาพซีนจากหน้ารายละเอียด…';
-  document.getElementById('modal-images').innerHTML = loadingMarkup('กำลังอ่านหน้ารายละเอียด');
+  const codeBox = document.getElementById('m-code');
+  if (codeBox) codeBox.textContent = item.code || routeId;
+  const titleShort = document.getElementById('m-title-short');
+  if (titleShort) titleShort.textContent = item.title || routeId;
+  const titleBox = document.getElementById('m-title');
+  if (titleBox) titleBox.textContent = item.title || routeId;
+  const sourceLink = document.getElementById('m-source-link');
+  if (sourceLink) sourceLink.href = url;
+  for (const id of ['m-code','m-date']) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = 'กำลังอ่านข้อมูล…';
+  }
+  for (const id of ['m-directors','m-makers','m-series','m-actors','m-tags']) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<span class="text-gray-400">กำลังอ่านข้อมูล…</span>';
+  }
+  const note = document.getElementById('gallery-note');
+  if (note) note.textContent = 'กำลังค้นหารูปปกและภาพซีนจากหน้ารายละเอียด…';
+  const modalImages = document.getElementById('modal-images');
+  if (modalImages) modalImages.innerHTML = loadingMarkup('กำลังอ่านหน้ารายละเอียด');
   setStatus('กำลังโหลดหน้ารายละเอียด', 'loading');
   let cover = item.thumb || '';
   try {
@@ -441,18 +484,20 @@ async function openMovieModalAsync(url, item, hash = '') {
     const code = (codeEl?.textContent || item.code || routeId).trim();
     const dateText = findMetadataText(doc, ['released date','release date','發行日期','发行日期','date']);
     const filters = extractDetailFilters(doc, url);
-    document.getElementById('m-title').textContent = pageTitle;
-    document.getElementById('m-title-short').textContent = pageTitle;
-    document.getElementById('m-code').textContent = code || routeId;
-    document.getElementById('m-date').textContent = dateText || '—';
+    if (titleBox) titleBox.textContent = pageTitle;
+    if (titleShort) titleShort.textContent = pageTitle;
+    const mId = document.getElementById('m-id');
+    if (mId) mId.textContent = code || routeId;
+    const mCode = document.getElementById('m-code');
+    if (mCode) mCode.textContent = code || routeId;
+    const mDate = document.getElementById('m-date');
+    if (mDate) mDate.textContent = dateText || '—';
     renderFilterLinks('m-directors', filters.directors);
     renderFilterLinks('m-makers', filters.makers);
     renderFilterLinks('m-series', filters.series);
     renderFilterLinks('m-tags', filters.tags);
     renderFilterLinks('m-actors', filters.actors);
     currentMovie = {...currentMovie, id:routeId, code, title:pageTitle, thumb:cover || '', url};
-
-    // Use selectors that identify the actual cover, not arbitrary images in movie metadata.
     const coverImg = doc.querySelector('.video-cover img, .column-video-cover img, a.bigImage img, .movie-panel-info .cover img');
     if (coverImg) cover = getBestImage(coverImg, coverImg.closest('a'), url) || cover;
     if (!cover) {
@@ -468,24 +513,22 @@ async function openMovieModalAsync(url, item, hash = '') {
     if (hashMatch && currentImages.length > 1) {
       const requestedIndex = Math.max(0, Math.min(Number(hashMatch[1]), currentImages.length - 1));
       setTimeout(() => document.getElementById(`scene-${requestedIndex}`)?.scrollIntoView({behavior:'smooth',block:'center'}), 180);
-      document.getElementById('gallery-note').textContent = `เปิดจาก ${hashMatch[0]} · พบภาพทั้งหมด ${currentImages.length} ภาพ (รวมปก)`;
-    } else {
-      document.getElementById('gallery-note').textContent = `พบภาพทั้งหมด ${currentImages.length} ภาพ (รวมปก ถ้าหน้าต้นทางมีภาพปก)`;
+      if (note) note.textContent = `เปิดจาก ${hashMatch[0]} · พบภาพทั้งหมด ${currentImages.length} ภาพ (รวมปก)`;
+    } else if (note) {
+      note.textContent = `พบภาพทั้งหมด ${currentImages.length} ภาพ (รวมปก ถ้าหน้าต้นทางมีภาพคล้ายกัน)`;
     }
     document.querySelector('.count-val')?.remove();
     setStatus(`อ่านหน้ารายละเอียดแล้ว · ${currentImages.length} ภาพ`);
   } catch (error) {
     currentImages = cover ? [cover] : [];
     renderModalImages(currentImages, currentMovie);
-    document.getElementById('gallery-note').textContent = `โหลดข้อมูลรายละเอียดไม่ได้: ${error.message}. ยังเปิดหน้าต้นทางได้จากปุ่ม “หน้า JAVDB”`;
+    if (note) note.textContent = `โหลดข้อมูลรายละเอียดไม่ได้: ${error.message}. ยังเปิดหน้าต้นทางแบบลิงก์ไว้ได้`;
     setStatus('โหลดรายละเอียดไม่สำเร็จ', 'error');
   }
 }
 function uniqueText(values) { return [...new Set(values.map(v => String(v || '').trim()).filter(Boolean))]; }
 function extractDetailFilters(doc, baseUrl) {
   const groups = {directors:[], makers:[], series:[], tags:[], actors:[]};
-  // JAVDB stores movie metadata links together inside .movie-panel-info. Limit scanning to
-  // this detail panel so recommendation cards elsewhere on the page cannot leak into filters.
   const root = doc.querySelector('.movie-panel-info');
   if (!root) return groups;
   const seen = new Set();
@@ -517,7 +560,7 @@ function renderFilterLinks(elementId, items) {
     container.innerHTML = '<span class="text-gray-400">—</span>';
     return;
   }
-  container.innerHTML = items.map(item => `<a href="${escapeHtml(item.url)}" data-filter-link="1" class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950/50 px-2 py-1 text-blue-700 dark:text-blue-300 underline decoration-dotted underline-offset-2 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-primary transition-colors">${escapeHtml(item.label)}</a>`).join('');
+  container.innerHTML = items.map(item => `<a href="${escapeHtml(item.url)}" data-filter-link="1" class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950/50 px-2 py-1 text-blue-700 dark:text-blue-300 text-xs">${escapeHtml(item.label)}</a>`).join(' ');
   container.querySelectorAll('[data-filter-link]').forEach(link => link.addEventListener('click', event => {
     event.preventDefault();
     const target = safeUrl(link.getAttribute('href'), currentMovie?.url || TARGET_URL);
@@ -534,7 +577,7 @@ function findMetadataText(doc, labels) {
     const text = (row.textContent || '').replace(/\s+/g, ' ').trim();
     if (keys.some(k => text.toLowerCase().includes(k))) {
       const val = row.querySelector('.value, .panel-block-value, a, time');
-      const value = (val?.textContent || text).replace(/^(released date|release date|date|发行日期|發行日期)\s*:?\s*/i, '').trim();
+      const value = (val?.textContent || text).replace(/^(released date|release date|date|发行日期|發行日期)\s*:??\s*/i, '').trim();
       if (value) return value;
     }
   }
@@ -542,27 +585,19 @@ function findMetadataText(doc, labels) {
   return time?.textContent.trim() || '';
 }
 function collectGalleryImages(doc, base, cover) {
-  // JAVDB's scene/screenshot gallery is the .preview-images container.
-  // Deliberately do NOT scan generic .tile-images, arbitrary gallery IDs, related movies,
-  // recommendation cards, avatars, metadata images, or page-wide JSON: those caused false positives.
   const images = [];
   const seen = new Set();
   const coverUrl = resolveUrl(cover || '', base);
   const imageFile = /\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i;
-
   const add = (raw, fromPreviewImg = false) => {
     const url = resolveUrl(raw, base);
     if (!url || !/^https?:\/\//i.test(url) || url === coverUrl) return;
     if (/^(?:data|blob):/i.test(url) || /(?:logo|avatar|favicon|sprite|banner|icon)(?:[._/?-]|$)/i.test(url)) return;
-    // An anchor is accepted only when it points to an image file. An <img> can be accepted
-    // without an extension only when it is physically inside the known preview gallery.
     if (!imageFile.test(url) && !fromPreviewImg) return;
     if (!seen.has(url)) { seen.add(url); images.push(url); }
   };
-
   const galleries = [...doc.querySelectorAll('.preview-images')];
   for (const gallery of galleries) {
-    // Prefer the exact JAVDB tile markup; each tile belongs to this movie's preview section.
     const tiles = [...gallery.querySelectorAll('a.tile-item[href]')];
     if (tiles.length) {
       for (const tile of tiles) {
@@ -573,11 +608,7 @@ function collectGalleryImages(doc, base, cover) {
       }
       continue;
     }
-
-    // Compatibility fallback for alternate JAVDB markup, still scoped to .preview-images.
-    // Only direct image links or images nested inside this dedicated preview section are read.
-    const directImageLinks = [...gallery.querySelectorAll('a[href]')]
-      .filter(a => imageFile.test(a.getAttribute('href') || ''));
+    const directImageLinks = [...gallery.querySelectorAll('a[href]')].filter(a => imageFile.test(a.getAttribute('href') || ''));
     if (directImageLinks.length) {
       for (const a of directImageLinks) add(a.getAttribute('href'));
     } else {
@@ -588,17 +619,18 @@ function collectGalleryImages(doc, base, cover) {
 }
 function renderModalImages(images, movie) {
   const container = document.getElementById('modal-images');
-  if (!images.length) { container.innerHTML = '<div class="py-16 text-center text-gray-400"><i class="far fa-images text-4xl mb-3"></i><p class="text-sm">ไม่พบภาพปกหรือภาพซีนใน HTML ที่ดึงมาได้</p></div>'; return; }
+  if (!container) return;
+  if (!images.length) { container.innerHTML = '<div class="py-16 text-center text-gray-400"><i class="far fa-images text-4xl mb-3"></i><p class="text-sm">ไม่พบภาพปกหรือภาพซีน</p></div>'; return; }
   container.innerHTML = images.map((src, i) => {
     const snap = i > 0;
     const liked = favoriteList.some(f => snap ? f.isSnapshot && f.parentId === movie.id && f.thumb === src : !f.isSnapshot && f.id === movie.id);
-    return `<div id="scene-${i}" class="masonry-item"><div class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-200 dark:bg-gray-900"><span class="absolute top-2 left-2 z-10 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded-full">${i === 0 ? 'ปก' : 'ซีน ' + i}</span><button data-action="open-scene" data-index="${i}" class="block w-full cursor-zoom-in"><img src="${escapeHtml(src)}" alt="${escapeHtml(movie.title || movie.id)}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain img-lazy" onerror="this.style.opacity='.35'"></button><button data-action="fav-scene" data-index="${i}" class="absolute bottom-2 left-2 z-10 w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center border border-white/20"><i class="${liked ? 'fas text-red-500' : 'far'} fa-heart"></i></button><a href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer" class="absolute bottom-2 right-2 z-10 w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center" title="เปิดภาพต้นฉบับ"><i class="fas fa-external-link-alt text-xs"></i></a></div></div>`;
+    return `<div id="scene-${i}" class="masonry-item"><div class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-200 dark:bg-gray-900"><img src="${escapeHtml(src)}" alt="${escapeHtml(movie?.title || 'scene')}" class="w-full h-auto object-cover cursor-pointer" loading="lazy"><div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div><button type="button" data-action="open-scene" data-index="${i}" class="absolute inset-0"></button><button type="button" data-action="fav-scene" data-index="${i}" class="absolute top-2 right-2 z-10 rounded-full bg-white/90 px-2 py-1 text-xs ${liked ? 'text-red-500' : 'text-gray-500'}"><i class="${liked ? 'fas fa-heart' : 'far fa-heart'}"></i></button></div></div>`;
   }).join('');
   container.querySelectorAll('[data-action="open-scene"]').forEach(btn => btn.addEventListener('click', () => openFullImgModal(Number(btn.dataset.index))));
-  container.querySelectorAll('[data-action="fav-scene"]').forEach(btn => btn.addEventListener('click', e => {e.preventDefault();e.stopPropagation();const i=Number(btn.dataset.index); if (!currentMovie || !images[i]) return; toggleFavorite({id:currentMovie.id,code:currentMovie.code,title:currentMovie.title,thumb:images[i],url:`${currentMovie.url}#gallery-${Math.max(1,i)}`,isSnapshot:i>0,parentId:currentMovie.id,snapshotIndex:i}, btn);}));
+  container.querySelectorAll('[data-action="fav-scene"]').forEach(btn => btn.addEventListener('click', e => {e.preventDefault(); e.stopPropagation(); const i=Number(btn.dataset.index); if (!currentMovie) return; if (i === 0) toggleFavorite({ ...currentMovie, id: currentMovie.id, title: currentMovie.title, thumb: currentImages[0], url: currentMovie.url, isSnapshot: false }, btn); else toggleFavorite({ id: currentMovie.id, parentId: currentMovie.id, title: currentMovie.title || 'snapshot', thumb: currentImages[i], url: currentMovie.url, isSnapshot: true, timestamp: Date.now() }, btn); }));
 }
 function closeModal() { closeModalBox('modal'); document.body.style.overflow = ''; }
-function toggleMovieDetailsToggle() { document.getElementById('movie-info-drawer').classList.toggle('hidden'); }
+function toggleMovieDetailsToggle() { document.getElementById('movie-info-drawer')?.classList.toggle('hidden'); }
 function openFullImgModal(index) { if (!currentImages.length) return; slideshowActiveIndex = Math.max(0, Math.min(index, currentImages.length - 1)); openModalBox('full-img-modal'); updateFullImgView(); }
 function closeFullImgModal() { stopSlideshow(); closeModalBox('full-img-modal'); }
 function updateFullImgView() {
@@ -622,23 +654,23 @@ function startSlideshow() {
   const speedInput = document.getElementById('slideshow-speed');
   slideshowSpeed = Math.max(500, Number(speedInput && speedInput.value) || 3000);
   const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-pause';
-  slideshowInterval = window.setInterval(() => { if (!document.getElementById('full-img-modal').classList.contains('hidden')) nextFullImg(); else stopSlideshow(); }, slideshowSpeed);
+  const label = document.getElementById('slideshow-label'); if (label) label.textContent = 'หยุดสไลด์';
+  slideshowInterval = window.setInterval(() => { if (!document.getElementById('full-img-modal')?.classList.contains('hidden')) nextFullImg(); else stopSlideshow(); }, slideshowSpeed);
 }
 function stopSlideshow() {
   const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-play';
+  const label = document.getElementById('slideshow-label'); if (label) label.textContent = 'เล่นสไลด์';
   if (slideshowInterval !== null) { window.clearInterval(slideshowInterval); slideshowInterval = null; }
 }
 function changeSlideshowSpeed() { if (slideshowInterval !== null) { stopSlideshow(); startSlideshow(); } }
 
 function loadFavorites() {
-  try { favoriteList = JSON.parse(localStorage.getItem('jav_favorites')) || []; } catch (_) { favoriteList = []; }
-  // Discard legacy favorites that point to the retired target while retaining other local data.
-  favoriteList = favoriteList.filter(f => !String(f.url || '').toLowerCase().includes('jav321'));
+  favoriteList = safeReadJson('jav_favorites', []).filter(f => f && !String(f.url || '').toLowerCase().includes('jav321'));
   try { localStorage.setItem('jav_favorites', JSON.stringify(favoriteList)); } catch (_) {}
   updateFavCountBadge();
   if (gasEndpoint) syncFromGoogleSheet();
 }
-function updateFavCountBadge() { document.getElementById('fav-count').textContent = favoriteList.length; }
+function updateFavCountBadge() { const el = document.getElementById('fav-count'); if (el) el.textContent = favoriteList.length; }
 function toggleFavorite(item, sourceButton = null) {
   const isSnapshot = Boolean(item.isSnapshot);
   const found = favoriteList.findIndex(f => isSnapshot ? Boolean(f.isSnapshot) && f.parentId === item.parentId && f.thumb === item.thumb : !f.isSnapshot && f.id === item.id);
@@ -647,9 +679,6 @@ function toggleFavorite(item, sourceButton = null) {
   else favoriteList.push({...item, isSnapshot, timestamp:Date.now()});
   try { localStorage.setItem('jav_favorites', JSON.stringify(favoriteList)); } catch (_) {}
   updateFavCountBadge();
-
-  // Update only the clicked heart. Do not reload the listing or rebuild the scene grid:
-  // doing so used to reset scroll position to the top after every favorite click.
   if (sourceButton) {
     const icon = sourceButton.querySelector('i');
     if (icon && sourceButton.dataset.action !== 'fav-remove') {
@@ -663,7 +692,7 @@ function toggleFavorite(item, sourceButton = null) {
     requestAnimationFrame(() => window.scrollTo({top:scrollY, behavior:'auto'}));
   }
   if (gasEndpoint) {
-    const params = new URLSearchParams({action:'sync', id:item.id || '', title:item.title || '', thumb:item.thumb || '', url:item.url || '', status, isSnapshot:String(isSnapshot), parentId:item.parentId || '', snapshotIndex:String(item.snapshotIndex || 0), timestamp:String(Date.now())});
+    const params = new URLSearchParams({action:'sync', id:item.id || '', title:item.title || '', thumb:item.thumb || '', url:item.url || '', status, isSnapshot:String(isSnapshot), parentId:item.parentId || item.id || ''});
     fetch(`${gasEndpoint}?${params.toString()}`, {mode:'no-cors'}).catch(()=>{});
   }
   showToast(status === 'add' ? 'เพิ่มรายการโปรดแล้ว' : 'นำออกจากรายการโปรดแล้ว', 'success');
@@ -675,25 +704,26 @@ function filterFavorites() {
   let list = favoriteList.filter(f => `${f.id || ''} ${f.code || ''} ${f.title || ''}`.toLowerCase().includes(query));
   list.sort((a,b) => sort === 'oldest' ? (a.timestamp||0)-(b.timestamp||0) : sort === 'title' ? String(a.title||'').localeCompare(String(b.title||'')) : (b.timestamp||0)-(a.timestamp||0));
   const grid = document.getElementById('gallery-grid');
-  if (!list.length) { grid.innerHTML = '<div class="py-16 text-center text-gray-400"><i class="far fa-heart text-4xl mb-3"></i><p>ยังไม่มีรายการโปรดที่ตรงกับคำค้นหา</p></div>'; return; }
+  if (!grid) return;
+  if (!list.length) { grid.innerHTML = '<div class="py-16 text-center text-gray-400"><i class="far fa-heart text-4xl mb-3"></i><p>ยังไม่มีรายการโปรดที่ตรงกับเงื่อนไข</p></div>'; return; }
   const cards = list.map(f => ({...f, isSnapshot:Boolean(f.isSnapshot)}));
-  // Favorites view is intentionally image-only: no title, code, or source URL under the thumbnail.
-  grid.innerHTML = cards.map((item, idx) => `<div class="masonry-item"><div class="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border dark:border-gray-700"><button data-action="fav-open" data-index="${idx}" class="block w-full" aria-label="เปิดภาพที่บันทึกไว้"><img src="${escapeHtml(item.thumb || '')}" alt="ภาพที่บันทึกไว้" loading="lazy" referrerpolicy="no-referrer" class="w-full h-auto"></button><button data-action="fav-remove" data-index="${idx}" class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-8 h-8" aria-label="นำออกจากรายการโปรด" title="นำออกจากรายการโปรด"><i class="fas fa-trash"></i></button></div></div>`).join('');
-  grid.querySelectorAll('[data-action="fav-open"]').forEach(btn => btn.addEventListener('click', () => { const f=cards[Number(btn.dataset.index)]; if (f.isSnapshot) { currentImages = cards.filter(x=>x.isSnapshot && x.parentId===f.parentId).map(x=>x.thumb); const idx=currentImages.indexOf(f.thumb); openFullImgModal(Math.max(0,idx)); } else openMovieModal(f.url || TARGET_URL, f); }));
+  grid.innerHTML = cards.map((item, idx) => `<div class="masonry-item"><div class="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border dark:border-gray-700"><button type="button" data-action="fav-open" data-index="${idx}" class="block w-full text-left"><img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title || 'favorite')}" class="w-full h-auto object-cover bg-gray-100 dark:bg-gray-900" loading="lazy"></button><button type="button" data-action="fav-remove" data-index="${idx}" class="absolute top-2 right-2 bg-white/90 rounded-full w-8 h-8 text-red-500 shadow-sm"><i class="fas fa-times"></i></button></div></div>`).join('');
+  grid.querySelectorAll('[data-action="fav-open"]').forEach(btn => btn.addEventListener('click', () => { const f=cards[Number(btn.dataset.index)]; if (!f) return; if (f.isSnapshot) { currentImages = cards.filter(x => x.isSnapshot && x.parentId === f.parentId).map(x => x.thumb).filter(Boolean); if (!currentImages.length) { currentImages = [f.thumb]; } const idx = currentImages.indexOf(f.thumb); openFullImgModal(idx >= 0 ? idx : 0); } else { openMovieModal(f.url || TARGET_URL, f, ''); } }));
   grid.querySelectorAll('[data-action="fav-remove"]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const f=cards[Number(btn.dataset.index)]; if (f) toggleFavorite(f, btn); }));
 }
 
 function loadBookmarks() {
-  try { bookmarkList = JSON.parse(localStorage.getItem('jav_bookmarks')) || []; } catch (_) { bookmarkList = []; }
-  bookmarkList = bookmarkList.filter(b => !String(b.url || '').toLowerCase().includes('jav321'));
+  bookmarkList = safeReadJson('jav_bookmarks', []).filter(b => b && !String(b.url || '').toLowerCase().includes('jav321'));
   try { localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); } catch (_) {}
   updateBookmarkBadgeUI(); renderBookmarkListUI();
   if (gasEndpoint) syncBookmarksFromGoogleSheet();
 }
-function updateBookmarkBadgeUI() { const el=document.getElementById('bookmark-badge'); el.textContent=bookmarkList.length; el.classList.toggle('hidden', bookmarkList.length===0); el.classList.toggle('flex', bookmarkList.length>0); }
+function updateBookmarkBadgeUI() { const el=document.getElementById('bookmark-badge'); if (!el) return; el.textContent=bookmarkList.length; el.classList.toggle('hidden', bookmarkList.length===0); }
 function updateCurrentPageBookmarkButtonUI() {
   const saved = bookmarkList.some(b => b.url === currentUrl);
-  document.getElementById('btn-bookmark-current').innerHTML = saved ? '<i class="fas fa-star text-yellow-500"></i> บันทึกแล้ว' : '<i class="far fa-star"></i> บันทึกหน้านี้';
+  const btn = document.getElementById('btn-bookmark-current');
+  if (!btn) return;
+  btn.innerHTML = saved ? '<i class="fas fa-star text-yellow-500"></i> บันทึกแล้ว' : '<i class="far fa-star"></i> บันทึกหน้า';
 }
 function toggleCurrentPageBookmark() {
   const idx=bookmarkList.findIndex(b=>b.url===currentUrl); let status='add';
@@ -705,14 +735,15 @@ function toggleCurrentPageBookmark() {
   showToast(status==='add'?'บันทึกลิงก์แล้ว':'ลบลิงก์ที่บันทึกแล้ว','success');
 }
 function getCurrentBookmarkTitle() { return currentMovie?.url===currentUrl ? (currentMovie.title || currentMovie.id) : (new URL(currentUrl)).pathname || 'หน้า JAVDB'; }
-function toggleBookmarkPanel() { document.getElementById('bookmark-panel').classList.toggle('translate-x-full'); }
+function toggleBookmarkPanel() { document.getElementById('bookmark-panel')?.classList.toggle('translate-x-full'); }
 function renderBookmarkListUI() {
   const list=document.getElementById('bookmark-list');
-  if (!bookmarkList.length) { list.innerHTML='<div class="py-12 text-center text-gray-400"><i class="far fa-star text-4xl mb-3"></i><p class="text-xs">ยังไม่มีลิงก์ที่บันทึกไว้</p></div>'; return; }
-  list.innerHTML=[...bookmarkList].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).map((b,i)=>`<div class="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-900 rounded-xl border dark:border-gray-700"><button data-action="bookmark-open" data-index="${i}" class="flex-1 min-w-0 text-left"><p class="text-xs font-semibold truncate">${escapeHtml(b.title||'หน้า JAVDB')}</p><p class="text-[9px] text-gray-400 truncate mt-1">${escapeHtml(b.url)}</p></button><button data-action="bookmark-delete" data-index="${i}" class="text-gray-400 hover:text-red-500 p-1.5"><i class="fas fa-trash-alt"></i></button></div>`).join('');
+  if (!list) return;
+  if (!bookmarkList.length) { list.innerHTML='<div class="py-12 text-center text-gray-400"><i class="far fa-star text-4xl mb-3"></i><p class="text-xs">ยังไม่มีลิงก์ที่บันทึก</p></div>'; return; }
   const sorted=[...bookmarkList].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-  list.querySelectorAll('[data-action="bookmark-open"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)];if(b){toggleBookmarkPanel();setMainTab('home');loadPage(b.url);}}));
-  list.querySelectorAll('[data-action="bookmark-delete"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)];if(!b)return;bookmarkList=bookmarkList.filter(x=>x.url!==b.url);try{localStorage.setItem('jav_bookmarks',JSON.stringify(bookmarkList));}catch(_){};updateBookmarkBadgeUI();updateCurrentPageBookmarkButtonUI();renderBookmarkListUI();if(gasEndpoint){const p=new URLSearchParams({action:'syncBookmark',title:'',url:b.url,status:'remove',timestamp:String(Date.now())});fetch(`${gasEndpoint}?${p}`,{mode:'no-cors'}).catch(()=>{});}}));
+  list.innerHTML=sorted.map((b,i)=>`<div class="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-900 rounded-xl border dark:border-gray-700"><div class="flex-1 min-w-0"><p class="text-[10px] text-gray-500 truncate">${escapeHtml(b.title || 'JAVDB')}</p><a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer" class="block text-xs text-blue-600 truncate">${escapeHtml(b.url)}</a></div><div class="flex items-center gap-1"><button type="button" data-action="bookmark-open" data-index="${i}" class="text-blue-500"><i class="fas fa-external-link-alt"></i></button><button type="button" data-action="bookmark-delete" data-index="${i}" class="text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`).join('');
+  list.querySelectorAll('[data-action="bookmark-open"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)]; if (b) { toggleBookmarkPanel(); setMainTab('home'); loadPage(b.url); } }));
+  list.querySelectorAll('[data-action="bookmark-delete"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)]; if (!b) return; bookmarkList=bookmarkList.filter(x=>x.url!==b.url); try { localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); } catch (_) {} updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI(); }));
 }
 async function syncFromGoogleSheet() {
   if (!gasEndpoint) return;
@@ -726,18 +757,17 @@ async function syncFromGoogleSheet() {
 }
 async function syncBookmarksFromGoogleSheet() {
   if (!gasEndpoint) return;
-  try { const res=await fetch(`${gasEndpoint}?action=getBookmarks`);const data=await res.json();if(data?.success&&Array.isArray(data.bookmarks)){bookmarkList=data.bookmarks.filter(b=>!String(b.url||'').toLowerCase().includes('jav321'));try{localStorage.setItem('jav_bookmarks',JSON.stringify(bookmarkList));}catch(_){}updateBookmarkBadgeUI();updateCurrentPageBookmarkButtonUI();renderBookmarkListUI();} } catch(e) { console.warn('Bookmark sync failed',e); }
+  try { const res=await fetch(`${gasEndpoint}?action=getBookmarks`); const data=await res.json(); if(data?.success&&Array.isArray(data.bookmarks)){ bookmarkList=data.bookmarks.filter(b=>!String(b.url||'').toLowerCase().includes('jav321')); try{localStorage.setItem('jav_bookmarks',JSON.stringify(bookmarkList));}catch(_){} updateBookmarkBadgeUI(); renderBookmarkListUI(); } } catch(e) { console.warn('Bookmark sync failed',e); }
 }
 function openConfigModal() { document.getElementById('gas-url-input').value=gasEndpoint; openModalBox('config-modal'); }
 function closeConfigModal() { closeModalBox('config-modal'); }
 function testAndSaveGAS() {
   const url=document.getElementById('gas-url-input').value.trim();
   if (!url || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/.test(url)) { showToast('กรุณาใส่ Google Apps Script Web App URL ที่ถูกต้อง','warning'); return; }
-  gasEndpoint=url; try{localStorage.setItem('gas_url',url);}catch(_){} closeConfigModal(); showToast('บันทึก URL แล้ว ระบบจะใช้ URL นี้เมื่อดึงข้อมูล/ซิงค์รายการ','success'); syncFromGoogleSheet(); syncBookmarksFromGoogleSheet();
+  gasEndpoint=url; try{localStorage.setItem('gas_url',url);}catch(_){} closeConfigModal(); showToast('บันทึก URL แล้ว ระบบจะใช้ URL นี้เมื่อดึงข้อมูลและซิงค์ข้อมูล','success');
 }
-function disconnectGAS() { gasEndpoint='';try{localStorage.removeItem('gas_url');}catch(_){}document.getElementById('gas-url-input').value='';closeConfigModal();showToast('ยกเลิกการเชื่อมต่อ Google Apps Script แล้ว','success'); }
+function disconnectGAS() { gasEndpoint='';try{localStorage.removeItem('gas_url');}catch(_){}document.getElementById('gas-url-input').value='';closeConfigModal();showToast('ยกเลิกการเชื่อมต่อ Google Apps Script แล้ว','success');}
 
-// Start cleanly on JAVDB. Old local favorites/bookmarks that still point to the retired target are discarded.
 function init() {
   updateThemeUI(); changeGridSize('medium'); loadFavorites(); loadBookmarks(); updateNavigationButtonsUI(); loadPage(TARGET_URL, {recordHistory:false});
 }

@@ -136,10 +136,10 @@
     </div>
   </div>
 
-  <div id="full-img-modal" class="fixed inset-0 z-[130] bg-black/95 hidden flex-col items-center justify-center p-4">
-    <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-4 sm:px-6 z-30"><span id="slideshow-info" class="text-white text-xs bg-black/60 px-3 py-1.5 rounded-full">1/1</span><div class="flex items-center gap-2 bg-black/60 p-1.5 rounded-full border border-white/20"><button id="btn-play-slideshow" onclick="toggleSlideshow()" class="text-green-400 px-3 py-1 text-xs font-bold"><i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">สไลด์โชว์</span></button><select id="slideshow-speed" class="bg-gray-800 text-white rounded border border-gray-600 px-1 py-0.5 text-xs" onchange="changeSlideshowSpeed()"><option value="1000">1 วิ</option><option value="3000" selected>3 วิ</option><option value="5000">5 วิ</option></select></div><button onclick="closeFullImgModal()" class="text-white bg-red-600 w-9 h-9 rounded-full"><i class="fas fa-times"></i></button></div>
-    <div class="relative w-full max-w-5xl h-[82vh] flex items-center justify-center"><button onclick="prevFullImg()" class="absolute left-2 sm:left-4 z-20 text-white bg-black/50 w-11 h-11 rounded-full"><i class="fas fa-chevron-left"></i></button><img id="full-modal-target-img" src="" alt="ภาพจากแกลเลอรี" class="max-w-full max-h-full object-contain rounded-lg"><button onclick="nextFullImg()" class="absolute right-2 sm:right-4 z-20 text-white bg-black/50 w-11 h-11 rounded-full"><i class="fas fa-chevron-right"></i></button></div>
-    <button onclick="openCurrentImageSource()" class="mt-3 text-xs text-gray-300 underline">เปิดภาพต้นฉบับในแท็บใหม่</button>
+  <div id="full-img-modal" class="fixed inset-0 z-[130] bg-black/95 hidden flex-col items-center justify-center p-4" style="pointer-events:auto">
+    <div class="absolute top-4 left-0 right-0 flex justify-between items-center px-4 sm:px-6 z-50" style="pointer-events:none"><span id="slideshow-info" class="text-white text-xs bg-black/60 px-3 py-1.5 rounded-full">1/1</span><div class="flex items-center gap-2 bg-black/60 p-1.5 rounded-full border border-white/20"><button id="btn-play-slideshow" type="button" onclick="toggleSlideshow(); return false" style="pointer-events:auto" class="text-green-400 px-3 py-1 text-xs font-bold"><i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">สไลด์โชว์</span></button><select id="slideshow-speed" style="pointer-events:auto" class="bg-gray-800 text-white rounded border border-gray-600 px-1 py-0.5 text-xs" onchange="changeSlideshowSpeed()"><option value="1000">1 วิ</option><option value="3000" selected>3 วิ</option><option value="5000">5 วิ</option></select></div><button type="button" onclick="closeFullImgModal(); return false" style="pointer-events:auto" class="text-white bg-red-600 w-9 h-9 rounded-full"><i class="fas fa-times"></i></button></div>
+    <div class="relative w-full max-w-5xl h-[82vh] flex items-center justify-center" style="isolation:isolate"><button type="button" aria-label="ภาพก่อนหน้า" onclick="prevFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute left-2 sm:left-4 text-white bg-black/60 hover:bg-black/90 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-chevron-left"></i></button><img id="full-modal-target-img" src="" alt="ภาพจากแกลเลอรี" draggable="false" style="pointer-events:none;user-select:none;z-index:1" class="max-w-full max-h-full object-contain rounded-lg"><button type="button" aria-label="ภาพถัดไป" onclick="nextFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute right-2 sm:right-4 text-white bg-black/60 hover:bg-black/90 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-chevron-right"></i></button></div>
+    <button type="button" onclick="openCurrentImageSource(); return false" style="z-index:60;pointer-events:auto" class="mt-3 text-xs text-gray-300 underline">เปิดภาพต้นฉบับในแท็บใหม่</button>
   </div>
 
   <div id="config-modal" class="fixed inset-0 z-[140] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
@@ -603,18 +603,32 @@ function openFullImgModal(index) { if (!currentImages.length) return; slideshowA
 function closeFullImgModal() { stopSlideshow(); closeModalBox('full-img-modal'); }
 function updateFullImgView() {
   const img = document.getElementById('full-modal-target-img');
-  if (!currentImages[slideshowActiveIndex]) return;
-  img.style.opacity = '0.2'; img.src = currentImages[slideshowActiveIndex];
+  const info = document.getElementById('slideshow-info');
+  if (!img || !currentImages.length) return;
+  slideshowActiveIndex = (slideshowActiveIndex + currentImages.length) % currentImages.length;
+  const src = currentImages[slideshowActiveIndex];
   img.onload = () => { img.style.opacity = '1'; };
-  document.getElementById('slideshow-info').textContent = `${slideshowActiveIndex + 1} / ${currentImages.length}`;
+  img.onerror = () => { img.style.opacity = '1'; };
+  img.style.opacity = '0.25';
+  img.src = src;
+  if (info) info.textContent = `${slideshowActiveIndex + 1} / ${currentImages.length}`;
 }
 function openCurrentImageSource() { if (currentImages[slideshowActiveIndex]) window.open(currentImages[slideshowActiveIndex], '_blank', 'noopener'); }
 function nextFullImg() { if (!currentImages.length) return; slideshowActiveIndex = (slideshowActiveIndex + 1) % currentImages.length; updateFullImgView(); }
 function prevFullImg() { if (!currentImages.length) return; slideshowActiveIndex = (slideshowActiveIndex - 1 + currentImages.length) % currentImages.length; updateFullImgView(); }
-function toggleSlideshow() { slideshowInterval ? stopSlideshow() : startSlideshow(); }
-function startSlideshow() { slideshowSpeed = Number(document.getElementById('slideshow-speed').value) || 3000; document.getElementById('play-icon').className = 'fas fa-pause'; slideshowInterval = setInterval(nextFullImg, slideshowSpeed); }
-function stopSlideshow() { document.getElementById('play-icon').className = 'fas fa-play'; if (slideshowInterval) clearInterval(slideshowInterval); slideshowInterval = null; }
-function changeSlideshowSpeed() { if (slideshowInterval) { stopSlideshow(); startSlideshow(); } }
+function toggleSlideshow() { if (slideshowInterval !== null) stopSlideshow(); else startSlideshow(); }
+function startSlideshow() {
+  if (!currentImages.length || slideshowInterval !== null) return;
+  const speedInput = document.getElementById('slideshow-speed');
+  slideshowSpeed = Math.max(500, Number(speedInput && speedInput.value) || 3000);
+  const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-pause';
+  slideshowInterval = window.setInterval(() => { if (!document.getElementById('full-img-modal').classList.contains('hidden')) nextFullImg(); else stopSlideshow(); }, slideshowSpeed);
+}
+function stopSlideshow() {
+  const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-play';
+  if (slideshowInterval !== null) { window.clearInterval(slideshowInterval); slideshowInterval = null; }
+}
+function changeSlideshowSpeed() { if (slideshowInterval !== null) { stopSlideshow(); startSlideshow(); } }
 
 function loadFavorites() {
   try { favoriteList = JSON.parse(localStorage.getItem('jav_favorites')) || []; } catch (_) { favoriteList = []; }

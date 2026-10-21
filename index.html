@@ -7,7 +7,6 @@
   <title>JAV Gallery Hub — Modern Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    /* STREAMING_CHUNK:Configuring Tailwind and Base Styles */
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -73,92 +72,132 @@
     .modal-scroll{-webkit-overflow-scrolling:touch}
   </style>
 </head>
-<body class="transition-colors duration-300">
+<body class="transition-colors duration-300 relative">
   <div id="toast-container" class="fixed bottom-6 right-6 z-[250] flex flex-col gap-3 max-w-sm pointer-events-none"></div>
   
-  <!-- STREAMING_CHUNK:Consolidating all top controls into one sticky container -->
-  <div id="sticky-header-container" class="sticky top-0 z-40 w-full transition-transform duration-500 ease-in-out pointer-events-none flex flex-col gap-4 pb-4" style="transform: translateY(0);">
+  <!-- Floating Hamburger Button -->
+  <div class="fixed top-4 left-4 z-50 pointer-events-auto">
+    <button onclick="toggleSideMenu()" class="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md shadow-lg border border-gray-200/60 dark:border-white/10 text-gray-800 dark:text-white hover:scale-105 transition-transform">
+      <i class="fas fa-bars text-xl"></i>
+      <!-- Mini status indicator on the button -->
+      <span id="nav-status-dot" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#18181b] bg-green-500 transition-colors"></span>
+    </button>
+  </div>
+  
+  <!-- Sidebar Backdrop -->
+  <div id="side-menu-backdrop" onclick="toggleSideMenu()" class="fixed inset-0 bg-black/40 dark:bg-black/60 z-[95] hidden backdrop-blur-sm transition-opacity opacity-0"></div>
+  
+  <!-- Slide-out Sidebar Menu -->
+  <aside id="side-menu" class="fixed top-0 left-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-[#121214] shadow-2xl z-[100] -translate-x-full transition-transform duration-300 ease-in-out border-r border-gray-200/50 dark:border-white/5 flex flex-col">
+    <!-- Sidebar Header -->
+    <div class="p-5 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
+      <div class="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-rose-600 text-white flex items-center justify-center"><i class="fas fa-play text-xs"></i></div>
+         JAV HUB
+      </div>
+      <button onclick="toggleSideMenu()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times text-lg"></i></button>
+    </div>
     
-    <header class="bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/10 shadow-sm transition-colors pointer-events-auto">
-      <div class="container mx-auto px-4 py-3 flex flex-wrap gap-3 justify-between items-center">
-        <div class="flex items-center gap-2 sm:gap-4">
-          <button onclick="goHome()" class="flex items-center justify-center bg-gradient-to-br from-primary to-rose-600 text-white px-4 py-2 rounded-xl font-bold text-lg shadow-md shadow-primary/20 hover:scale-105 transition-transform"><i class="fas fa-play mr-2 text-sm"></i>HUB</button>
-          <div class="w-px h-6 bg-gray-200 dark:bg-white/10 mx-1 hidden sm:block"></div>
-          <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors" title="สลับธีม"><i id="theme-icon" class="fas fa-moon text-lg"></i></button>
-          <button onclick="loadLatest()" class="w-10 h-10 flex items-center justify-center rounded-full text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors" title="โหลดหน้าแรก JAVDB"><i class="fas fa-fire text-lg"></i></button>
-          <button onclick="openConfigModal()" class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors" title="ตั้งค่า Google Apps Script"><i class="fas fa-cloud text-lg"></i></button>
-          <button onclick="toggleBookmarkPanel()" class="w-10 h-10 flex items-center justify-center rounded-full text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors relative" title="ลิงก์ที่บันทึก">
-            <i class="fas fa-bookmark text-lg"></i>
-            <span id="bookmark-badge" class="hidden absolute top-1.5 right-1.5 bg-rose-500 text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full items-center justify-center ring-2 ring-white dark:ring-[#09090b]">0</span>
-          </button>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="openSearchModal()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 dark:text-gray-200 transition-colors text-sm font-medium" title="ค้นหา"><i class="fas fa-search text-gray-500 dark:text-gray-400"></i><span class="hidden sm:inline">ค้นหา</span></button>
-          <button onclick="openLinkInputModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 dark:text-gray-200 transition-colors" title="วางลิงก์"><i class="fas fa-link"></i></button>
-          <div class="w-px h-6 bg-gray-200 dark:bg-white/10 mx-1"></div>
-          
-          <!-- ปุ่ม ปักหมุด/ซ่อนอัตโนมัติ -->
-          <button onclick="toggleHeaderPin()" id="btn-pin-header" class="w-10 h-10 flex items-center justify-center rounded-full transition-all text-primary bg-primary/10" title="ตรึงแถบเครื่องมือ">
-            <i class="fas fa-thumbtack transition-transform duration-300"></i>
-          </button>
-          
-          <button onclick="clearHistory()" class="w-10 h-10 flex items-center justify-center rounded-full bg-red-50 hover:bg-red-100 text-red-500 dark:bg-red-500/10 dark:hover:bg-red-500/20 transition-colors" title="ล้างประวัติในหน้านี้"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
+    <!-- Sidebar Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-6">
       
-      <div class="bg-gray-50/50 dark:bg-[#121214]/80 border-t border-gray-100 dark:border-white/5 py-2 px-4 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex flex-1 min-w-0 items-center gap-3 bg-white dark:bg-black/40 border border-gray-200/60 dark:border-white/10 rounded-full px-4 py-1.5 shadow-sm">
-          <i class="fas fa-globe text-gray-400 text-xs shrink-0"></i>
-          <a id="display-active-url" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-600 dark:text-gray-300 hover:text-primary truncate font-medium flex-1">https://javdb.com/</a>
+      <!-- Navigation & Tabs -->
+      <div class="space-y-3">
+        <div class="flex bg-gray-50 dark:bg-[#09090b] rounded-xl p-1 border border-gray-200/50 dark:border-white/5">
+          <button id="tab-home" onclick="switchMainTab('home')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"><i class="fas fa-compass mr-1.5 text-primary"></i> สำรวจ</button>
+          <button id="tab-fav" onclick="switchMainTab('favorites')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><i class="fas fa-heart mr-1.5"></i> โปรด (<span id="fav-count">0</span>)</button>
         </div>
-        <div class="flex items-center shrink-0">
-          <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-4 py-1.5 rounded-full text-xs font-bold transition-all border border-amber-200/50 dark:border-amber-500/20"><i class="far fa-star"></i> บันทึกหน้านี้</button>
+        <div class="flex gap-2">
+          <button id="btn-nav-back" onclick="navigateHistoryBack()" disabled class="flex-1 py-2 rounded-xl bg-gray-50 dark:bg-[#09090b] border border-gray-200/50 dark:border-white/5 text-gray-600 dark:text-gray-300 disabled:opacity-40 transition-colors"><i class="fas fa-chevron-left mr-1 text-xs"></i> กลับ</button>
+          <button id="btn-nav-forward" onclick="navigateHistoryForward()" disabled class="flex-1 py-2 rounded-xl bg-gray-50 dark:bg-[#09090b] border border-gray-200/50 dark:border-white/5 text-gray-600 dark:text-gray-300 disabled:opacity-40 transition-colors">ถัดไป <i class="fas fa-chevron-right ml-1 text-xs"></i></button>
         </div>
       </div>
-    </header>
 
-    <div class="container mx-auto px-4 pointer-events-none flex flex-col gap-4">
-      <!-- Main Controls (Nav, Tabs, Size) - Pinned along with Header -->
-      <div id="main-controls-bar" class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-md p-3 rounded-2xl shadow-md border border-gray-200/60 dark:border-white/5 pointer-events-auto">
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center bg-gray-50 dark:bg-[#09090b] rounded-full p-1 border border-gray-200/50 dark:border-white/5">
-            <button id="btn-nav-back" onclick="navigateHistoryBack()" disabled class="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"><i class="fas fa-chevron-left text-sm"></i></button>
-            <button id="btn-nav-forward" onclick="navigateHistoryForward()" disabled class="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"><i class="fas fa-chevron-right text-sm"></i></button>
-          </div>
-          <div class="flex items-center bg-gray-50 dark:bg-[#09090b] rounded-full p-1 border border-gray-200/50 dark:border-white/5">
-            <button id="tab-home" onclick="switchMainTab('home')" class="px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"><i class="fas fa-compass mr-1.5 text-primary"></i> สำรวจ</button>
-            <button id="tab-fav" onclick="switchMainTab('favorites')" class="px-5 py-2 rounded-full font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><i class="fas fa-heart mr-1.5"></i> โปรด (<span id="fav-count">0</span>)</button>
-          </div>
-          <div class="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 px-3 bg-gray-50 dark:bg-zinc-900 rounded-full py-2 border border-gray-200/50 dark:border-white/5">
-            <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-            <span id="status-text" class="font-medium tracking-wide">พร้อมทำงาน</span>
-          </div>
-        </div>
-        <div class="flex items-center bg-gray-50 dark:bg-[#09090b] rounded-full p-1 border border-gray-200/50 dark:border-white/5">
-          <button onclick="changeGridSize('large')" id="btn-grid-large" class="size-btn px-4 py-2 rounded-full text-xs font-bold text-gray-500 transition-colors">ใหญ่</button>
-          <button onclick="changeGridSize('medium')" id="btn-grid-medium" class="size-btn active bg-white dark:bg-zinc-800 shadow-sm px-4 py-2 rounded-full text-xs font-bold text-gray-900 dark:text-white transition-colors">กลาง</button>
-          <button onclick="changeGridSize('small')" id="btn-grid-small" class="size-btn px-4 py-2 rounded-full text-xs font-bold text-gray-500 transition-colors">เล็ก</button>
+      <!-- Favorites Filter (Visible only in Favorites tab) -->
+      <div id="favorites-filter-container" class="hidden flex-col gap-3 p-3 bg-gray-50 dark:bg-[#09090b] rounded-xl border border-gray-200/50 dark:border-white/5">
+         <input id="fav-search-input" oninput="filterFavorites()" placeholder="ค้นหาชื่อหรือรหัส..." class="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-gray-800 dark:text-gray-200 transition-all">
+         <select id="fav-sort-filter" onchange="filterFavorites()" class="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer">
+           <option value="newest">บันทึกล่าสุด</option>
+           <option value="oldest">บันทึกเก่าสุด</option>
+           <option value="title">เรียงตามชื่อ</option>
+         </select>
+         <button type="button" onclick="startFavoritesSlideshow(); toggleSideMenu();" class="w-full flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 rounded-lg px-3 py-2 text-sm font-bold shadow-sm transition-all"><i class="fas fa-play text-xs"></i> สไลด์โชว์รายการโปรด</button>
+      </div>
+
+      <!-- Grid Size Settings -->
+      <div>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">ขนาดรูป</p>
+        <div class="flex items-center bg-gray-50 dark:bg-[#09090b] rounded-xl p-1 border border-gray-200/50 dark:border-white/5">
+          <button onclick="changeGridSize('large')" id="btn-grid-large" class="size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 transition-colors">ใหญ่</button>
+          <button onclick="changeGridSize('medium')" id="btn-grid-medium" class="size-btn active flex-1 bg-white dark:bg-zinc-800 shadow-sm py-1.5 rounded-lg text-xs font-bold text-gray-900 dark:text-white transition-colors">กลาง</button>
+          <button onclick="changeGridSize('small')" id="btn-grid-small" class="size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 transition-colors">เล็ก</button>
         </div>
       </div>
-      
-      <!-- Favorites Filter - Pinned conditionally when on favorites tab -->
-      <div id="favorites-filter-container" class="hidden bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-md border border-gray-200/60 dark:border-white/5 shadow-md rounded-2xl p-4 flex flex-col sm:flex-row gap-3 pointer-events-auto">
-        <div class="relative flex-1">
-           <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-           <input id="fav-search-input" oninput="filterFavorites()" placeholder="ค้นหารหัสหรือชื่อในรายการโปรด..." class="w-full bg-gray-50 dark:bg-[#09090b] border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-800 dark:text-gray-200">
+
+      <!-- Tools Menu -->
+      <div>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">เมนูหลัก</p>
+        <div class="space-y-1">
+          <button onclick="openSearchModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0"><i class="fas fa-search text-xs"></i></div>
+            ค้นหาใน JAVDB
+          </button>
+          <button onclick="openLinkInputModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0"><i class="fas fa-link text-xs"></i></div>
+            ดึงข้อมูลจากลิงก์
+          </button>
+          <button onclick="toggleBookmarkPanel(); toggleSideMenu();" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0"><i class="fas fa-bookmark text-xs"></i></div>
+              ลิงก์ที่บันทึก
+            </div>
+            <span id="bookmark-badge" class="hidden bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </button>
+          <button onclick="loadLatest(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0"><i class="fas fa-fire text-xs"></i></div>
+            โหลดหน้าแรก JAVDB
+          </button>
+          <button onclick="clearHistory(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 transition-colors text-sm font-medium text-left">
+            <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center shrink-0"><i class="fas fa-trash-alt text-xs"></i></div>
+            ล้างประวัติการนำทางหน้านี้
+          </button>
         </div>
-        <select id="fav-sort-filter" onchange="filterFavorites()" class="bg-gray-50 dark:bg-[#09090b] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer">
-          <option value="newest">บันทึกล่าสุด</option>
-          <option value="oldest">บันทึกเก่าสุด</option>
-          <option value="title">เรียงตามชื่อ</option>
-        </select>
-        <button type="button" onclick="startFavoritesSlideshow()" class="shrink-0 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-xl px-6 py-3 text-sm font-bold transition-all shadow-md" title="สไลด์โชว์รูปทั้งหมดที่บันทึกไว้"><i class="fas fa-play text-xs"></i><span>สไลด์โชว์</span></button>
+      </div>
+
+      <!-- Current Page info -->
+      <div class="bg-gray-50 dark:bg-[#09090b] rounded-xl p-3 border border-gray-200/50 dark:border-white/5 space-y-3">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">หน้านี้</p>
+        <a id="display-active-url" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="block text-xs text-blue-500 hover:underline truncate bg-white dark:bg-zinc-800 p-2 rounded-lg border border-gray-100 dark:border-white/5">https://javdb.com/</a>
+        <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="w-full flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-amber-200/50 dark:border-amber-500/20"><i class="far fa-star"></i> บันทึกหน้านี้</button>
+      </div>
+      
+      <!-- System Settings -->
+      <div>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">ตั้งค่าระบบ</p>
+        <div class="space-y-1">
+          <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0"><i id="theme-icon" class="fas fa-moon text-xs"></i></div>
+              สลับโหมดสี (Theme)
+            </div>
+          </button>
+          <button onclick="openConfigModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0"><i class="fas fa-cloud text-xs"></i></div>
+            ตั้งค่า Google Apps Script
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+    
+    <!-- Sidebar Footer / Status -->
+    <div class="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-[#09090b]/50 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 shrink-0">
+      <span id="sidebar-status-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+      <span id="sidebar-status-text" class="font-medium tracking-wide truncate">พร้อมทำงาน</span>
+    </div>
+  </aside>
 
-  <!-- STREAMING_CHUNK:Main Content Area -->
-  <main class="container mx-auto px-4 py-2">
+  <!-- Main Content Area -->
+  <main class="container mx-auto px-4 pt-24 pb-4">
     <div id="gallery-grid" class="masonry-grid size-medium"></div>
     
     <div id="pagination" class="mt-10 mb-16 flex justify-center items-center gap-3 hidden">
@@ -170,7 +209,7 @@
     <p class="text-center text-xs text-gray-400 pb-10 tracking-wide">JAV Gallery Hub ดึงข้อมูลมาแสดงผลจากต้นทางเพื่อความสะดวกในการรับชม</p>
   </main>
 
-  <!-- STREAMING_CHUNK:Modals -->
+  <!-- Modals & Overlays -->
   <aside id="bookmark-panel" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#18181b] shadow-2xl z-[90] translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200/50 dark:border-white/5 flex flex-col">
     <div class="p-5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-[#09090b]/50">
       <h3 class="font-bold text-sm text-gray-800 dark:text-gray-100 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center"><i class="fas fa-bookmark text-amber-600 dark:text-amber-500 text-sm"></i></div> ลิงก์ที่บันทึกไว้</h3>
@@ -303,9 +342,7 @@
 
     <div class="relative w-full h-full flex items-center justify-center" style="isolation:isolate">
       <button type="button" aria-label="ภาพก่อนหน้า" onclick="prevFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute left-2 sm:left-6 text-white/50 hover:text-white bg-black/20 hover:bg-black/60 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center transition-all border border-transparent hover:border-white/10"><i class="fas fa-chevron-left text-xl"></i></button>
-      
       <img id="full-modal-target-img" src="" alt="ภาพ" draggable="false" style="pointer-events:none;user-select:none;z-index:1" class="max-w-full max-h-[90vh] object-contain transition-opacity duration-300">
-      
       <button type="button" aria-label="ภาพถัดไป" onclick="nextFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute right-2 sm:right-6 text-white/50 hover:text-white bg-black/20 hover:bg-black/60 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center transition-all border border-transparent hover:border-white/10"><i class="fas fa-chevron-right text-xl"></i></button>
     </div>
     
@@ -316,7 +353,6 @@
 
 <script>
 'use strict';
-/* STREAMING_CHUNK:Updating JavaScript Logic including Auto-hide Header */
 const TARGET_URL = 'https://javdb.com/';
 const JAVDB_HOSTS = new Set(['javdb.com', 'www.javdb.com']);
 let currentUrl = TARGET_URL;
@@ -338,6 +374,25 @@ let gridSize = 'medium';
 let loadRequestToken = 0;
 
 try { gasEndpoint = localStorage.getItem('gas_url') || ''; } catch (_) {}
+
+function toggleSideMenu() {
+  const menu = document.getElementById('side-menu');
+  const backdrop = document.getElementById('side-menu-backdrop');
+  const isOpen = !menu.classList.contains('-translate-x-full');
+  
+  if (isOpen) {
+    menu.classList.add('-translate-x-full');
+    backdrop.classList.add('opacity-0');
+    setTimeout(() => backdrop.classList.add('hidden'), 300);
+    document.body.style.overflow = '';
+  } else {
+    backdrop.classList.remove('hidden');
+    // small delay for transition
+    setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+    menu.classList.remove('-translate-x-full');
+    document.body.style.overflow = 'hidden';
+  }
+}
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -388,16 +443,25 @@ function showToast(message, type = 'info') {
 }
 
 function setStatus(text, kind = 'ok') {
-  document.getElementById('status-text').textContent = text;
-  const dot = document.getElementById('status-dot');
-  dot.className = 'w-2.5 h-2.5 rounded-full shadow-sm ' + (kind === 'error' ? 'bg-red-500' : kind === 'loading' ? 'bg-yellow-400 animate-pulse' : 'bg-green-500 animate-pulse');
+  const statusText = document.getElementById('sidebar-status-text');
+  if (statusText) statusText.textContent = text;
+  const colorClass = kind === 'error' ? 'bg-red-500' : kind === 'loading' ? 'bg-yellow-400 animate-pulse' : 'bg-green-500';
+  
+  const sidebarDot = document.getElementById('sidebar-status-dot');
+  if (sidebarDot) sidebarDot.className = 'w-2 h-2 rounded-full shadow-sm ' + colorClass;
+  
+  const navDot = document.getElementById('nav-status-dot');
+  if (navDot) navDot.className = 'absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#18181b] transition-colors ' + colorClass;
 }
+
 function stripHash(url) { try { const u = new URL(url); u.hash = ''; return u.href; } catch (_) { return url; } }
 function updateActiveUrl(url) {
   currentUrl = stripHash(url);
   const a = document.getElementById('display-active-url');
-  a.textContent = currentUrl;
-  a.href = currentUrl;
+  if (a) {
+    a.textContent = currentUrl;
+    a.href = currentUrl;
+  }
   updateCurrentPageBookmarkButtonUI();
 }
 function gasUrl(params) {
@@ -407,25 +471,28 @@ function gasUrl(params) {
 }
 function updateScrollLock() {
   const open = id => !document.getElementById(id).classList.contains('hidden');
-  document.body.style.overflow = (open('modal') || open('full-img-modal')) ? 'hidden' : '';
+  if (open('modal') || open('full-img-modal')) {
+    document.body.style.overflow = 'hidden';
+  } else if (document.getElementById('side-menu').classList.contains('-translate-x-full')) {
+    document.body.style.overflow = '';
+  }
 }
 
 function updateNavigationButtonsUI() {
   const back = document.getElementById('btn-nav-back');
   const forward = document.getElementById('btn-nav-forward');
+  if (!back || !forward) return;
   back.disabled = historyIndex <= 0;
   forward.disabled = historyIndex >= historyStack.length - 1;
-  const baseClass = 'w-9 h-9 flex items-center justify-center rounded-full transition-colors ';
-  back.className = baseClass + (back.disabled ? 'text-gray-400 opacity-40' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-800 shadow-sm bg-white dark:bg-zinc-800');
-  forward.className = baseClass + (forward.disabled ? 'text-gray-400 opacity-40' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-800 shadow-sm bg-white dark:bg-zinc-800');
 }
 
 function changeGridSize(size) {
   gridSize = size;
-  document.querySelectorAll('.size-btn').forEach(btn => btn.className = 'size-btn px-4 py-2 rounded-full text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors');
+  document.querySelectorAll('.size-btn').forEach(btn => btn.className = 'size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors');
   const active = document.getElementById(`btn-grid-${size}`);
-  if (active) active.className = 'size-btn active bg-white dark:bg-zinc-800 shadow-sm px-4 py-2 rounded-full text-xs font-bold text-gray-900 dark:text-white transition-colors';
-  document.getElementById('gallery-grid').className = `masonry-grid size-${size}`;
+  if (active) active.className = 'size-btn active flex-1 bg-white dark:bg-zinc-800 shadow-sm py-1.5 rounded-lg text-xs font-bold text-gray-900 dark:text-white transition-colors';
+  const grid = document.getElementById('gallery-grid');
+  if (grid) grid.className = `masonry-grid size-${size}`;
 }
 
 function toggleTheme() {
@@ -433,7 +500,13 @@ function toggleTheme() {
   try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (_) {}
   updateThemeUI();
 }
-function updateThemeUI() { document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun text-amber-400 text-lg' : 'fas fa-moon text-lg'; }
+function updateThemeUI() { 
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun text-xs text-amber-400' : 'fas fa-moon text-xs text-gray-600';
+  }
+}
+
 function openModalBox(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); updateScrollLock(); }
 function closeModalBox(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); updateScrollLock(); }
 function openSearchModal() { openModalBox('search-modal'); setTimeout(() => document.getElementById('search-modal-input').focus(), 20); }
@@ -457,6 +530,8 @@ function executeModalLink() {
 
 document.addEventListener('keydown', e => {
   const isOpen = id => !document.getElementById(id).classList.contains('hidden');
+  const isMenuOpen = !document.getElementById('side-menu').classList.contains('-translate-x-full');
+  
   if (e.key === 'Enter' && !e.isComposing && e.target.tagName === 'INPUT') {
     if (isOpen('search-modal') && e.target.id === 'search-modal-input') executeModalSearch();
     else if (isOpen('link-modal') && e.target.id === 'link-modal-input') executeModalLink();
@@ -468,6 +543,7 @@ document.addEventListener('keydown', e => {
     else if (isOpen('link-modal')) closeLinkInputModal();
     else if (isOpen('modal')) closeModal();
     else if (!document.getElementById('bookmark-panel').classList.contains('translate-x-full')) toggleBookmarkPanel();
+    else if (isMenuOpen) toggleSideMenu();
   }
   if (isOpen('full-img-modal')) {
     if (e.key === 'ArrowRight') nextFullImg();
@@ -614,19 +690,16 @@ async function loadPage(url, opts = {}) {
 function renderGrid(items) {
   const grid = document.getElementById('gallery-grid');
   if (!items.length) { grid.innerHTML = '<div class="py-24 text-center text-gray-400 col-span-full font-bold" style="column-span: all;">ไม่พบรายการ</div>'; return; }
+  
+  // No heart or movie code in the main grid
   grid.innerHTML = items.map((item, idx) => {
-    const fav = favoriteList.some(f => f.isSnapshot ? false : f.id === item.id);
     return `<div class="masonry-item animate-fade-up" style="animation-delay:${(idx%12)*.03}s">
       <div class="group relative bg-white dark:bg-[#18181b] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200/60 dark:border-white/5">
         <button data-action="open-item" data-index="${idx}" class="block w-full text-left bg-gray-100 dark:bg-zinc-900 cursor-pointer overflow-hidden relative">
           <img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-auto object-cover img-lazy group-hover:scale-105" data-fallback="1">
-          <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold tracking-wider rounded-md px-2.5 py-1 shadow-sm">${escapeHtml(item.code || item.id)}</span>
           <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
             <p class="text-white text-sm font-bold leading-snug line-clamp-3 drop-shadow-md">${escapeHtml(item.title)}</p>
           </div>
-        </button>
-        <button data-action="favorite-item" data-index="${idx}" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
-          <i class="${fav?'fas text-rose-500':'far'} fa-heart drop-shadow-sm text-sm"></i>
         </button>
         <div class="p-3.5 flex flex-col gap-2">
           <p class="text-xs font-semibold leading-relaxed text-gray-800 dark:text-gray-200 line-clamp-2">${escapeHtml(item.title)}</p>
@@ -635,8 +708,8 @@ function renderGrid(items) {
       </div>
     </div>`;
   }).join('');
+  
   grid.querySelectorAll('[data-action="open-item"]').forEach(btn => btn.addEventListener('click', () => { const item = items[Number(btn.dataset.index)]; if (item) openMovieModal(item.url, item, ''); }));
-  grid.querySelectorAll('[data-action="favorite-item"]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const item = items[Number(btn.dataset.index)]; if (item) toggleFavorite(item); }));
 }
 
 function navPage(direction) {
@@ -652,20 +725,24 @@ function loadLatest() { goHome(); }
 function setMainTab(tab) {
   activeMainTab = tab;
   const home = document.getElementById('tab-home'), fav = document.getElementById('tab-fav');
-  const inactiveClass = 'px-5 py-2 rounded-full font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200';
-  const activeClass = 'px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white';
+  const inactiveClass = 'flex-1 py-2 rounded-lg font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200';
+  const activeClass = 'flex-1 py-2 rounded-lg font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white';
   
-  home.className = (tab === 'home' ? activeClass : inactiveClass);
-  fav.className = (tab === 'favorites' ? activeClass : inactiveClass);
+  if (home) home.className = (tab === 'home' ? activeClass : inactiveClass);
+  if (fav) fav.className = (tab === 'favorites' ? activeClass : inactiveClass);
   
   const filter = document.getElementById('favorites-filter-container');
   if (tab === 'home') {
-    filter.classList.add('hidden');
-    filter.classList.remove('flex');
+    if (filter) {
+      filter.classList.add('hidden');
+      filter.classList.remove('flex');
+    }
   } else {
     loadRequestToken++; 
-    filter.classList.remove('hidden');
-    filter.classList.add('flex');
+    if (filter) {
+      filter.classList.remove('hidden');
+      filter.classList.add('flex');
+    }
     document.getElementById('pagination').classList.add('hidden');
     filterFavorites();
     setStatus(`โปรด ${favoriteList.length} รายการ`);
@@ -686,7 +763,7 @@ function navigateHistory(delta) {
 }
 function navigateHistoryBack() { navigateHistory(-1); }
 function navigateHistoryForward() { navigateHistory(1); }
-function clearHistory() { historyStack = [currentListUrl]; historyIndex = 0; updateNavigationButtonsUI(); showToast('ล้างประวัติในหน้านี้แล้ว', 'success'); }
+function clearHistory() { historyStack = [currentListUrl]; historyIndex = 0; updateNavigationButtonsUI(); showToast('ล้างประวัติการนำทางหน้านี้แล้ว', 'success'); }
 
 async function openMovieModal(url, item, hash = '') {
   const token = ++movieRequestToken; 
@@ -868,6 +945,14 @@ function renderModalImages(images, movie) {
   container.innerHTML = images.map((src, i) => {
     const snap = currentHasCover ? i > 0 : true;
     const liked = isSceneLiked(movie, i, src);
+    
+    // Condition to ONLY add favorite heart button on SCENES, not the cover image inside modal.
+    const favButton = snap ? `
+      <button data-action="fav-scene" data-index="${i}" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors shadow-sm">
+        <i class="${liked ? 'fas text-rose-500' : 'far'} fa-heart text-sm drop-shadow-sm"></i>
+      </button>
+    ` : '';
+    
     return `<div id="scene-${i}" class="masonry-item animate-fade-up" style="animation-delay:${(i%10)*.05}s">
       <div class="relative group rounded-2xl overflow-hidden border border-gray-200/60 dark:border-white/5 bg-gray-100 dark:bg-zinc-900 shadow-sm">
         <span class="absolute top-2.5 left-2.5 z-10 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">${!snap ? 'หน้าปก' : 'ซีน ' + (currentHasCover ? i : i + 1)}</span>
@@ -875,9 +960,7 @@ function renderModalImages(images, movie) {
           <img src="${escapeHtml(src)}" alt="${escapeHtml(movie.title || movie.id)}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain img-lazy group-hover:scale-[1.02] transition-transform duration-500" onerror="this.style.opacity='.35'">
         </button>
         <div class="absolute bottom-2.5 right-2.5 flex gap-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button data-action="fav-scene" data-index="${i}" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors shadow-sm">
-              <i class="${liked ? 'fas text-rose-500' : 'far'} fa-heart text-sm"></i>
-            </button>
+            ${favButton}
             <a href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors shadow-sm" title="เปิดภาพต้นฉบับ">
               <i class="fas fa-external-link-alt text-[10px]"></i>
             </a>
@@ -903,10 +986,6 @@ function isSceneLiked(movie, i, src) {
 }
 function syncHeartIcons() {
   const set = (btn, liked) => { const ic = btn.querySelector('i'); if (ic) ic.className = (liked ? 'fas text-rose-500' : 'far') + ' fa-heart text-sm drop-shadow-sm'; };
-  if (activeMainTab === 'home' && lastList) document.querySelectorAll('#gallery-grid [data-action="favorite-item"]').forEach(btn => {
-    const it = lastList.items[Number(btn.dataset.index)];
-    if (it) set(btn, favoriteList.some(f => !f.isSnapshot && f.id === it.id));
-  });
   if (currentMovie) document.querySelectorAll('#modal-images [data-action="fav-scene"]').forEach(btn => {
     const i = Number(btn.dataset.index), src = currentImages[i];
     if (src) set(btn, isSceneLiked(currentMovie, i, src));
@@ -986,7 +1065,10 @@ function loadFavorites() {
   saveFavorites(); updateFavCountBadge();
   if (gasEndpoint) syncFromGoogleSheet();
 }
-function updateFavCountBadge() { document.getElementById('fav-count').textContent = favoriteList.length; }
+function updateFavCountBadge() { 
+  const el = document.getElementById('fav-count');
+  if(el) el.textContent = favoriteList.length; 
+}
 
 function toggleFavorite(item) {
   const isSnapshot = Boolean(item.isSnapshot);
@@ -1043,10 +1125,24 @@ function loadBookmarks() {
   updateBookmarkBadgeUI(); renderBookmarkListUI();
   if (gasEndpoint) syncBookmarksFromGoogleSheet();
 }
-function updateBookmarkBadgeUI() { const el=document.getElementById('bookmark-badge'); el.textContent=bookmarkList.length; el.classList.toggle('hidden', bookmarkList.length===0); el.classList.toggle('flex', bookmarkList.length>0); }
+function updateBookmarkBadgeUI() { 
+  const els = document.querySelectorAll('#bookmark-badge'); 
+  els.forEach(el => {
+    el.textContent = bookmarkList.length; 
+    el.classList.toggle('hidden', bookmarkList.length === 0); 
+    if(el.tagName === 'SPAN' && el.parentElement.tagName === 'BUTTON' && el.parentElement.classList.contains('justify-between')) {
+        el.classList.toggle('inline-block', bookmarkList.length > 0);
+    } else {
+        el.classList.toggle('flex', bookmarkList.length > 0); 
+    }
+  });
+}
 function updateCurrentPageBookmarkButtonUI() {
   const saved = bookmarkList.some(b => b.url === currentUrl);
-  document.getElementById('btn-bookmark-current').innerHTML = saved ? '<i class="fas fa-star text-amber-500"></i> บันทึกแล้ว' : '<i class="far fa-star"></i> บันทึกหน้านี้';
+  const currentBtn = document.getElementById('btn-bookmark-current');
+  if(currentBtn) {
+    currentBtn.innerHTML = saved ? '<i class="fas fa-star text-amber-500"></i> บันทึกแล้ว' : '<i class="far fa-star"></i> บันทึกหน้านี้';
+  }
   const m = document.getElementById('btn-bookmark-modal');
   if (m) m.innerHTML = saved ? '<i class="fas fa-star text-amber-500 text-lg"></i>' : '<i class="far fa-star text-lg"></i>';
 }
@@ -1072,6 +1168,7 @@ function toggleBookmarkPanel() { document.getElementById('bookmark-panel').class
 
 function renderBookmarkListUI() {
   const list=document.getElementById('bookmark-list');
+  if(!list) return;
   if (!bookmarkList.length) { list.innerHTML='<div class="py-20 flex flex-col items-center text-center"><div class="w-14 h-14 bg-gray-100 dark:bg-zinc-800 text-gray-300 dark:text-gray-600 rounded-full flex items-center justify-center mb-4"><i class="far fa-bookmark text-2xl"></i></div><p class="text-sm font-bold text-gray-500 dark:text-gray-400">ว่างเปล่า</p></div>'; return; }
   
   list.innerHTML=[...bookmarkList].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).map((b,i)=>`<div class="flex items-center gap-3 p-3.5 bg-white dark:bg-[#18181b] hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors rounded-xl border border-gray-100 dark:border-white/5 shadow-sm group animate-fade-up">
@@ -1131,51 +1228,6 @@ async function testAndSaveGAS() {
 }
 function disconnectGAS() { gasEndpoint='';try{localStorage.removeItem('gas_url');}catch(_){}document.getElementById('gas-url-input').value='';closeConfigModal();showToast('ยกเลิกเชื่อมต่อแล้ว','success'); }
 
-/* STREAMING_CHUNK:Initialize Auto-Hide Logic and App */
-let isHeaderPinned = false; // ค่าเริ่มต้นคือ ซ่อนอัตโนมัติ เพื่อให้มีพื้นที่ดูรูปได้เต็มที่
-try {
-  const storedPin = localStorage.getItem('header_pinned');
-  if (storedPin !== null) isHeaderPinned = storedPin === 'true';
-} catch (_) {}
-
-let lastScrollY = window.scrollY;
-const headerContainer = document.getElementById('sticky-header-container');
-const btnPinHeader = document.getElementById('btn-pin-header');
-
-function updatePinUI() {
-  if (isHeaderPinned) {
-    btnPinHeader.classList.add('text-primary', 'bg-primary/10');
-    btnPinHeader.classList.remove('text-gray-400', 'bg-gray-100', 'dark:bg-zinc-800');
-    btnPinHeader.innerHTML = '<i class="fas fa-thumbtack transition-transform duration-300"></i>';
-    headerContainer.style.transform = 'translateY(0)';
-  } else {
-    btnPinHeader.classList.remove('text-primary', 'bg-primary/10');
-    btnPinHeader.classList.add('text-gray-400', 'bg-gray-100', 'dark:bg-zinc-800');
-    btnPinHeader.innerHTML = '<i class="fas fa-thumbtack -rotate-45 transition-transform duration-300"></i>';
-  }
-}
-
-function toggleHeaderPin() {
-  isHeaderPinned = !isHeaderPinned;
-  try { localStorage.setItem('header_pinned', isHeaderPinned); } catch (_) {}
-  updatePinUI();
-  showToast(isHeaderPinned ? 'ตรึงแถบเครื่องมือแล้ว' : 'เปิดโหมดซ่อนแถบเครื่องมืออัตโนมัติ', 'success');
-}
-
-window.addEventListener('scroll', () => {
-  if (isHeaderPinned) return;
-  const currentScrollY = window.scrollY;
-  // เลื่อนลงเกิน 100px แถบจะมุดซ่อนขึ้นไป
-  if (currentScrollY > lastScrollY && currentScrollY > 100) {
-    headerContainer.style.transform = 'translateY(calc(-100% - 20px))';
-  } 
-  // เลื่อนขึ้นแค่ 1px แถบจะโผล่ลงมาให้ใช้ทันที
-  else if (currentScrollY < lastScrollY || currentScrollY <= 100) {
-    headerContainer.style.transform = 'translateY(0)';
-  }
-  lastScrollY = currentScrollY;
-}, { passive: true });
-
 function init() {
   document.getElementById('gallery-grid').addEventListener('error', e => {
     const img = e.target;
@@ -1184,7 +1236,6 @@ function init() {
     img.parentElement.insertAdjacentHTML('beforeend', '<div class="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-zinc-800"><i class="fas fa-image text-gray-300 dark:text-gray-600 text-3xl"></i></div>');
   }, true);
   
-  updatePinUI();
   updateThemeUI(); 
   changeGridSize('medium'); 
   loadFavorites(); 

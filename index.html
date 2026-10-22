@@ -1,1249 +1,692 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="referrer" content="no-referrer">
-  <title>JAV Gallery Hub — Modern Edition</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: { 
-            primary: '#f43f5e', // Rose 500
-          },
-          fontFamily: {
-            sans: ['Kanit', 'sans-serif'],
-          },
-          keyframes: { 
-            fadeUp: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
-          },
-          animation: { 
-            'fade-up': 'fadeUp .4s cubic-bezier(0.16, 1, 0.3, 1) forwards' 
-          }
-        }
-      }
-    };
-    try {
-      if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
-    } catch (_) {}
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap">
-  <style>
-    body {font-family:'Kanit',sans-serif;-webkit-tap-highlight-color:transparent; background-color: #f8fafc;}
-    .dark body {background-color: #09090b; color: #f4f4f5;}
-    
-    .masonry-grid {column-count:2;column-gap:1rem}
-    @media(min-width:640px){.masonry-grid{column-count:3;column-gap:1.25rem}}
-    @media(min-width:1024px){.masonry-grid{column-count:4;column-gap:1.5rem}}
-    @media(min-width:1280px){.masonry-grid{column-count:5}}
-    
-    .masonry-grid.size-large{column-count:1}
-    @media(min-width:640px){.masonry-grid.size-large{column-count:2}}
-    @media(min-width:1024px){.masonry-grid.size-large{column-count:3}}
-    
-    .masonry-grid.size-medium{column-count:2}
-    @media(min-width:640px){.masonry-grid.size-medium{column-count:3}}
-    @media(min-width:1024px){.masonry-grid.size-medium{column-count:4}}
-    @media(min-width:1280px){.masonry-grid.size-medium{column-count:5}}
-    
-    .masonry-grid.size-small{column-count:3}
-    @media(min-width:640px){.masonry-grid.size-small{column-count:4}}
-    @media(min-width:1024px){.masonry-grid.size-small{column-count:6}}
-    @media(min-width:1280px){.masonry-grid.size-small{column-count:8}}
-    
-    .masonry-item{break-inside:avoid;margin-bottom:1.25rem}
-    .modal-masonry{column-count:1;column-gap:1rem}
-    @media(min-width:640px){.modal-masonry{column-count:2}}
-    @media(min-width:1024px){.modal-masonry{column-count:3}}
-    
-    /* Modern Scrollbar */
-    ::-webkit-scrollbar{width:8px; height:8px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background-color:rgba(156,163,175,0.5);border-radius:10px;border:2px solid transparent;background-clip:content-box;}
-    .dark ::-webkit-scrollbar-thumb{background-color:rgba(255,255,255,0.2);}
-    
-    .img-lazy{transition:opacity .3s ease-in-out, transform .4s cubic-bezier(0.16, 1, 0.3, 1)}
-    .modal-scroll{-webkit-overflow-scrolling:touch}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#ffffff">
+<title>JAV Gallery Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap">
+<script>try{const t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(_){}</script>
+<style>
+:root{--bg:#fff;--fg:#111;--mut:#767676;--sf:#efefef;--sf2:#e0e0e0;--red:#e60023;--bd:#0000001a;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--bot:0px;color-scheme:light}
+.dark{--bg:#121212;--fg:#f1f1f1;--mut:#a3a3a3;--sf:#2a2a2a;--sf2:#3a3a3a;--bd:#ffffff22;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:400 14px/1.4 Kanit,system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+body.lock{overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid #0a6cff;outline-offset:2px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.on{fill:var(--red);stroke:var(--red)}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.ib:hover{background:var(--sf)}.ib.sm{width:32px;height:32px}.ib.sm .ic{width:16px;height:16px}
+.grow{flex:1;min-width:0}.mut{color:var(--mut)}
+.btn{height:40px;padding:0 16px;border-radius:20px;background:var(--sf);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.red{background:var(--red);color:#fff}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;padding:calc(var(--sat) + 8px) 12px 8px;background:var(--bg)}
+.logo{display:flex;align-items:center;gap:8px;height:44px;padding:0 6px;font-weight:600;font-size:18px;color:var(--red)}
+.logo i{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font:600 15px Kanit}
+.tabs{display:flex;gap:4px}
+.tab{height:44px;padding:0 16px;border-radius:24px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tab.on{background:var(--fg);color:var(--bg)}.tab:not(.on):hover{background:var(--sf)}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:24px;background:var(--sf);color:var(--mut)}
+.search:focus-within{box-shadow:0 0 0 3px #0a6cff99}
+.search input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--fg);font-size:16px}
+#favbar{display:flex;gap:8px;padding:0 12px 8px;flex-wrap:wrap}
+#favbar input,#favbar select{height:40px;border-radius:20px;border:0;background:var(--sf);padding:0 14px;min-width:0}
+#favbar input{flex:1}
+main{padding:4px 12px calc(var(--bot) + var(--sab) + 72px)}
+.mas{position:relative}
+.card{position:absolute;left:0;top:0;animation:fade .3s both}
+@keyframes fade{from{opacity:0}}
+.wrap{position:relative}
+.thumb{display:block;width:100%;position:relative;border-radius:16px;overflow:hidden;background:var(--sf);cursor:zoom-in}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.sk{background:linear-gradient(90deg,var(--sf),var(--sf2),var(--sf));background-size:200% 100%;animation:sh 1.2s infinite linear}
+@keyframes sh{to{background-position:-200% 0}}
+.meta{display:flex;align-items:flex-start;gap:2px;padding:6px 2px 0 4px}
+.meta .t{flex:1;font-size:13px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-top:4px}
+.save{position:absolute;top:8px;right:8px;z-index:2;background:var(--red);color:#fff;border-radius:22px;padding:8px 14px;font-weight:600;font-size:13px}
+.save.on{background:#111;color:#fff}
+.save.rm{background:#000b;width:36px;height:36px;padding:0;display:grid;place-items:center}.save.rm .ic{width:16px;height:16px}
+.tag{position:absolute;top:8px;left:8px;z-index:2;background:#0009;color:#fff;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:500}
+.acts{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;gap:6px}
+.chip{width:40px;height:40px;border-radius:50%;background:#0009;color:#fff;display:grid;place-items:center}.chip .ic{width:18px;height:18px}
+@media(hover:hover){.save:not(.on),.acts{opacity:0;transition:opacity .15s}.card:hover .save,.card:hover .acts{opacity:1}.card:hover .thumb::after{content:"";position:absolute;inset:0;background:#0005;pointer-events:none}}
+.empty{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:72px 16px;color:var(--mut)}
+.empty .ic{width:48px;height:48px}.empty .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.spin{width:32px;height:32px;margin:16px auto;border-radius:50%;border:3px solid var(--sf2);border-top-color:var(--red);animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(1turn)}}
+.end{text-align:center;color:var(--mut);margin:16px}
+/* bottom nav + floating */
+.bnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;height:calc(56px + var(--sab));padding-bottom:var(--sab);background:var(--bg);border-top:1px solid var(--bd);justify-content:space-around;align-items:center}
+.bnav button{position:relative;width:64px;height:48px;display:grid;place-items:center;color:var(--mut)}.bnav .on{color:var(--fg)}
+.badge{position:absolute;top:4px;right:10px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;font-weight:600;display:grid;place-items:center}
+#totop{position:fixed;right:16px;bottom:calc(var(--bot) + var(--sab) + 16px);z-index:19;width:48px;height:48px;border-radius:50%;background:var(--bg);border:1px solid var(--bd);box-shadow:0 2px 10px #0003;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#totop.show{opacity:1;pointer-events:auto}
+#toasts{position:fixed;left:0;right:0;bottom:calc(var(--bot) + var(--sab) + 24px);z-index:200;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:#111;color:#fff;padding:12px 20px;border-radius:24px;font-weight:500;max-width:90vw;animation:fade .2s both;transition:opacity .25s}
+.toast.warn{background:var(--red)}
+@media(max-width:699px){:root{--bot:56px}.bnav{display:flex}.tabs,.logo span,.d-only{display:none}main{padding-inline:8px}}
+/* layers */
+.layer{position:fixed;inset:0;z-index:50;visibility:hidden;opacity:0;transition:opacity .2s,visibility .2s}
+.layer.open{visibility:visible;opacity:1}
+.scrim{position:absolute;inset:0;background:#0008}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,90vw);background:var(--bg);overflow-y:auto;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 16px);transform:translateX(100%);transition:transform .25s}
+#menu.open .drawer{transform:none}
+.dh{display:flex;align-items:center;justify-content:space-between;font-size:18px}
+.sec{margin-top:20px}.sec h4{margin:0 0 8px;font-size:13px;color:var(--mut);font-weight:500}
+.seg{display:flex;background:var(--sf);border-radius:20px;padding:3px}.seg button{flex:1;height:36px;border-radius:18px;font-weight:600;color:var(--mut)}.seg .on{background:var(--bg);color:var(--fg)}
+.row{display:flex;align-items:center;gap:12px;width:100%;height:48px;border-radius:12px;font-weight:500;padding:0 8px}.row:hover{background:var(--sf)}
+#cur{display:block;padding:10px 12px;margin-bottom:8px;border-radius:12px;background:var(--sf);font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bmr{display:flex;align-items:center;gap:4px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.bmr .grow{text-align:left}.bmr b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bmr small{display:block;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec input{width:100%;height:44px;border-radius:12px;border:2px solid var(--sf2);background:none;padding:0 12px;font-size:14px}
+.two{display:flex;gap:8px;margin-top:8px}.two .btn{flex:1}
+#modal .panel{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);height:100dvh;transition:transform .2s}
+@media(min-width:700px){#modal{display:grid;place-items:center;background:#0009}#modal .panel{position:relative;inset:auto;width:min(1100px,96vw);height:92dvh;border-radius:32px;overflow:hidden}}
+.mh{display:flex;align-items:center;gap:6px;padding:calc(var(--sat) + 8px) 8px 8px 16px;border-bottom:1px solid var(--bd)}
+.code{background:var(--sf);border-radius:12px;padding:4px 12px;font-weight:600;font-size:12px;color:var(--red);flex:none}
+.mh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#m-drawer{padding:16px;max-height:45dvh;overflow:auto;background:var(--sf)}
+#m-drawer h2{margin:0 0 12px;font-size:16px;line-height:1.5}
+#m-drawer dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0}
+#m-drawer dt{font-size:12px;color:var(--mut)}#m-drawer dd{margin:4px 0 0;font-weight:500}
+#m-drawer .c{display:inline-block;background:var(--bg);padding:6px 12px;border-radius:16px;font-size:12px;margin:0 6px 6px 0}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px calc(var(--sab) + 12px)}
+#m-note{text-align:center;color:var(--mut);font-size:12px;margin:0 0 12px}
+#viewer{background:#000;touch-action:none;color:#fff;z-index:60}
+#vimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;transition:opacity .2s}
+.vtop{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:calc(var(--sat) + 12px) 12px 24px;background:linear-gradient(#000a,transparent)}
+.pill{background:#0009;color:#fff;border-radius:22px;height:40px;padding:0 14px;display:flex;align-items:center;gap:6px;font-weight:600;font-size:12px}
+.pill select{background:none;border:0;color:#fff;font-weight:600}.pill select option{color:#000}.pill button{color:#fff;display:flex}
+.vnav{position:absolute;top:50%;margin-top:-28px;width:56px;height:56px;border-radius:50%;background:#0006;color:#fff;display:grid;place-items:center}
+.vnav.l{left:8px}.vnav.r{right:8px}
+.vsrc{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 20px)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
-<body class="transition-colors duration-300 relative">
-  <div id="toast-container" class="fixed bottom-6 right-6 z-[250] flex flex-col gap-3 max-w-sm pointer-events-none"></div>
-  
-  <!-- Floating Hamburger Button -->
-  <div class="fixed top-4 left-4 z-50 pointer-events-auto">
-    <button onclick="toggleSideMenu()" class="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md shadow-lg border border-gray-200/60 dark:border-white/10 text-gray-800 dark:text-white hover:scale-105 transition-transform">
-      <i class="fas fa-bars text-xl"></i>
-      <!-- Mini status indicator on the button -->
-      <span id="nav-status-dot" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#18181b] bg-green-500 transition-colors"></span>
-    </button>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+<symbol id="i-ext" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></symbol>
+<symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
+<div id="app">
+  <header class="top">
+    <button class="logo" id="logo" aria-label="หน้าแรก"><i>J</i><span>JAV Hub</span></button>
+    <nav class="tabs" aria-label="หมวด">
+      <button class="tab on" data-tab="home">สำรวจ</button>
+      <button class="tab" data-tab="fav">โปรด <span class="fav-n" hidden></span></button>
+    </nav>
+    <form class="search" id="sf" role="search">
+      <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ค้นหารหัส หรือวางลิงก์ JAVDB" aria-label="ค้นหา">
+    </form>
+    <button class="ib d-only" data-menu aria-label="เมนู"><svg class="ic"><use href="#i-menu"/></svg></button>
+  </header>
+  <div id="favbar" hidden>
+    <input id="fq" placeholder="ค้นหาในโปรด" aria-label="ค้นหาในโปรด">
+    <select id="fs" aria-label="เรียง"><option value="newest">ล่าสุด</option><option value="oldest">เก่าสุด</option><option value="title">ชื่อ</option></select>
+    <button class="btn red" id="fslide"><svg class="ic"><use href="#i-play"/></svg> สไลด์โชว์</button>
   </div>
-  
-  <!-- Sidebar Backdrop -->
-  <div id="side-menu-backdrop" onclick="toggleSideMenu()" class="fixed inset-0 bg-black/40 dark:bg-black/60 z-[95] hidden backdrop-blur-sm transition-opacity opacity-0"></div>
-  
-  <!-- Slide-out Sidebar Menu -->
-  <aside id="side-menu" class="fixed top-0 left-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-[#121214] shadow-2xl z-[100] -translate-x-full transition-transform duration-300 ease-in-out border-r border-gray-200/50 dark:border-white/5 flex flex-col">
-    <!-- Sidebar Header -->
-    <div class="p-5 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
-      <div class="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-rose-600 text-white flex items-center justify-center"><i class="fas fa-play text-xs"></i></div>
-         JAV HUB
-      </div>
-      <button onclick="toggleSideMenu()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times text-lg"></i></button>
-    </div>
-    
-    <!-- Sidebar Scrollable Content -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-6">
-      
-      <!-- Navigation & Tabs -->
-      <div class="space-y-3">
-        <div class="flex bg-gray-50 dark:bg-[#09090b] rounded-xl p-1 border border-gray-200/50 dark:border-white/5">
-          <button id="tab-home" onclick="switchMainTab('home')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"><i class="fas fa-compass mr-1.5 text-primary"></i> สำรวจ</button>
-          <button id="tab-fav" onclick="switchMainTab('favorites')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><i class="fas fa-heart mr-1.5"></i> โปรด (<span id="fav-count">0</span>)</button>
-        </div>
-        <div class="flex gap-2">
-          <button id="btn-nav-back" onclick="navigateHistoryBack()" disabled class="flex-1 py-2 rounded-xl bg-gray-50 dark:bg-[#09090b] border border-gray-200/50 dark:border-white/5 text-gray-600 dark:text-gray-300 disabled:opacity-40 transition-colors"><i class="fas fa-chevron-left mr-1 text-xs"></i> กลับ</button>
-          <button id="btn-nav-forward" onclick="navigateHistoryForward()" disabled class="flex-1 py-2 rounded-xl bg-gray-50 dark:bg-[#09090b] border border-gray-200/50 dark:border-white/5 text-gray-600 dark:text-gray-300 disabled:opacity-40 transition-colors">ถัดไป <i class="fas fa-chevron-right ml-1 text-xs"></i></button>
-        </div>
-      </div>
-
-      <!-- Favorites Filter (Visible only in Favorites tab) -->
-      <div id="favorites-filter-container" class="hidden flex-col gap-3 p-3 bg-gray-50 dark:bg-[#09090b] rounded-xl border border-gray-200/50 dark:border-white/5">
-         <input id="fav-search-input" oninput="filterFavorites()" placeholder="ค้นหาชื่อหรือรหัส..." class="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-gray-800 dark:text-gray-200 transition-all">
-         <select id="fav-sort-filter" onchange="filterFavorites()" class="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer">
-           <option value="newest">บันทึกล่าสุด</option>
-           <option value="oldest">บันทึกเก่าสุด</option>
-           <option value="title">เรียงตามชื่อ</option>
-         </select>
-         <button type="button" onclick="startFavoritesSlideshow(); toggleSideMenu();" class="w-full flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 rounded-lg px-3 py-2 text-sm font-bold shadow-sm transition-all"><i class="fas fa-play text-xs"></i> สไลด์โชว์รายการโปรด</button>
-      </div>
-
-      <!-- Grid Size Settings -->
-      <div>
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">ขนาดรูป</p>
-        <div class="flex items-center bg-gray-50 dark:bg-[#09090b] rounded-xl p-1 border border-gray-200/50 dark:border-white/5">
-          <button onclick="changeGridSize('large')" id="btn-grid-large" class="size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 transition-colors">ใหญ่</button>
-          <button onclick="changeGridSize('medium')" id="btn-grid-medium" class="size-btn active flex-1 bg-white dark:bg-zinc-800 shadow-sm py-1.5 rounded-lg text-xs font-bold text-gray-900 dark:text-white transition-colors">กลาง</button>
-          <button onclick="changeGridSize('small')" id="btn-grid-small" class="size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 transition-colors">เล็ก</button>
-        </div>
-      </div>
-
-      <!-- Tools Menu -->
-      <div>
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">เมนูหลัก</p>
-        <div class="space-y-1">
-          <button onclick="openSearchModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0"><i class="fas fa-search text-xs"></i></div>
-            ค้นหาใน JAVDB
-          </button>
-          <button onclick="openLinkInputModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0"><i class="fas fa-link text-xs"></i></div>
-            ดึงข้อมูลจากลิงก์
-          </button>
-          <button onclick="toggleBookmarkPanel(); toggleSideMenu();" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0"><i class="fas fa-bookmark text-xs"></i></div>
-              ลิงก์ที่บันทึก
-            </div>
-            <span id="bookmark-badge" class="hidden bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
-          </button>
-          <button onclick="loadLatest(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0"><i class="fas fa-fire text-xs"></i></div>
-            โหลดหน้าแรก JAVDB
-          </button>
-          <button onclick="clearHistory(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 transition-colors text-sm font-medium text-left">
-            <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center shrink-0"><i class="fas fa-trash-alt text-xs"></i></div>
-            ล้างประวัติการนำทางหน้านี้
-          </button>
-        </div>
-      </div>
-
-      <!-- Current Page info -->
-      <div class="bg-gray-50 dark:bg-[#09090b] rounded-xl p-3 border border-gray-200/50 dark:border-white/5 space-y-3">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">หน้านี้</p>
-        <a id="display-active-url" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="block text-xs text-blue-500 hover:underline truncate bg-white dark:bg-zinc-800 p-2 rounded-lg border border-gray-100 dark:border-white/5">https://javdb.com/</a>
-        <button onclick="toggleCurrentPageBookmark()" id="btn-bookmark-current" class="w-full flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-amber-200/50 dark:border-amber-500/20"><i class="far fa-star"></i> บันทึกหน้านี้</button>
-      </div>
-      
-      <!-- System Settings -->
-      <div>
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">ตั้งค่าระบบ</p>
-        <div class="space-y-1">
-          <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0"><i id="theme-icon" class="fas fa-moon text-xs"></i></div>
-              สลับโหมดสี (Theme)
-            </div>
-          </button>
-          <button onclick="openConfigModal(); toggleSideMenu();" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800/80 text-gray-700 dark:text-gray-300 transition-colors text-sm font-medium text-left">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0"><i class="fas fa-cloud text-xs"></i></div>
-            ตั้งค่า Google Apps Script
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Sidebar Footer / Status -->
-    <div class="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-[#09090b]/50 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 shrink-0">
-      <span id="sidebar-status-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-      <span id="sidebar-status-text" class="font-medium tracking-wide truncate">พร้อมทำงาน</span>
-    </div>
-  </aside>
-
-  <!-- Main Content Area -->
-  <main class="container mx-auto px-4 pt-24 pb-4">
-    <div id="gallery-grid" class="masonry-grid size-medium"></div>
-    
-    <div id="pagination" class="mt-10 mb-16 flex justify-center items-center gap-3 hidden">
-      <button onclick="navPage(-1)" id="btn-prev" class="px-5 py-2.5 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-white/10 rounded-full font-bold text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"><i class="fas fa-chevron-left mr-1.5 text-xs"></i> ก่อนหน้า</button>
-      <span id="page-number" class="font-bold text-sm bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 px-5 py-2.5 rounded-full border border-gray-200/50 dark:border-white/5 shadow-inner">หน้า 1</span>
-      <button onclick="navPage(1)" id="btn-next" class="px-5 py-2.5 bg-primary text-white rounded-full font-bold text-sm hover:bg-rose-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-primary/20">ถัดไป <i class="fas fa-chevron-right ml-1.5 text-xs"></i></button>
-    </div>
-    
-    <p class="text-center text-xs text-gray-400 pb-10 tracking-wide">JAV Gallery Hub ดึงข้อมูลมาแสดงผลจากต้นทางเพื่อความสะดวกในการรับชม</p>
+  <main>
+    <div id="grid" class="mas"></div>
+    <div id="state"></div>
   </main>
+  <nav class="bnav" aria-label="เมนูล่าง">
+    <button data-tab="home" class="on" aria-label="สำรวจ"><svg class="ic"><use href="#i-home"/></svg></button>
+    <button id="b-search" aria-label="ค้นหา"><svg class="ic"><use href="#i-search"/></svg></button>
+    <button data-tab="fav" aria-label="รายการโปรด"><svg class="ic"><use href="#i-heart"/></svg><span class="badge fav-n" hidden></span></button>
+    <button data-menu aria-label="เมนู"><svg class="ic"><use href="#i-menu"/></svg></button>
+  </nav>
+  <button id="totop" aria-label="กลับขึ้นบน"><svg class="ic"><use href="#i-up"/></svg></button>
+</div>
 
-  <!-- Modals & Overlays -->
-  <aside id="bookmark-panel" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#18181b] shadow-2xl z-[90] translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200/50 dark:border-white/5 flex flex-col">
-    <div class="p-5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-[#09090b]/50">
-      <h3 class="font-bold text-sm text-gray-800 dark:text-gray-100 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center"><i class="fas fa-bookmark text-amber-600 dark:text-amber-500 text-sm"></i></div> ลิงก์ที่บันทึกไว้</h3>
-      <button onclick="toggleBookmarkPanel()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times"></i></button>
-    </div>
-    <div id="bookmark-list" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50/30 dark:bg-transparent"></div>
+<div id="menu" class="layer"><div class="scrim" data-close></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="เมนู" tabindex="-1">
+    <div class="dh"><b>เมนู</b><button class="ib" data-close aria-label="ปิด"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="sec"><h4>ขนาดรูป</h4><div class="seg" id="seg"><button data-g="small">เล็ก</button><button data-g="medium">กลาง</button><button data-g="large">ใหญ่</button></div></div>
+    <div class="sec"><button class="row" id="b-theme"></button><button class="row" id="b-home"><svg class="ic"><use href="#i-home"/></svg>โหลดหน้าแรก JAVDB ใหม่</button></div>
+    <div class="sec"><h4>หน้านี้</h4><a id="cur" target="_blank" rel="noopener noreferrer"></a><button class="btn" id="bm-cur" style="width:100%"></button></div>
+    <div class="sec"><h4>ลิงก์ที่บันทึก <span id="bm-n"></span></h4><div id="bm-list"></div></div>
+    <div class="sec"><h4>Google Apps Script (ซิงค์โปรด/ลิงก์)</h4><input id="gas" type="url" placeholder="https://script.google.com/macros/s/.../exec" aria-label="GAS URL"><div class="two"><button class="btn red" id="gas-save">บันทึก</button><button class="btn" id="gas-clear">ล้างค่า</button></div></div>
   </aside>
+</div>
 
-  <div id="search-modal" class="fixed inset-0 z-[100] bg-black/40 dark:bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-[#18181b] w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-white/5 animate-fade-up">
-      <div class="flex justify-between items-center mb-5">
-        <h3 class="font-bold text-lg flex items-center gap-2 text-gray-800 dark:text-gray-100"><div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><i class="fas fa-search text-primary text-sm"></i></div> ค้นหาใน JAVDB</h3>
-        <button onclick="closeSearchModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="flex gap-2">
-        <input id="search-modal-input" type="text" placeholder="พิมพ์รหัสหรือคำค้นหา..." class="flex-1 min-w-0 text-sm bg-gray-50 border border-gray-200 dark:border-white/10 dark:bg-[#09090b] rounded-2xl py-3.5 px-5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-800 dark:text-gray-200">
-        <button onclick="executeModalSearch()" class="bg-primary hover:bg-rose-600 text-white px-6 rounded-2xl text-sm font-bold shadow-md shadow-primary/20 transition-all">ค้นหา</button>
-      </div>
-    </div>
+<div id="modal" class="layer">
+  <div class="panel" role="dialog" aria-modal="true" aria-label="รายละเอียด" tabindex="-1">
+    <div class="mh"><span class="code" id="m-code"></span><b class="grow" id="m-short"></b>
+      <button class="ib" id="m-info" aria-label="รายละเอียด"><svg class="ic"><use href="#i-info"/></svg></button>
+      <button class="ib" id="bm-modal" aria-label="บันทึกลิงก์หน้านี้"></button>
+      <button class="ib" data-close aria-label="ปิด"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div id="m-drawer" hidden></div>
+    <div class="scroll" id="m-scroll"><p id="m-note"></p><div id="m-grid" class="mas"></div></div>
   </div>
+</div>
 
-  <div id="link-modal" class="fixed inset-0 z-[100] bg-black/40 dark:bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-[#18181b] w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-white/5 animate-fade-up">
-      <div class="flex justify-between items-center mb-5">
-        <h3 class="font-bold text-lg flex items-center gap-2 text-gray-800 dark:text-gray-100"><div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center"><i class="fas fa-link text-blue-500 text-sm"></i></div> เปิดจากลิงก์</h3>
-        <button onclick="closeLinkInputModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times"></i></button>
-      </div>
-      <input id="link-modal-input" type="url" placeholder="https://javdb.com/v/..." class="w-full text-sm bg-gray-50 border border-gray-200 dark:border-white/10 dark:bg-[#09090b] rounded-2xl py-3.5 px-5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-gray-800 dark:text-gray-200">
-      <button onclick="executeModalLink()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all">ดึงข้อมูลจากลิงก์</button>
-    </div>
-  </div>
-
-  <div id="config-modal" class="fixed inset-0 z-[140] bg-black/40 dark:bg-black/60 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-[#18181b] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-white/5 animate-fade-up">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg flex items-center gap-2 text-gray-800 dark:text-gray-100"><div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center"><i class="fas fa-database text-emerald-500 text-sm"></i></div> ตั้งค่า GAS</h3>
-        <button onclick="closeConfigModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"><i class="fas fa-times"></i></button>
-      </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">ตั้งค่า Web App URL เพื่อหลบหลีกการบล็อคและซิงค์รายการโปรด หากไม่กรอก ระบบจะใช้บริการ Proxy สาธารณะ</p>
-      <input id="gas-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-sm bg-gray-50 border border-gray-200 dark:border-white/10 dark:bg-[#09090b] rounded-2xl py-3.5 px-5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-gray-800 dark:text-gray-200">
-      <div class="flex gap-2 mt-5">
-        <button onclick="testAndSaveGAS()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md shadow-emerald-500/20 transition-all">บันทึก URL</button>
-        <button onclick="disconnectGAS()" class="bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 px-5 py-3.5 rounded-2xl text-sm font-bold transition-all">ล้างค่า</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal" class="fixed inset-0 z-[110] bg-black/60 dark:bg-black/80 hidden items-center justify-center p-0 sm:p-4 backdrop-blur-md">
-    <div class="bg-white dark:bg-[#0f0f11] w-full h-full sm:max-w-6xl sm:h-[94vh] sm:rounded-[2rem] overflow-hidden flex flex-col relative shadow-2xl border border-transparent sm:dark:border-white/10">
-      <div class="px-4 py-3 bg-white/90 dark:bg-[#0f0f11]/90 backdrop-blur-lg border-b border-gray-100 dark:border-white/5 flex items-center justify-between gap-3 shrink-0 z-20">
-        <div class="min-w-0 flex items-center gap-3">
-          <span id="m-id" class="bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest border border-primary/20 shrink-0"></span>
-          <span id="m-title-short" class="font-bold text-sm sm:text-base text-gray-800 dark:text-gray-100 truncate"></span>
-        </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="toggleMovieDetailsToggle()" class="w-10 h-10 flex items-center justify-center rounded-full text-blue-500 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors" title="รายละเอียด"><i class="fas fa-info-circle text-lg"></i></button>
-          <button id="btn-bookmark-modal" type="button" onclick="toggleCurrentPageBookmark()" class="w-10 h-10 flex items-center justify-center rounded-full text-amber-500 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors" title="บันทึกลิงก์หน้านี้"><i class="far fa-star text-lg"></i></button>
-          <div class="w-px h-6 bg-gray-200 dark:bg-white/10 mx-1"></div>
-          <button type="button" onclick="closeModal()" aria-label="ปิด" title="ปิด" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 bg-gray-100 dark:bg-zinc-800 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 transition-colors"><i class="fas fa-times text-lg"></i></button>
-        </div>
-      </div>
-      
-      <div id="movie-info-drawer" class="hidden bg-gray-50 dark:bg-[#18181b] border-b border-gray-200/60 dark:border-white/5 p-5 sm:p-8 text-sm shrink-0 max-h-[50vh] overflow-y-auto shadow-inner z-10">
-        <div class="max-w-4xl mx-auto">
-          <h2 id="m-title" class="font-bold text-lg sm:text-xl text-gray-900 dark:text-white mb-6 leading-relaxed"></h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
-            <div class="flex flex-col gap-1.5">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-hashtag text-gray-300 dark:text-gray-600"></i> รหัส</span>
-              <span id="m-code" class="text-sm font-semibold text-gray-900 dark:text-gray-200"></span>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-calendar-alt text-gray-300 dark:text-gray-600"></i> วันที่ออก</span>
-              <span id="m-date" class="text-sm font-semibold text-gray-900 dark:text-gray-200"></span>
-            </div>
-            <div class="flex flex-col gap-1.5 lg:col-span-1">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-video text-gray-300 dark:text-gray-600"></i> ผู้กำกับ</span>
-              <div id="m-directors" class="flex flex-wrap gap-2"></div>
-            </div>
-            <div class="flex flex-col gap-1.5 lg:col-span-2">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-building text-gray-300 dark:text-gray-600"></i> ค่าย</span>
-              <div id="m-makers" class="flex flex-wrap gap-2"></div>
-            </div>
-            <div class="flex flex-col gap-1.5 lg:col-span-3">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-layer-group text-gray-300 dark:text-gray-600"></i> ซีรีส์</span>
-              <div id="m-series" class="flex flex-wrap gap-2"></div>
-            </div>
-            <div class="flex flex-col gap-1.5 lg:col-span-3">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-user-circle text-gray-300 dark:text-gray-600"></i> นักแสดง</span>
-              <div id="m-actors" class="flex flex-wrap gap-2"></div>
-            </div>
-            <div class="flex flex-col gap-1.5 lg:col-span-3">
-              <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-tags text-gray-300 dark:text-gray-600"></i> แท็ก</span>
-              <div id="m-tags" class="flex flex-wrap gap-2"></div>
-            </div>
-          </div>
-          <div class="mt-8 pt-6 border-t border-gray-200 dark:border-white/5 flex justify-center sm:justify-start">
-            <a id="m-source-link" href="https://javdb.com/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-sm font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 transition-all w-full sm:w-auto shadow-sm"><i class="fas fa-external-link-alt mr-2"></i> เปิดหน้าต้นฉบับบน JAVDB</a>
-          </div>
-        </div>
-      </div>
-      
-      <div id="modal-images-scroll" class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-100/50 dark:bg-[#09090b] modal-scroll">
-        <div class="max-w-7xl mx-auto">
-          <p id="gallery-note" class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-6 text-center tracking-wide"></p>
-          <div id="modal-images" class="modal-masonry"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="full-img-modal" class="fixed inset-0 z-[130] bg-black/95 hidden flex-col items-center justify-center p-0 backdrop-blur-xl" style="pointer-events:auto">
-    <div class="absolute top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-start z-50 bg-gradient-to-b from-black/60 to-transparent" style="pointer-events:none">
-      <span id="slideshow-info" class="text-white/90 font-bold text-xs bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 tracking-widest shadow-lg">1/1</span>
-      
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-white/10 shadow-lg" style="pointer-events:auto">
-          <button id="btn-play-slideshow" type="button" onclick="toggleSlideshow(); return false" class="text-white hover:text-green-400 px-4 py-2 text-xs font-bold transition-colors flex items-center gap-2">
-            <i id="play-icon" class="fas fa-play"></i> <span class="hidden sm:inline">เล่นสไลด์โชว์</span>
-          </button>
-          <div class="w-px h-5 bg-white/20"></div>
-          <select id="slideshow-speed" class="bg-transparent text-white/90 font-bold rounded-r-full pl-2 pr-4 py-2 text-xs focus:outline-none cursor-pointer text-center" onchange="changeSlideshowSpeed()">
-            <option value="1000" class="text-black">1 วิ</option>
-            <option value="3000" selected class="text-black">3 วิ</option>
-            <option value="5000" class="text-black">5 วิ</option>
-          </select>
-        </div>
-        <button type="button" aria-label="ปิดภาพ" title="ปิด" onclick="closeFullImgModal(); return false" style="pointer-events:auto" class="text-white/80 bg-black/40 hover:bg-white/10 hover:text-white backdrop-blur-md w-11 h-11 rounded-full flex items-center justify-center text-lg transition-all border border-white/10 shadow-lg"><i class="fas fa-times"></i></button>
-      </div>
-    </div>
-
-    <div class="relative w-full h-full flex items-center justify-center" style="isolation:isolate">
-      <button type="button" aria-label="ภาพก่อนหน้า" onclick="prevFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute left-2 sm:left-6 text-white/50 hover:text-white bg-black/20 hover:bg-black/60 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center transition-all border border-transparent hover:border-white/10"><i class="fas fa-chevron-left text-xl"></i></button>
-      <img id="full-modal-target-img" src="" alt="ภาพ" draggable="false" style="pointer-events:none;user-select:none;z-index:1" class="max-w-full max-h-[90vh] object-contain transition-opacity duration-300">
-      <button type="button" aria-label="ภาพถัดไป" onclick="nextFullImg(); return false" style="z-index:60;pointer-events:auto;touch-action:manipulation" class="absolute right-2 sm:right-6 text-white/50 hover:text-white bg-black/20 hover:bg-black/60 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center transition-all border border-transparent hover:border-white/10"><i class="fas fa-chevron-right text-xl"></i></button>
-    </div>
-    
-    <div class="absolute bottom-8 left-0 right-0 flex justify-center z-50" style="pointer-events:none">
-       <button type="button" onclick="openCurrentImageSource(); return false" style="pointer-events:auto" class="text-xs font-bold text-white/70 hover:text-white bg-black/40 hover:bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 transition-colors flex items-center gap-2 shadow-lg"><i class="fas fa-external-link-alt"></i> เปิดภาพต้นฉบับ</button>
-    </div>
-  </div>
+<div id="viewer" class="layer" tabindex="-1" role="dialog" aria-modal="true" aria-label="ดูภาพ">
+  <img id="vimg" alt="" draggable="false">
+  <div class="vtop"><span class="pill" id="v-info"></span><div class="grow"></div>
+    <div class="pill"><button id="v-play" aria-label="สไลด์โชว์"></button><select id="v-speed" aria-label="ความเร็ว"><option value="1000">1 วิ</option><option value="3000" selected>3 วิ</option><option value="5000">5 วิ</option></select></div>
+    <button class="ib" style="background:#0009;color:#fff" data-close aria-label="ปิด"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <button class="vnav l" id="v-prev" aria-label="ก่อนหน้า"><svg class="ic"><use href="#i-left"/></svg></button>
+  <button class="vnav r" id="v-next" aria-label="ถัดไป"><svg class="ic"><use href="#i-right"/></svg></button>
+  <a class="pill vsrc" id="v-src" target="_blank" rel="noopener noreferrer"><svg class="ic" style="width:16px;height:16px"><use href="#i-ext"/></svg> ภาพต้นฉบับ</a>
+</div>
+<div id="toasts" aria-live="polite"></div>
 
 <script>
 'use strict';
-const TARGET_URL = 'https://javdb.com/';
-const JAVDB_HOSTS = new Set(['javdb.com', 'www.javdb.com']);
-let currentUrl = TARGET_URL;
-let currentPage = 1;
-let currentImages = [];
-let currentMovie = null;
-let activeMainTab = 'home';
-let favoriteList = [];
-let bookmarkList = [];
-let gasEndpoint = '';
-let historyStack = [TARGET_URL];
-let historyIndex = 0;
-let viewerImages = [], currentHasCover = true, movieRequestToken = 0, favVersion = 0, bookmarkVersion = 0, currentListUrl = TARGET_URL, lastList = null;
-const BLOCKED_RE = /Just a moment\.\.\.|cf-browser-verification|Attention Required/i;
-let slideshowInterval = null;
-let slideshowActiveIndex = 0;
-let slideshowSpeed = 3000;
-let gridSize = 'medium';
-let loadRequestToken = 0;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const ROOT='https://javdb.com/',IMG=/\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i,BLOCK=/Just a moment\.\.\.|cf-browser-verification|Attention Required/i;
+const S={tab:'home',cur:ROOT,movie:null,imgs:[],cover:true,grid:'medium',fav:[],bm:[],gas:'',tok:0,mtok:0};
+let L={url:ROOT,base:ROOT,page:0,next:true,busy:false,seen:new Set(),items:[]},favVer=0,bmVer=0,Q=[];
+const tabPos={};
+const raw=k=>{try{return localStorage.getItem(k)}catch(_){return null}},setRaw=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}},rmRaw=k=>{try{localStorage.removeItem(k)}catch(_){}};
+const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(_){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}}};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const abs=(v,b=ROOT)=>{try{const u=new URL(v,b);return /^https?:$/.test(u.protocol)?u.href:''}catch(_){return ''}};
+const isJ=u=>{try{const h=new URL(u).hostname;return h==='javdb.com'||h.endsWith('.javdb.com')}catch(_){return false}};
+const noHash=u=>{try{const x=new URL(u);x.hash='';return x.href}catch(_){return u}};
+const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const el=h=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild};
+const clean=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x==='object'&&!String(x.url||'').toLowerCase().includes('jav321'));
+const ts=v=>Number(v)||Date.parse(v)||0;
+const near=()=>innerHeight+scrollY>document.documentElement.scrollHeight-1400;
+function toast(m,t=''){const d=el(`<div class="toast ${t}">${esc(m)}</div>`);$('#toasts').append(d);setTimeout(()=>{d.style.opacity=0;setTimeout(()=>d.remove(),250)},2800)}
 
-try { gasEndpoint = localStorage.getItem('gas_url') || ''; } catch (_) {}
+/* ---------- JS masonry (columns assigned once, no jumping) ---------- */
+function Masonry(root,target){
+  const m={items:[],cols:0,w:0};let raf=0;
+  m.layout=full=>{
+    const w=root.clientWidth;if(!w)return;
+    const gap=innerWidth<700?8:16,n=Math.max(1,Math.floor((w+gap)/(target()+gap))),cw=(w-(n-1)*gap)/n;
+    if(full||n!==m.cols){m.cols=n;m.items.forEach(i=>i.c=-1)}
+    const h=Array(n).fill(0);
+    for(const it of m.items){
+      if(it.c<0||it.c>=n)it.c=h.indexOf(Math.min(...h));
+      it.el.style.width=cw+'px';it.y=h[it.c];
+      it.el.style.transform=`translate(${it.c*(cw+gap)}px,${it.y}px)`;
+      h[it.c]+=it.el.offsetHeight+gap;
+    }
+    root.style.height=Math.max(0,...h)+'px';
+  };
+  m.soon=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>m.layout())};
+  m.add=els=>{for(const e of els){root.append(e);m.items.push({el:e,c:-1,y:0})}m.layout()};
+  m.clear=()=>{m.items=[];root.innerHTML='';root.style.height='0'};
+  new ResizeObserver(()=>{const w=root.clientWidth;if(w!==m.w){m.w=w;m.soon()}}).observe(root);
+  return m;
+}
+const main=Masonry($('#grid'),()=>({small:120,medium:180,large:300}[S.grid]));
+const mm=Masonry($('#m-grid'),()=>innerWidth<700?400:300);
+function fit(img,box,m){
+  const f=()=>{if(img.naturalWidth)box.style.aspectRatio=img.naturalWidth+'/'+img.naturalHeight;m.soon()};
+  img.addEventListener('load',f);img.addEventListener('error',()=>{img.style.display='none';m.soon()});
+  if(img.complete&&img.naturalWidth)f();
+}
 
-function toggleSideMenu() {
-  const menu = document.getElementById('side-menu');
-  const backdrop = document.getElementById('side-menu-backdrop');
-  const isOpen = !menu.classList.contains('-translate-x-full');
-  
-  if (isOpen) {
-    menu.classList.add('-translate-x-full');
-    backdrop.classList.add('opacity-0');
-    setTimeout(() => backdrop.classList.add('hidden'), 300);
-    document.body.style.overflow = '';
-  } else {
-    backdrop.classList.remove('hidden');
-    // small delay for transition
-    setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-    menu.classList.remove('-translate-x-full');
-    document.body.style.overflow = 'hidden';
+/* ---------- layers + History API (back button closes modal/viewer/menu) ---------- */
+const layers=[],LY={menu:$('#menu'),modal:$('#modal'),viewer:$('#viewer')},openers=[];
+let pending=null;
+const back=()=>history.back();
+function syncLayers(){
+  const top=layers[layers.length-1];
+  for(const k in LY){LY[k].classList.toggle('open',layers.includes(k));LY[k].inert=k!==top}
+  $('#app').inert=layers.length>0;document.body.classList.toggle('lock',layers.length>0);
+}
+function openLayer(n){
+  if(layers.includes(n))return;
+  openers.push(document.activeElement);layers.push(n);
+  history.pushState({n:layers.length,u:L.url},'');syncLayers();
+  setTimeout(()=>(LY[n].querySelector('[tabindex="-1"]')||LY[n]).focus({preventScroll:true}),60);
+}
+function hide(n){
+  if(n==='modal'){S.mtok++;setActive(L.url)}
+  if(n==='viewer')slideStop();
+  const o=openers.pop();if(o&&o.focus)o.focus({preventScroll:true});
+}
+function closeAll(fn){
+  pending=fn||null;
+  if(layers.length)history.go(-layers.length);
+  else if(pending){const f=pending;pending=null;f()}
+}
+addEventListener('popstate',e=>{
+  const st=e.state||{n:0,u:ROOT};
+  while(layers.length>(st.n||0))hide(layers.pop());
+  syncLayers();
+  if(pending){const f=pending;pending=null;f();return}
+  if(!layers.length&&st.u&&st.u!==L.url)openList(st.u,{push:false});
+});
+document.addEventListener('click',e=>{if(e.target.closest('[data-close]'))back();if(e.target.closest('[data-menu]'))openLayer('menu')});
+
+/* ---------- fetch (cache + dedupe + parallel proxies) ---------- */
+const cache=new Map(),inflight=new Map();
+const timed=async(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.text()}finally{clearTimeout(t)}};
+const gasUrl=p=>{const u=new URL(S.gas);for(const k in p)u.searchParams.set(k,p[k]);return u.href};
+function fetchHtml(url){
+  const t=abs(url);if(!t||!isJ(t))return Promise.reject(Error('อนุญาตเฉพาะโดเมน JAVDB'));
+  const target=noHash(t);
+  if(cache.has(target))return Promise.resolve(cache.get(target));
+  if(inflight.has(target))return inflight.get(target);
+  const p=(async()=>{
+    if(S.gas){try{const d=JSON.parse(await timed(gasUrl({action:'fetchHtml',targetUrl:target}),12000));if(d&&d.success&&typeof d.html==='string'&&d.html.length>300&&!BLOCK.test(d.html))return d.html}catch(_){}}
+    const e=encodeURIComponent(target);
+    const tries=[`https://api.allorigins.win/raw?url=${e}`,`https://corsproxy.io/?url=${e}`,`https://api.allorigins.win/get?url=${e}`].map(async u=>{
+      let b=await timed(u,10000);
+      if(u.includes('/get?'))try{b=JSON.parse(b).contents||''}catch(_){}
+      if(b.length<500||BLOCK.test(b))throw 0;return b});
+    try{return await Promise.any(tries)}catch(_){throw Error('ดึงข้อมูลไม่ได้ (อาจติดระบบกันบอต) ลองเชื่อมต่อ GAS หรือเปิดเว็บต้นทาง')}
+  })().then(h=>{cache.set(target,h);if(cache.size>40)cache.delete(cache.keys().next().value);return h}).finally(()=>inflight.delete(target));
+  inflight.set(target,p);return p;
+}
+const parse=h=>new DOMParser().parseFromString(h,'text/html');
+const imgSrc=i=>i?(i.getAttribute('data-original')||i.getAttribute('data-src')||i.getAttribute('data-lazy-src')||i.getAttribute('src')||''):'';
+const bestImg=(img,a,b)=>{const h=a?.getAttribute('href')||'';return abs(IMG.test(h)?h:imgSrc(img),b)};
+function parseList(doc,page){
+  const out=[],seen=new Set();
+  let links=[...doc.querySelectorAll('.movie-list .item a[href*="/v/"],.item a[href*="/v/"],a[href^="/v/"]')];
+  if(!links.length)links=[...doc.querySelectorAll('a[href*="/v/"]')];
+  for(const a of links){
+    const href=abs(a.getAttribute('href'),page);if(!href||!isJ(href))continue;
+    const m=new URL(href).pathname.match(/^\/v\/([^/]+)/);if(!m||seen.has(m[1]))continue;
+    const card=a.closest('.item,.movie-list-item')||a,img=card.querySelector('.cover img,img')||a.querySelector('img');
+    const thumb=bestImg(img,a,page)||bestImg(img,img?.closest('a'),page);if(!thumb)continue;
+    const code=(card.querySelector('.video-title strong')?.textContent||'').trim();
+    const title=(card.querySelector('.video-title,.title,.movie-title,h2,h3')?.textContent||a.getAttribute('title')||img?.alt||'').replace(/\s+/g,' ').trim()||code||m[1];
+    seen.add(m[1]);out.push({id:m[1],code:code||m[1],title,thumb,url:href});
+  }
+  return out;
+}
+
+/* ---------- favorites / bookmarks / GAS sync (queue + retry + merge) ---------- */
+const fk=f=>String(f.isSnapshot)==='true'?'S|'+f.parentId+'|'+f.thumb:'M|'+f.id;
+const qkey=p=>p.action==='syncBookmark'?'B|'+p.url:fk(p);
+const isFav=f=>S.fav.some(x=>fk(x)===fk(f));
+const hasBm=u=>S.bm.some(b=>b.url===u);
+const movieFav=it=>({id:it.id,code:it.code,title:it.title,thumb:it.thumb,url:noHash(it.url),isSnapshot:false});
+const favParams=(i,status)=>({action:'sync',id:i.id||'',code:i.code||'',title:i.title||'',thumb:i.thumb||'',url:i.url||'',status,isSnapshot:String(!!i.isSnapshot),parentId:i.parentId||'',snapshotIndex:String(i.snapshotIndex||0),timestamp:String(Date.now())});
+const bmParams=(b,status)=>({action:'syncBookmark',title:b.title||'',url:b.url,status,timestamp:String(Date.now())});
+let qBusy=false;
+function enqueue(p){if(!S.gas)return;Q.push(p);ls.set('gas_q',Q);flush()}
+async function flush(){
+  if(qBusy||!S.gas||!Q.length)return;qBusy=true;
+  try{while(Q.length){await fetch(gasUrl(Q[0]),{mode:'no-cors'});Q.shift();ls.set('gas_q',Q)}}catch(_){setTimeout(flush,15000)}
+  qBusy=false;
+}
+addEventListener('online',flush);
+function merge(remote,local,action,key,mk){
+  const m=new Map(remote.map(x=>[key(x),x])),lm=new Map(local.map(x=>[key(x),x]));
+  if(!remote.length)for(const [k,v] of lm){m.set(k,v);enqueue(mk(v,'add'))}
+  for(const q of Q)if(q.action===action){const k=qkey(q);if(q.status==='remove')m.delete(k);else if(lm.has(k))m.set(k,lm.get(k))}
+  return [...m.values()];
+}
+async function pull(){
+  if(!S.gas)return false;const fv=favVer,bv=bmVer;
+  try{
+    const [a,b]=await Promise.all(['getFavorites','getBookmarks'].map(async x=>(await fetch(gasUrl({action:x}))).json()));
+    if(a?.success&&Array.isArray(a.favorites)&&fv===favVer){
+      const r=clean(a.favorites).map(f=>({...f,isSnapshot:String(f.isSnapshot)==='true',snapshotIndex:+f.snapshotIndex||0,timestamp:ts(f.timestamp)}));
+      S.fav=merge(r,S.fav,'sync',fk,favParams);ls.set('jav_favorites',S.fav);badge();syncUI();if(S.tab==='fav')renderFavs();
+    }
+    if(b?.success&&Array.isArray(b.bookmarks)&&bv===bmVer){
+      const r=clean(b.bookmarks).map(x=>({...x,timestamp:ts(x.timestamp)}));
+      S.bm=merge(r,S.bm,'syncBookmark',x=>'B|'+x.url,bmParams);ls.set('jav_bookmarks',S.bm);renderBm();syncUI();
+    }
+    return true;
+  }catch(_){return false}
+}
+function toggleFav(it){
+  const k=fk(it),i=S.fav.findIndex(x=>fk(x)===k),add=i<0;
+  if(add)S.fav.push({...it,timestamp:Date.now()});else S.fav.splice(i,1);
+  favVer++;ls.set('jav_favorites',S.fav);badge();enqueue(favParams(it,add?'add':'remove'));syncUI();
+  toast(add?'บันทึกแล้ว':'นำออกแล้ว','ok');
+  if(S.tab==='fav'){const y=scrollY;renderFavs();scrollTo(0,y)}
+}
+function setBm(url,title,add){
+  bmVer++;S.bm=S.bm.filter(b=>b.url!==url);
+  if(add)S.bm.push({title,url,timestamp:Date.now()});
+  ls.set('jav_bookmarks',S.bm);enqueue(bmParams({title,url},add?'add':'remove'));renderBm();syncUI();
+  toast(add?'บันทึกลิงก์แล้ว':'ลบลิงก์แล้ว','ok');
+}
+function curTitle(){
+  if(S.movie&&noHash(S.movie.url)===S.cur)return S.movie.title||S.movie.id;
+  try{const u=new URL(S.cur),q=u.searchParams.get('q'),p=+u.searchParams.get('page')||1,b=q?`ค้นหา: ${q}`:u.pathname==='/'?'หน้าแรก':decodeURIComponent(u.pathname);return p>1?`${b} (หน้า ${p})`:b}catch(_){return 'หน้าเว็บ'}
+}
+const toggleBm=()=>setBm(S.cur,curTitle(),!hasBm(S.cur));
+function badge(){const n=S.fav.length;$$('.fav-n').forEach(e=>{e.textContent=n;e.hidden=!n})}
+function setActive(u){S.cur=noHash(u);const a=$('#cur');a.href=S.cur;a.textContent=S.cur;syncUI()}
+function syncUI(){
+  const s=hasBm(S.cur);
+  $('#bm-cur').innerHTML=ic('star',s?'on':'')+(s?'บันทึกแล้ว':'บันทึกหน้านี้');
+  $('#bm-modal').innerHTML=ic('star',s?'on':'');
+  $$('.card').forEach(c=>c._upd&&c._upd());
+}
+function renderBm(){
+  $('#bm-n').textContent=S.bm.length||'';
+  const l=$('#bm-list'),s=[...S.bm].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+  l.innerHTML=s.length?s.map((b,i)=>`<div class="bmr"><button class="grow" data-o="${i}"><b>${esc(b.title||'ลิงก์')}</b><small>${esc(b.url)}</small></button><button class="ib sm" data-d="${i}" aria-label="ลบ">${ic('trash')}</button></div>`).join(''):'<p class="mut">ยังไม่มีลิงก์ที่บันทึก</p>';
+  l.onclick=e=>{
+    const o=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');
+    if(o){const b=s[+o.dataset.o];closeAll(()=>openList(b.url))}
+    else if(d){const b=s[+d.dataset.d];setBm(b.url,b.title,false)}
+  };
+}
+
+/* ---------- list (infinite scroll) ---------- */
+function listUrl(base,p){const u=new URL(base);if(p>1)u.searchParams.set('page',p);return u.href}
+function skel(){main.add([1.3,1,1.5,1.2,1.6,1.1,1.4,1.2,1.5,1,1.3,1.6].map(r=>el(`<div class="card"><div class="thumb sk" style="aspect-ratio:1/${r}"></div></div>`)))}
+function cardEl(it){
+  const e=el(`<article class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:3/4" aria-label="${esc(it.title)}"><img src="${esc(it.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><button class="save"></button></div><div class="meta"><span class="t">${esc(it.title)}</span><a class="ib sm" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดหน้าต้นทาง">${ic('ext')}</a></div></article>`);
+  const th=e.querySelector('.thumb'),sv=e.querySelector('.save');
+  fit(th.firstChild,th,main);
+  th.onclick=()=>openMovie(it.url,it,'');
+  e._upd=()=>{const on=isFav(movieFav(it));sv.classList.toggle('on',on);sv.textContent=on?'บันทึกแล้ว':'บันทึก';sv.setAttribute('aria-label',on?'นำออกจากโปรด':'บันทึกลงโปรด')};
+  e._upd();sv.onclick=()=>toggleFav(movieFav(it));
+  return e;
+}
+async function openList(url,o={}){
+  const u=abs(url);if(!u||!isJ(u))return toast('ลิงก์ไม่ถูกต้อง','warn');
+  const U=new URL(u);
+  if(/^\/v\/[^/]+/.test(U.pathname)){const id=U.pathname.split('/')[2];return openMovie(u,{id,code:id,title:id,thumb:''},U.hash)}
+  if(S.tab!=='home')setTab('home',true);
+  U.hash='';const page=Math.max(1,+U.searchParams.get('page')||1);U.searchParams.delete('page');
+  const tok=++S.tok;
+  if(o.push!==false)history.pushState({n:0,u},'');
+  L={url:u,base:U.href,page:page-1,next:true,busy:false,seen:new Set(),items:[]};
+  setActive(u);main.clear();$('#state').innerHTML='';skel();scrollTo(0,0);
+  await more(true,tok);
+}
+async function more(first,tok=S.tok){
+  if(L.busy||!L.next||S.tab!=='home')return;
+  const l=L,p=l.page+1;l.busy=true;
+  if(!first)$('#state').innerHTML='<div class="spin"></div>';
+  try{
+    const doc=parse(await fetchHtml(listUrl(l.base,p)));
+    if(tok!==S.tok)return;
+    const items=parseList(doc,l.base).filter(i=>!l.seen.has(i.id));
+    if(first)main.clear();
+    if(items.length){
+      items.forEach(i=>l.seen.add(i.id));l.items.push(...items);l.page=p;
+      l.next=doc.querySelector('.pagination')?!!doc.querySelector('a.pagination-next[href]'):items.length>=20;
+      main.add(items.map(cardEl));
+    }else{l.next=false;if(first)throw Error('ไม่พบรายการ')}
+    $('#state').innerHTML=l.next?'':'<p class="end">— สุดรายการ —</p>';
+  }catch(e){
+    if(tok!==S.tok)return;l.next=false;
+    if(first){
+      main.clear();
+      $('#state').innerHTML=`<div class="empty">${ic('info')}<p>${esc(e.message)}</p><div class="row"><button class="btn red" id="retry">ลองอีกครั้ง</button><a class="btn" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">เปิดเว็บต้นทาง</a></div></div>`;
+      $('#retry').onclick=()=>openList(l.url,{push:false});
+    }else{
+      $('#state').innerHTML='<div class="empty"><button class="btn" id="retry">โหลดต่อ</button></div>';
+      $('#retry').onclick=()=>{l.next=true;$('#state').innerHTML='';more()};
+      toast(e.message,'warn');
+    }
+  }finally{l.busy=false;if(tok===S.tok&&near())setTimeout(more,0)}
+}
+addEventListener('scroll',()=>{$('#totop').classList.toggle('show',scrollY>700);if(S.tab==='home'&&near())more()},{passive:true});
+$('#totop').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+
+/* ---------- tabs + favorites ---------- */
+function setTab(t,quiet){
+  if(t===S.tab&&!quiet)return;
+  tabPos[S.tab]=scrollY;S.tab=t;S.tok++;
+  $$('[data-tab]').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-current',on)});
+  $('#favbar').hidden=t!=='fav';$('#state').innerHTML='';
+  if(t==='fav')renderFavs();
+  else if(!quiet){
+    L.busy=false;main.clear();
+    if(L.items.length){main.add(L.items.map(cardEl));setActive(L.url)}else openList(ROOT,{push:false});
+  }
+  if(!quiet)scrollTo(0,tabPos[t]||0);
+}
+function favList(){
+  const q=$('#fq').value.trim().toLowerCase(),s=$('#fs').value;
+  return S.fav.filter(f=>`${f.id||''} ${f.code||''} ${f.title||''}`.toLowerCase().includes(q))
+    .sort((a,b)=>s==='oldest'?(a.timestamp||0)-(b.timestamp||0):s==='title'?String(a.title||'').localeCompare(String(b.title||'')):(b.timestamp||0)-(a.timestamp||0));
+}
+const favImgs=l=>[...new Set(l.map(f=>abs(f.thumb)).filter(Boolean))];
+function renderFavs(){
+  const l=favList();main.clear();
+  $('#state').innerHTML=l.length?'':`<div class="empty">${ic('heart')}<p>${S.fav.length?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการโปรด กดปุ่ม “บันทึก” บนรูปที่ชอบ'}</p></div>`;
+  main.add(l.map(f=>favCard(f,l)));
+  setActive(S.cur);
+}
+function favCard(f,list){
+  const sc=!!f.isSnapshot;
+  const e=el(`<article class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:3/4" aria-label="เปิดรูป"><img src="${esc(f.thumb||'')}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><button class="save rm" aria-label="นำออกจากโปรด">${ic('trash')}</button></div>${f.title?`<div class="meta"><span class="t">${esc(f.title)}</span><button class="ib sm" data-go aria-label="ไปที่หน้าหนังเรื่องนี้">${ic('right')}</button></div>`:''}</article>`);
+  const th=e.querySelector('.thumb');fit(th.firstChild,th,main);
+  th.onclick=()=>{
+    if(!sc&&/\/v\/[^/]+/.test(f.url||''))openMovie(f.url,f,'');
+    else{const a=favImgs(list);openViewer(a,Math.max(0,a.indexOf(abs(f.thumb))))}
+  };
+  e.querySelector('.rm').onclick=()=>toggleFav(f);
+  const g=e.querySelector('[data-go]');if(g)g.onclick=()=>openList(f.url);
+  return e;
+}
+$('#fq').oninput=renderFavs;$('#fs').onchange=renderFavs;
+$('#fslide').onclick=()=>{const a=favImgs(favList());if(!a.length)return toast('ไม่พบรูปภาพ','warn');openViewer(a,0);slideStart()};
+
+/* ---------- movie modal ---------- */
+const favFor=i=>{
+  const m=S.movie,sc=S.cover?i>0:true,base=noHash(m.url),b={id:m.id,code:m.code,title:m.title,thumb:S.imgs[i]};
+  return sc?{...b,url:`${base}#gallery-${S.cover?i:i+1}`,isSnapshot:true,parentId:m.id,snapshotIndex:i}:{...b,url:base,isSnapshot:false};
+};
+function renderScenes(){
+  mm.clear();
+  mm.add(S.imgs.map((src,i)=>{
+    const sc=S.cover?i>0:true;
+    const e=el(`<div class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:16/10" aria-label="ขยายภาพ"><img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><span class="tag">${sc?'ซีน '+(S.cover?i:i+1):'หน้าปก'}</span><div class="acts"><button class="chip" data-h></button><a class="chip" href="${esc(src)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดภาพต้นฉบับ">${ic('ext')}</a></div></div></div>`);
+    const th=e.querySelector('.thumb'),h=e.querySelector('[data-h]');fit(th.firstChild,th,mm);
+    th.onclick=()=>openViewer(S.imgs,i);
+    e._upd=()=>{const on=S.movie&&isFav(favFor(i));h.innerHTML=ic('heart',on?'on':'');h.setAttribute('aria-label',on?'นำออกจากโปรด':'บันทึกลงโปรด')};
+    e._upd();h.onclick=()=>toggleFav(favFor(i));
+    return e;
+  }));
+  $('#m-note').textContent=`ทั้งหมด ${S.imgs.length} ภาพ`;
+}
+function metaText(doc,labels){
+  for(const row of doc.querySelectorAll('.panel-block')){
+    const st=row.querySelector('strong'),lb=(st?.textContent||'').replace(/[:：\s]+$/,'').trim().toLowerCase();
+    if(!lb||!labels.includes(lb))continue;
+    const v=(row.querySelector('.value,.panel-block-value,time')?.textContent||row.textContent.replace(st.textContent,'')).replace(/\s+/g,' ').trim();
+    if(v)return v;
+  }
+  return doc.querySelector('time[datetime]')?.textContent.trim()||'';
+}
+function detailGroups(doc,base){
+  const g={directors:[],makers:[],series:[],actors:[],tags:[]},root=doc.querySelector('.movie-panel-info'),seen=new Set();
+  if(!root)return g;
+  for(const a of root.querySelectorAll('a[href]')){
+    const href=abs(a.getAttribute('href'),base),label=(a.textContent||'').replace(/\s+/g,' ').trim();
+    if(!href||!label||!isJ(href))continue;
+    const u=new URL(href),p=u.pathname.toLowerCase();let k='';
+    if(/^\/directors\//.test(p))k='directors';else if(/^\/makers\//.test(p))k='makers';else if(/^\/series\//.test(p))k='series';else if(/^\/actors\//.test(p))k='actors';
+    else if((p==='/tags'||p.startsWith('/tags/'))&&[...u.searchParams.keys()].some(x=>/^c\d+$/i.test(x)))k='tags';
+    if(!k||seen.has(k+u.href))continue;seen.add(k+u.href);g[k].push({label,url:u.href});
+  }
+  return g;
+}
+function fillDrawer(title,code,date,g){
+  const ch=a=>a.length?a.map(x=>`<a class="c" href="${esc(x.url)}" data-u="${esc(x.url)}">${esc(x.label)}</a>`).join(''):'<span class="mut">—</span>';
+  $('#m-drawer').innerHTML=`<h2>${esc(title)}</h2><dl><div><dt>รหัส</dt><dd>${esc(code)}</dd></div><div><dt>วันที่ออก</dt><dd>${esc(date||'—')}</dd></div><div><dt>ผู้กำกับ</dt><dd>${ch(g.directors)}</dd></div><div><dt>ค่าย</dt><dd>${ch(g.makers)}</dd></div><div><dt>ซีรีส์</dt><dd>${ch(g.series)}</dd></div><div><dt>นักแสดง</dt><dd>${ch(g.actors)}</dd></div><div style="grid-column:1/-1"><dt>แท็ก</dt><dd>${ch(g.tags)}</dd></div></dl><p><a class="btn red" href="${esc(S.movie.url)}" target="_blank" rel="noopener noreferrer">${ic('ext')} เปิดหน้าต้นฉบับ</a></p>`;
+}
+$('#m-drawer').onclick=e=>{const a=e.target.closest('[data-u]');if(a){e.preventDefault();closeAll(()=>openList(a.dataset.u))}};
+$('#m-info').onclick=()=>{$('#m-drawer').hidden=!$('#m-drawer').hidden};
+$('#bm-modal').onclick=toggleBm;$('#bm-cur').onclick=toggleBm;
+async function openMovie(url,it,hash=''){
+  const tok=++S.mtok,pu=abs(url)||ROOT,id=it.id||new URL(pu).pathname.split('/')[2]||'JAVDB';
+  openLayer('modal');setActive(pu);
+  S.movie={...it,id,url:pu};S.cover=Boolean(it.thumb);S.imgs=it.thumb?[it.thumb]:[];
+  $('#m-code').textContent=it.code||id;$('#m-short').textContent=it.title||id;
+  $('#m-drawer').hidden=true;$('#m-scroll').scrollTop=0;$('#m-note').textContent='กำลังโหลดภาพ...';
+  renderScenes();
+  try{
+    const doc=parse(await fetchHtml(pu));if(tok!==S.mtok)return;
+    const T=s=>(doc.querySelector(s)?.textContent||'').replace(/\s+/g,' ').trim();
+    const title=T('h2.title .current-title,h2.title strong,h2.title,.movie-panel-info h2,h1.title,.video-title')||doc.querySelector('meta[property="og:title"]')?.content||it.title||id;
+    const code=T('h2.title strong,.video-title strong,.movie-panel-info .value')||it.code||id;
+    let cover=it.thumb||'';
+    const ci=doc.querySelector('img.video-cover,.video-cover img,.column-video-cover img,a.bigImage img,.movie-panel-info .cover img');
+    if(ci)cover=bestImg(ci,ci.closest('a'),pu)||cover;
+    if(!cover)cover=abs(doc.querySelector('meta[property="og:image"],meta[name="twitter:image"]')?.content||'',pu);
+    S.movie={...S.movie,code,title,thumb:cover||''};
+    $('#m-code').textContent=code;$('#m-short').textContent=title;
+    fillDrawer(title,code,metaText(doc,['released date','release date','發行日期','发行日期','date']),detailGroups(doc,pu));
+    const imgs=cover?[cover]:[];
+    for(const s of sceneImages(doc,pu,cover))if(!imgs.includes(s))imgs.push(s);
+    S.imgs=imgs;S.cover=Boolean(cover);renderScenes();
+    const m=String(hash||'').match(/gallery-(\d+)/i);
+    if(m&&S.imgs.length>1){
+      const idx=Math.max(0,Math.min(S.cover?+m[1]:+m[1]-1,S.imgs.length-1));
+      setTimeout(()=>$('#m-scroll').scrollTo({top:Math.max(0,(mm.items[idx]?.y||0)-8),behavior:'smooth'}),300);
+    }
+  }catch(e){
+    if(tok!==S.mtok)return;
+    $('#m-note').textContent='โหลดรายละเอียดไม่สำเร็จ: '+e.message;
   }
 }
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-function safeUrl(value, base = TARGET_URL) {
-  if (!value) return '';
-  try {
-    const u = new URL(value, base);
-    if (!['http:', 'https:'].includes(u.protocol)) return '';
-    return u.href;
-  } catch (_) { return ''; }
-}
-function resolveUrl(path, base = TARGET_URL) { return safeUrl(path, base); }
-function isJavdbUrl(value) {
-  try { const host = new URL(value).hostname.toLowerCase(); return JAVDB_HOSTS.has(host) || host.endsWith('.javdb.com'); }
-  catch (_) { return false; }
-}
-
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  const baseClasses = 'pointer-events-auto p-4 rounded-2xl shadow-xl border text-sm font-bold flex items-center gap-3 animate-fade-up';
-  let colorClasses, icon;
-  
-  if (type === 'success') {
-    colorClasses = 'bg-white dark:bg-zinc-900 border-green-200 dark:border-green-500/20 text-gray-800 dark:text-gray-100';
-    icon = '<div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0"><i class="fas fa-check text-sm"></i></div>';
-  } else if (type === 'error') {
-    colorClasses = 'bg-white dark:bg-zinc-900 border-red-200 dark:border-red-500/20 text-gray-800 dark:text-gray-100';
-    icon = '<div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0"><i class="fas fa-exclamation text-sm"></i></div>';
-  } else if (type === 'warning') {
-    colorClasses = 'bg-white dark:bg-zinc-900 border-yellow-200 dark:border-yellow-500/20 text-gray-800 dark:text-gray-100';
-    icon = '<div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 flex items-center justify-center shrink-0"><i class="fas fa-exclamation-triangle text-sm"></i></div>';
-  } else {
-    colorClasses = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-100';
-    icon = '<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0"><i class="fas fa-info text-sm"></i></div>';
+function sceneImages(doc,base,cover){
+  const out=[],seen=new Set(),cu=abs(cover||'',base);
+  const add=(r,prev)=>{
+    const u=abs(r,base);
+    if(!u||u===cu||/(?:logo|avatar|favicon|sprite|banner|icon)(?:[._/?-]|$)/i.test(u))return;
+    if(!IMG.test(u)&&!prev)return;
+    if(!seen.has(u)){seen.add(u);out.push(u)}
+  };
+  for(const g of doc.querySelectorAll('.preview-images')){
+    const tiles=[...g.querySelectorAll('a.tile-item[href]')];
+    if(tiles.length){for(const t of tiles){const h=t.getAttribute('href')||'';if(IMG.test(h))add(h);else add(imgSrc(t.querySelector('img')),true)}continue}
+    const ls2=[...g.querySelectorAll('a[href]')].filter(a=>IMG.test(a.getAttribute('href')||''));
+    if(ls2.length)ls2.forEach(a=>add(a.getAttribute('href')));else g.querySelectorAll('img').forEach(i=>add(imgSrc(i),true));
   }
-  
-  toast.className = `${baseClasses} ${colorClasses}`;
-  toast.innerHTML = `${icon}<span class="flex-1 tracking-wide">${escapeHtml(message)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
-    toast.style.transition = 'all 0.3s ease-out';
-    setTimeout(() => toast.remove(), 300);
-  }, 3600);
+  return out;
 }
+/* drag down on the modal to close */
+(()=>{
+  const sc=$('#m-scroll'),p=$('#modal .panel');let y0=0,dy=0,on=false;
+  sc.addEventListener('touchstart',e=>{on=sc.scrollTop<=0&&e.touches.length===1;y0=e.touches[0].clientY;dy=0},{passive:true});
+  sc.addEventListener('touchmove',e=>{
+    if(!on)return;dy=e.touches[0].clientY-y0;
+    if(dy>0&&sc.scrollTop<=0){p.style.transition='none';p.style.transform=`translateY(${dy*.6}px)`}else{dy=0;p.style.transform=''}
+  },{passive:true});
+  sc.addEventListener('touchend',()=>{p.style.transition='';p.style.transform='';if(on&&dy>140)back();on=false},{passive:true});
+})();
 
-function setStatus(text, kind = 'ok') {
-  const statusText = document.getElementById('sidebar-status-text');
-  if (statusText) statusText.textContent = text;
-  const colorClass = kind === 'error' ? 'bg-red-500' : kind === 'loading' ? 'bg-yellow-400 animate-pulse' : 'bg-green-500';
-  
-  const sidebarDot = document.getElementById('sidebar-status-dot');
-  if (sidebarDot) sidebarDot.className = 'w-2 h-2 rounded-full shadow-sm ' + colorClass;
-  
-  const navDot = document.getElementById('nav-status-dot');
-  if (navDot) navDot.className = 'absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#18181b] transition-colors ' + colorClass;
+/* ---------- full-screen viewer: swipe, pinch, double-tap, wheel ---------- */
+const V={a:[],i:0,s:1,x:0,y:0,p:new Map(),t:null,tap:0},vimg=$('#vimg'),vw=$('#viewer');
+const vT=()=>{vimg.style.transform=`translate(${V.x}px,${V.y}px) scale(${V.s})`};
+function openViewer(a,i){if(!a.length)return;V.a=a;V.i=Math.max(0,Math.min(i||0,a.length-1));openLayer('viewer');vShow()}
+function vShow(){
+  const n=V.a.length;V.i=(V.i%n+n)%n;V.s=1;V.x=V.y=0;vT();
+  vimg.style.opacity=.2;vimg.onload=vimg.onerror=()=>{vimg.style.opacity=1};vimg.src=V.a[V.i];
+  $('#v-info').textContent=`${V.i+1} / ${n}`;$('#v-src').href=V.a[V.i];
+  $('#v-prev').hidden=$('#v-next').hidden=n<2;
+  if(n>1)new Image().src=V.a[(V.i+1)%n];
 }
-
-function stripHash(url) { try { const u = new URL(url); u.hash = ''; return u.href; } catch (_) { return url; } }
-function updateActiveUrl(url) {
-  currentUrl = stripHash(url);
-  const a = document.getElementById('display-active-url');
-  if (a) {
-    a.textContent = currentUrl;
-    a.href = currentUrl;
-  }
-  updateCurrentPageBookmarkButtonUI();
-}
-function gasUrl(params) {
-  const u = new URL(gasEndpoint);
-  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
-  return u.href;
-}
-function updateScrollLock() {
-  const open = id => !document.getElementById(id).classList.contains('hidden');
-  if (open('modal') || open('full-img-modal')) {
-    document.body.style.overflow = 'hidden';
-  } else if (document.getElementById('side-menu').classList.contains('-translate-x-full')) {
-    document.body.style.overflow = '';
-  }
-}
-
-function updateNavigationButtonsUI() {
-  const back = document.getElementById('btn-nav-back');
-  const forward = document.getElementById('btn-nav-forward');
-  if (!back || !forward) return;
-  back.disabled = historyIndex <= 0;
-  forward.disabled = historyIndex >= historyStack.length - 1;
-}
-
-function changeGridSize(size) {
-  gridSize = size;
-  document.querySelectorAll('.size-btn').forEach(btn => btn.className = 'size-btn flex-1 py-1.5 rounded-lg text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors');
-  const active = document.getElementById(`btn-grid-${size}`);
-  if (active) active.className = 'size-btn active flex-1 bg-white dark:bg-zinc-800 shadow-sm py-1.5 rounded-lg text-xs font-bold text-gray-900 dark:text-white transition-colors';
-  const grid = document.getElementById('gallery-grid');
-  if (grid) grid.className = `masonry-grid size-${size}`;
-}
-
-function toggleTheme() {
-  const dark = document.documentElement.classList.toggle('dark');
-  try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (_) {}
-  updateThemeUI();
-}
-function updateThemeUI() { 
-  const icon = document.getElementById('theme-icon');
-  if (icon) {
-    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun text-xs text-amber-400' : 'fas fa-moon text-xs text-gray-600';
-  }
-}
-
-function openModalBox(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); updateScrollLock(); }
-function closeModalBox(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); updateScrollLock(); }
-function openSearchModal() { openModalBox('search-modal'); setTimeout(() => document.getElementById('search-modal-input').focus(), 20); }
-function closeSearchModal() { closeModalBox('search-modal'); }
-function openLinkInputModal() { openModalBox('link-modal'); setTimeout(() => document.getElementById('link-modal-input').focus(), 20); }
-function closeLinkInputModal() { closeModalBox('link-modal'); }
-function executeModalSearch() {
-  const q = document.getElementById('search-modal-input').value.trim();
-  if (!q) return;
-  closeSearchModal(); setMainTab('home');
-  const url = new URL('/search', TARGET_URL); url.searchParams.set('q', q); url.searchParams.set('f', 'all');
-  loadPage(url.href);
-}
-function executeModalLink() {
-  const value = document.getElementById('link-modal-input').value.trim();
-  if (!value) return;
-  const url = safeUrl(value.startsWith('http') ? value : `https://${value}`, TARGET_URL);
-  if (!url || !isJavdbUrl(url)) { showToast('กรุณาใส่ลิงก์ JAVDB ที่ถูกต้อง', 'warning'); return; }
-  closeLinkInputModal(); setMainTab('home'); loadPage(url);
-}
-
-document.addEventListener('keydown', e => {
-  const isOpen = id => !document.getElementById(id).classList.contains('hidden');
-  const isMenuOpen = !document.getElementById('side-menu').classList.contains('-translate-x-full');
-  
-  if (e.key === 'Enter' && !e.isComposing && e.target.tagName === 'INPUT') {
-    if (isOpen('search-modal') && e.target.id === 'search-modal-input') executeModalSearch();
-    else if (isOpen('link-modal') && e.target.id === 'link-modal-input') executeModalLink();
-  }
-  if (e.key === 'Escape') {
-    if (isOpen('full-img-modal')) closeFullImgModal();
-    else if (isOpen('config-modal')) closeConfigModal();
-    else if (isOpen('search-modal')) closeSearchModal();
-    else if (isOpen('link-modal')) closeLinkInputModal();
-    else if (isOpen('modal')) closeModal();
-    else if (!document.getElementById('bookmark-panel').classList.contains('translate-x-full')) toggleBookmarkPanel();
-    else if (isMenuOpen) toggleSideMenu();
-  }
-  if (isOpen('full-img-modal')) {
-    if (e.key === 'ArrowRight') nextFullImg();
-    if (e.key === 'ArrowLeft') prevFullImg();
-  }
+function vStep(d,keep){V.i+=d;vShow();if(V.t&&!keep){slideStop();slideStart()}}
+function slideStart(){if(V.t||!V.a.length)return;$('#v-play').innerHTML=ic('pause');V.t=setInterval(()=>vStep(1,true),+$('#v-speed').value||3000)}
+function slideStop(){$('#v-play').innerHTML=ic('play');if(V.t){clearInterval(V.t);V.t=null}}
+$('#v-play').onclick=()=>V.t?slideStop():slideStart();
+$('#v-speed').onchange=()=>{if(V.t){slideStop();slideStart()}};
+$('#v-prev').onclick=()=>vStep(-1);$('#v-next').onclick=()=>vStep(1);
+const vDist=()=>{const [a,b]=[...V.p.values()];return Math.hypot(a.x-b.x,a.y-b.y)};
+vw.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button,select,a'))return;
+  vw.setPointerCapture(e.pointerId);
+  if(!V.p.size){V.moved=false;V.pinch=false}
+  V.p.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  V.sx=e.clientX;V.sy=e.clientY;V.ox=V.x;V.oy=V.y;
+  if(V.p.size===2){V.d0=vDist();V.s0=V.s;V.pinch=true}
+});
+vw.addEventListener('pointermove',e=>{
+  if(!V.p.has(e.pointerId))return;
+  V.p.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(V.p.size===2){V.s=Math.min(5,Math.max(1,V.s0*vDist()/V.d0));if(V.s===1)V.x=V.y=0;vT()}
+  else if(V.s>1&&!V.pinch){V.x=V.ox+e.clientX-V.sx;V.y=V.oy+e.clientY-V.sy;vT()}
+  if(Math.abs(e.clientX-V.sx)+Math.abs(e.clientY-V.sy)>8)V.moved=true;
+});
+vw.addEventListener('pointerup',e=>{
+  if(!V.p.has(e.pointerId))return;
+  const last=V.p.size===1;V.p.delete(e.pointerId);
+  if(!last||V.pinch)return;
+  const dx=e.clientX-V.sx,dy=e.clientY-V.sy;
+  if(!V.moved){const n=Date.now();if(n-V.tap<300){V.s=V.s>1?1:2.5;V.x=V.y=0;vT();V.tap=0}else V.tap=n;return}
+  if(V.s>1)return;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy))vStep(dx<0?1:-1);
+  else if(dy>110)back();
+});
+vw.addEventListener('pointercancel',e=>V.p.delete(e.pointerId));
+vw.addEventListener('wheel',e=>{e.preventDefault();V.s=Math.min(5,Math.max(1,V.s*(e.deltaY<0?1.15:.87)));if(V.s===1)V.x=V.y=0;vT()},{passive:false});
+addEventListener('keydown',e=>{
+  const top=layers[layers.length-1];
+  if(e.key==='Escape'&&top)return back();
+  if(top==='viewer'){if(e.key==='ArrowRight')vStep(1);else if(e.key==='ArrowLeft')vStep(-1);else if(e.key===' '&&!e.target.closest('select')){e.preventDefault();V.t?slideStop():slideStart()}}
 });
 
-async function fetchHtml(url) {
-  const cleanUrl = safeUrl(url, TARGET_URL);
-  if (!cleanUrl || !isJavdbUrl(cleanUrl)) throw new Error('อนุญาตเฉพาะโดเมน JAVDB เท่านั้น');
-  const target = new URL(cleanUrl); target.hash = '';
-  const targetUrl = target.href;
-  const timed = async (u, ms) => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
-    try {
-      const r = await fetch(u, {signal: controller.signal});
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return await r.text();
-    } finally { clearTimeout(timer); }
-  };
-  if (gasEndpoint) {
-    try {
-      const data = JSON.parse(await timed(gasUrl({action: 'fetchHtml', targetUrl}), 12000));
-      if (data && data.success && typeof data.html === 'string' && data.html.length > 300 && !BLOCKED_RE.test(data.html)) return data.html;
-    } catch (e) {}
-  }
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
-  ];
-  for (const proxy of proxies) {
-    try {
-      let body = await timed(proxy, 10000);
-      if (proxy.includes('/get?')) { try { body = JSON.parse(body).contents || ''; } catch (_) {} }
-      if (body.length > 500 && !BLOCKED_RE.test(body)) return body;
-    } catch (_) { }
-  }
-  throw new Error('ไม่สามารถดึงข้อมูลได้ อาจติดระบบป้องกันบอต กรุณาเชื่อมต่อ GAS หรือเปิดเว็บต้นฉบับ');
+/* ---------- menu, search, settings ---------- */
+function setGrid(g){S.grid=g;setRaw('grid',g);$$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.g===g));main.layout(true)}
+$('#seg').onclick=e=>{const b=e.target.closest('[data-g]');if(b)setGrid(b.dataset.g)};
+function themeUI(){
+  const d=document.documentElement.classList.contains('dark');
+  $('#b-theme').innerHTML=ic(d?'sun':'moon')+(d?'สลับเป็นโหมดสว่าง':'สลับเป็นโหมดมืด');
+  document.querySelector('meta[name=theme-color]').content=d?'#121212':'#ffffff';
 }
+$('#b-theme').onclick=()=>{const d=document.documentElement.classList.toggle('dark');setRaw('theme',d?'dark':'light');themeUI()};
+const goHome=()=>{setTab('home',true);openList(ROOT)};
+$('#b-home').onclick=()=>closeAll(goHome);
+$('#logo').onclick=goHome;
+$('#b-search').onclick=()=>{scrollTo(0,0);$('#q').focus()};
+$$('[data-tab]').forEach(b=>b.onclick=()=>{
+  const t=b.dataset.tab;
+  if(t==='home'&&S.tab==='home'){scrollY>60?scrollTo({top:0,behavior:'smooth'}):goHome()}else setTab(t);
+});
+$('#sf').onsubmit=e=>{
+  e.preventDefault();const q=$('#q').value.trim();if(!q)return;$('#q').blur();
+  let u;
+  if(/^https?:\/\//i.test(q)||/javdb\.com/i.test(q)){u=abs(/^https?:/i.test(q)?q:'https://'+q);if(!u||!isJ(u))return toast('ลิงก์ JAVDB ไม่ถูกต้อง','warn')}
+  else{const x=new URL('/search',ROOT);x.searchParams.set('q',q);x.searchParams.set('f','all');u=x.href}
+  openList(u);
+};
+$('#gas-save').onclick=async()=>{
+  const u=$('#gas').value.trim();
+  if(!/^https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(u))return toast('URL ไม่ถูกต้อง','warn');
+  S.gas=u;setRaw('gas_url',u);const ok=await pull();flush();
+  toast(ok?'เชื่อมต่อสำเร็จ':'บันทึก URL แล้ว แต่ซิงค์ไม่สำเร็จ',ok?'ok':'warn');
+};
+$('#gas-clear').onclick=()=>{S.gas='';rmRaw('gas_url');$('#gas').value='';toast('ยกเลิกเชื่อมต่อแล้ว','ok')};
 
-function getImgSrc(img) {
-  if (!img) return '';
-  return img.getAttribute('data-original') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('src') || '';
-}
-function getBestImage(img, link, base) {
-  const href = link?.getAttribute('href') || '';
-  const imageFile = /\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i;
-  const candidate = imageFile.test(href) ? href : getImgSrc(img);
-  return resolveUrl(candidate, base);
-}
-
-function extractMovieItems(doc, pageUrl) {
-  const result = [];
-  const seen = new Set();
-  let links = [...doc.querySelectorAll('.movie-list .item a[href*="/v/"], .item a[href*="/v/"], a[href^="/v/"]')];
-  if (!links.length) links = [...doc.querySelectorAll('a[href*="/v/"]')];
-  for (const a of links) {
-    const href = resolveUrl(a.getAttribute('href'), pageUrl);
-    if (!href || !isJavdbUrl(href) || !new URL(href).pathname.match(/^\/v\/[^/]+/)) continue;
-    const routeId = new URL(href).pathname.split('/').filter(Boolean)[1];
-    if (!routeId || seen.has(routeId)) continue;
-    const card = a.closest('.item') || a.closest('.movie-list-item') || a;
-    const img = card.querySelector('.cover img, img') || a.querySelector('img');
-    const thumb = getBestImage(img, a, pageUrl) || getBestImage(img, img?.closest('a'), pageUrl);
-    if (!thumb) continue;
-    const titleEl = card.querySelector('.video-title, .title, .movie-title, h2, h3');
-    const strong = card.querySelector('.video-title strong, .video-title b, .video-title .uid');
-    let title = (titleEl?.textContent || a.getAttribute('title') || img?.getAttribute('alt') || '').replace(/\s+/g, ' ').trim();
-    const code = (strong?.textContent || card.querySelector('.video-title strong')?.textContent || '').trim();
-    if (!title) title = code || routeId;
-    seen.add(routeId);
-    result.push({id: routeId, code: code || routeId, title, thumb, url: href, isSnapshot: false});
-  }
-  return result;
-}
-
-function loadingMarkup(message = 'กำลังเชื่อมต่อข้อมูล...') {
-  return `<div class="py-24 flex flex-col items-center justify-center animate-fade-up col-span-full" style="column-span: all;">
-    <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-5"></div>
-    <p class="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wide">${escapeHtml(message)}</p>
-  </div>`;
-}
-
-function pushHistory(url) {
-  if (historyStack[historyIndex] === url) return;
-  historyStack = historyStack.slice(0, historyIndex + 1); historyStack.push(url); historyIndex = historyStack.length - 1;
-}
-
-function showList(list) {
-  lastList = list; currentListUrl = list.url; currentPage = list.page;
-  renderGrid(list.items);
-  document.getElementById('page-number').textContent = `หน้า ${list.page}`;
-  document.getElementById('pagination').classList.remove('hidden');
-  document.getElementById('btn-prev').disabled = list.page <= 1;
-  document.getElementById('btn-next').disabled = !list.hasNext;
-}
-
-async function loadPage(url, opts = {}) {
-  const normalized = safeUrl(url, TARGET_URL);
-  if (!normalized || !isJavdbUrl(normalized)) { showToast('โดเมนไม่ถูกต้อง', 'warning'); return; }
-  const u = new URL(normalized);
-  if (/^\/v\/[^/]+/.test(u.pathname)) {
-    const routeId = u.pathname.split('/').filter(Boolean)[1];
-    await openMovieModal(normalized, {id: routeId, code: routeId, title: routeId, thumb: ''}, u.hash);
-    return;
-  }
-  if (activeMainTab !== 'home') setMainTab('home');
-  if (opts.recordHistory !== false) pushHistory(normalized);
-  updateNavigationButtonsUI(); updateActiveUrl(normalized);
-  const token = ++loadRequestToken;
-  const grid = document.getElementById('gallery-grid'); 
-  grid.innerHTML = loadingMarkup();
-  document.getElementById('pagination').classList.add('hidden');
-  setStatus('กำลังโหลดข้อมูล', 'loading');
-  try {
-    const html = await fetchHtml(normalized);
-    if (token !== loadRequestToken) return;
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const items = extractMovieItems(doc, normalized);
-    if (!items.length) throw new Error('ไม่พบข้อมูลจากการตอบกลับของเซิร์ฟเวอร์');
-    const page = Math.max(1, Number(u.searchParams.get('page')) || 1);
-    const hasPagination = !!doc.querySelector('.pagination');
-    const hasNext = !hasPagination || !!doc.querySelector('a.pagination-next[href]');
-    showList({url: normalized, items, page, hasNext});
-    setStatus(`สำเร็จ · ${items.length} รายการ`);
-  } catch (error) {
-    if (token !== loadRequestToken) return;
-    setStatus('โหลดไม่สำเร็จ', 'error');
-    grid.innerHTML = `<div class="py-20 flex flex-col items-center text-center animate-fade-up px-4 col-span-full" style="column-span: all;">
-      <div class="w-16 h-16 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-5"><i class="fas fa-exclamation-triangle text-3xl"></i></div>
-      <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">โหลดข้อมูลไม่สำเร็จ</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">${escapeHtml(error.message)}</p>
-      <div class="flex flex-wrap justify-center gap-3">
-        <button data-action="retry" class="px-6 py-3 bg-primary hover:bg-rose-600 text-white rounded-full text-sm font-bold shadow-md shadow-primary/20 transition-all"><i class="fas fa-redo mr-2"></i> ลองอีกครั้ง</button>
-        <a href="${escapeHtml(normalized)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 rounded-full text-sm font-bold transition-all">เปิดหน้าเว็บต้นทาง <i class="fas fa-external-link-alt ml-1.5"></i></a>
-      </div>
-    </div>`;
-    grid.querySelector('[data-action="retry"]')?.addEventListener('click', () => loadPage(normalized, {recordHistory: false}));
-  }
-}
-
-function renderGrid(items) {
-  const grid = document.getElementById('gallery-grid');
-  if (!items.length) { grid.innerHTML = '<div class="py-24 text-center text-gray-400 col-span-full font-bold" style="column-span: all;">ไม่พบรายการ</div>'; return; }
-  
-  // No heart or movie code in the main grid
-  grid.innerHTML = items.map((item, idx) => {
-    return `<div class="masonry-item animate-fade-up" style="animation-delay:${(idx%12)*.03}s">
-      <div class="group relative bg-white dark:bg-[#18181b] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200/60 dark:border-white/5">
-        <button data-action="open-item" data-index="${idx}" class="block w-full text-left bg-gray-100 dark:bg-zinc-900 cursor-pointer overflow-hidden relative">
-          <img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" loading="lazy" referrerpolicy="no-referrer" class="w-full h-auto object-cover img-lazy group-hover:scale-105" data-fallback="1">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-            <p class="text-white text-sm font-bold leading-snug line-clamp-3 drop-shadow-md">${escapeHtml(item.title)}</p>
-          </div>
-        </button>
-        <div class="p-3.5 flex flex-col gap-2">
-          <p class="text-xs font-semibold leading-relaxed text-gray-800 dark:text-gray-200 line-clamp-2">${escapeHtml(item.title)}</p>
-          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold text-primary hover:underline inline-flex items-center w-fit tracking-wide">หน้าต้นฉบับ <i class="fas fa-external-link-alt ml-1"></i></a>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  
-  grid.querySelectorAll('[data-action="open-item"]').forEach(btn => btn.addEventListener('click', () => { const item = items[Number(btn.dataset.index)]; if (item) openMovieModal(item.url, item, ''); }));
-}
-
-function navPage(direction) {
-  if (activeMainTab !== 'home') return;
-  const u = new URL(currentListUrl, TARGET_URL);
-  const page = Math.max(1, (Number(u.searchParams.get('page')) || currentPage || 1) + direction);
-  u.searchParams.set('page', String(page));
-  window.scrollTo({top:0, behavior:'smooth'}); loadPage(u.href);
-}
-function goHome() { setMainTab('home'); loadPage(TARGET_URL); }
-function loadLatest() { goHome(); }
-
-function setMainTab(tab) {
-  activeMainTab = tab;
-  const home = document.getElementById('tab-home'), fav = document.getElementById('tab-fav');
-  const inactiveClass = 'flex-1 py-2 rounded-lg font-bold text-sm transition-all text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200';
-  const activeClass = 'flex-1 py-2 rounded-lg font-bold text-sm transition-all shadow-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white';
-  
-  if (home) home.className = (tab === 'home' ? activeClass : inactiveClass);
-  if (fav) fav.className = (tab === 'favorites' ? activeClass : inactiveClass);
-  
-  const filter = document.getElementById('favorites-filter-container');
-  if (tab === 'home') {
-    if (filter) {
-      filter.classList.add('hidden');
-      filter.classList.remove('flex');
-    }
-  } else {
-    loadRequestToken++; 
-    if (filter) {
-      filter.classList.remove('hidden');
-      filter.classList.add('flex');
-    }
-    document.getElementById('pagination').classList.add('hidden');
-    filterFavorites();
-    setStatus(`โปรด ${favoriteList.length} รายการ`);
-  }
-}
-
-function switchMainTab(tab) {
-  if (tab === 'favorites') { setMainTab('favorites'); return; }
-  if (activeMainTab === 'favorites' && lastList) { 
-    setMainTab('home'); updateActiveUrl(lastList.url); showList(lastList); setStatus(`สำเร็จ · ${lastList.items.length} รายการ`);
-  } else goHome();
-}
-function navigateHistory(delta) {
-  const i = historyIndex + delta;
-  if (i < 0 || i >= historyStack.length) return;
-  historyIndex = i; updateNavigationButtonsUI();
-  loadPage(historyStack[i], {recordHistory: false}).finally(updateNavigationButtonsUI);
-}
-function navigateHistoryBack() { navigateHistory(-1); }
-function navigateHistoryForward() { navigateHistory(1); }
-function clearHistory() { historyStack = [currentListUrl]; historyIndex = 0; updateNavigationButtonsUI(); showToast('ล้างประวัติการนำทางหน้านี้แล้ว', 'success'); }
-
-async function openMovieModal(url, item, hash = '') {
-  const token = ++movieRequestToken; 
-  const pageUrl = safeUrl(url, TARGET_URL) || TARGET_URL;
-  openModalBox('modal');
-  updateActiveUrl(pageUrl);
-  document.getElementById('movie-info-drawer').classList.add('hidden');
-  document.getElementById('modal-images-scroll').scrollTop = 0;
-  currentMovie = {...item, url: pageUrl};
-  const routeId = item.id || (new URL(pageUrl)).pathname.split('/').filter(Boolean)[1] || 'JAVDB';
-  document.getElementById('m-id').textContent = item.code || routeId;
-  document.getElementById('m-title-short').textContent = item.title || routeId;
-  document.getElementById('m-title').textContent = item.title || routeId;
-  document.getElementById('m-source-link').href = pageUrl;
-  
-  const metaIds = ['m-directors','m-makers','m-series','m-actors','m-tags'];
-  for (const id of ['m-code','m-date']) document.getElementById(id).innerHTML = '<span class="text-gray-400">...</span>';
-  for (const id of metaIds) document.getElementById(id).innerHTML = '<span class="text-gray-400">...</span>';
-  
-  document.getElementById('gallery-note').textContent = 'กำลังเตรียมภาพหน้าปกและซีน...';
-  document.getElementById('modal-images').innerHTML = loadingMarkup('กำลังประมวลผล');
-  setStatus('โหลดรายละเอียด', 'loading');
-  let cover = item.thumb || '';
-  try {
-    const html = await fetchHtml(pageUrl);
-    if (token !== movieRequestToken) return;
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const titleEl = doc.querySelector('h2.title .current-title, h2.title strong, h2.title, .movie-panel-info h2, h1.title, .video-title');
-    const pageTitle = (titleEl?.textContent || doc.querySelector('meta[property="og:title"]')?.content || item.title || routeId).replace(/\s+/g, ' ').trim();
-    const codeEl = doc.querySelector('h2.title strong, .video-title strong, .movie-panel-info .value');
-    const code = (codeEl?.textContent || item.code || routeId).trim();
-    const dateText = findMetadataText(doc, ['released date','release date','發行日期','发行日期','date']);
-    const filters = extractDetailFilters(doc, pageUrl);
-    
-    document.getElementById('m-title').textContent = pageTitle;
-    document.getElementById('m-title-short').textContent = pageTitle;
-    document.getElementById('m-code').textContent = code || routeId;
-    document.getElementById('m-date').textContent = dateText || '—';
-    renderFilterLinks('m-directors', filters.directors);
-    renderFilterLinks('m-makers', filters.makers);
-    renderFilterLinks('m-series', filters.series);
-    renderFilterLinks('m-tags', filters.tags);
-    renderFilterLinks('m-actors', filters.actors);
-
-    const coverImg = doc.querySelector('img.video-cover, .video-cover img, .column-video-cover img, a.bigImage img, .movie-panel-info .cover img');
-    if (coverImg) cover = getBestImage(coverImg, coverImg.closest('a'), pageUrl) || cover;
-    if (!cover) {
-      const metaCover = doc.querySelector('meta[property="og:image"], meta[name="twitter:image"]');
-      cover = resolveUrl(metaCover?.content || '', pageUrl);
-    }
-    currentMovie = {...currentMovie, id: routeId, code, title: pageTitle, thumb: cover || ''};
-    const scenes = collectGalleryImages(doc, pageUrl, cover);
-    currentImages = []; currentHasCover = Boolean(cover);
-    if (cover) currentImages.push(cover);
-    for (const scene of scenes) if (scene && !currentImages.includes(scene)) currentImages.push(scene);
-    renderModalImages(currentImages, currentMovie);
-    
-    const hashMatch = String(hash || new URL(pageUrl).hash || '').match(/gallery-(\d+)/i);
-    if (hashMatch && currentImages.length > 1) {
-      const n = Number(hashMatch[1]);
-      const requestedIndex = Math.max(0, Math.min(currentHasCover ? n : n - 1, currentImages.length - 1));
-      setTimeout(() => document.getElementById(`scene-${requestedIndex}`)?.scrollIntoView({behavior:'smooth', block:'center'}), 200);
-      document.getElementById('gallery-note').textContent = `แสดงทั้งหมด ${currentImages.length} ภาพ`;
-    } else {
-      document.getElementById('gallery-note').textContent = `แสดงทั้งหมด ${currentImages.length} ภาพ`;
-    }
-    setStatus(`เสร็จสิ้น`);
-  } catch (error) {
-    if (token !== movieRequestToken) return;
-    for (const id of ['m-code','m-date']) document.getElementById(id).textContent = '—';
-    for (const id of metaIds) document.getElementById(id).innerHTML = '<span class="text-gray-400">—</span>';
-    currentImages = cover ? [cover] : []; currentHasCover = Boolean(cover);
-    renderModalImages(currentImages, currentMovie);
-    document.getElementById('gallery-note').textContent = `โหลดไม่สำเร็จ: ${error.message}`;
-    setStatus('เกิดข้อผิดพลาด', 'error');
-  }
-}
-
-function extractDetailFilters(doc, baseUrl) {
-  const groups = {directors:[], makers:[], series:[], tags:[], actors:[]};
-  const root = doc.querySelector('.movie-panel-info');
-  if (!root) return groups;
-  const seen = new Set();
-  for (const a of root.querySelectorAll('a[href]')) {
-    const href = resolveUrl(a.getAttribute('href'), baseUrl);
-    const label = (a.textContent || '').replace(/\s+/g, ' ').trim();
-    if (!href || !label || !isJavdbUrl(href)) continue;
-    let u;
-    try { u = new URL(href); } catch (_) { continue; }
-    const path = u.pathname.toLowerCase();
-    let group = '';
-    if (/^\/directors\//.test(path)) group = 'directors';
-    else if (/^\/makers\//.test(path)) group = 'makers';
-    else if (/^\/series\//.test(path)) group = 'series';
-    else if (/^\/actors\//.test(path)) group = 'actors';
-    else if ((path === '/tags' || path.startsWith('/tags/')) && [...u.searchParams.keys()].some(k => /^c\d+$/i.test(k))) group = 'tags';
-    if (!group) continue;
-    const key = `${group}|${u.href}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    groups[group].push({label, url:u.href});
-  }
-  return groups;
-}
-
-function renderFilterLinks(elementId, items) {
-  const container = document.getElementById(elementId);
-  if (!container) return;
-  if (!items || !items.length) {
-    container.innerHTML = '<span class="text-gray-400 font-medium text-xs">—</span>';
-    return;
-  }
-  container.innerHTML = items.map(item => `<a href="${escapeHtml(item.url)}" data-filter-link="1" class="inline-flex items-center rounded-lg bg-gray-100 dark:bg-zinc-800 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200/50 dark:border-white/5">${escapeHtml(item.label)}</a>`).join('');
-  container.querySelectorAll('[data-filter-link]').forEach(link => link.addEventListener('click', event => {
-    event.preventDefault();
-    const target = safeUrl(link.getAttribute('href'), currentMovie?.url || TARGET_URL);
-    if (!target || !isJavdbUrl(target)) return;
-    closeModal();
-    setMainTab('home');
-    loadPage(target);
-    window.scrollTo({top:0, behavior:'auto'});
-  }));
-}
-
-function findMetadataText(doc, labels) {
-  const keys = labels.map(s => s.toLowerCase());
-  for (const row of doc.querySelectorAll('.panel-block')) {
-    const strong = row.querySelector('strong');
-    const label = (strong?.textContent || '').replace(/[:：\s]+$/, '').trim().toLowerCase();
-    if (!label || !keys.includes(label)) continue;
-    const raw = row.querySelector('.value, .panel-block-value, time')?.textContent || row.textContent.replace(strong.textContent, '');
-    const value = raw.replace(/\s+/g, ' ').trim();
-    if (value) return value;
-  }
-  const time = doc.querySelector('time[datetime]');
-  return time ? time.textContent.trim() : '';
-}
-
-function collectGalleryImages(doc, base, cover) {
-  const images = [];
-  const seen = new Set();
-  const coverUrl = resolveUrl(cover || '', base);
-  const imageFile = /\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i;
-
-  const add = (raw, fromPreviewImg = false) => {
-    const url = resolveUrl(raw, base);
-    if (!url || !/^https?:\/\//i.test(url) || url === coverUrl) return;
-    if (/^(?:data|blob):/i.test(url) || /(?:logo|avatar|favicon|sprite|banner|icon)(?:[._/?-]|$)/i.test(url)) return;
-    if (!imageFile.test(url) && !fromPreviewImg) return;
-    if (!seen.has(url)) { seen.add(url); images.push(url); }
-  };
-
-  const galleries = [...doc.querySelectorAll('.preview-images')];
-  for (const gallery of galleries) {
-    const tiles = [...gallery.querySelectorAll('a.tile-item[href]')];
-    if (tiles.length) {
-      for (const tile of tiles) {
-        const img = tile.querySelector('img');
-        const href = tile.getAttribute('href') || '';
-        if (imageFile.test(href)) add(href);
-        else if (img) add(getImgSrc(img), true);
-      }
-      continue;
-    }
-    const directImageLinks = [...gallery.querySelectorAll('a[href]')].filter(a => imageFile.test(a.getAttribute('href') || ''));
-    if (directImageLinks.length) {
-      for (const a of directImageLinks) add(a.getAttribute('href'));
-    } else {
-      for (const img of gallery.querySelectorAll('img')) add(getImgSrc(img), true);
-    }
-  }
-  return images;
-}
-
-function renderModalImages(images, movie) {
-  const container = document.getElementById('modal-images');
-  if (!images.length) { container.innerHTML = '<div class="py-24 flex flex-col items-center text-center col-span-full" style="column-span: all;"><div class="w-16 h-16 bg-gray-100 dark:bg-zinc-800 text-gray-300 dark:text-gray-600 rounded-full flex items-center justify-center mb-4"><i class="far fa-images text-2xl"></i></div><p class="text-sm font-bold text-gray-500 dark:text-gray-400">ไม่พบรูปภาพ</p></div>'; return; }
-  
-  container.innerHTML = images.map((src, i) => {
-    const snap = currentHasCover ? i > 0 : true;
-    const liked = isSceneLiked(movie, i, src);
-    
-    // Condition to ONLY add favorite heart button on SCENES, not the cover image inside modal.
-    const favButton = snap ? `
-      <button data-action="fav-scene" data-index="${i}" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors shadow-sm">
-        <i class="${liked ? 'fas text-rose-500' : 'far'} fa-heart text-sm drop-shadow-sm"></i>
-      </button>
-    ` : '';
-    
-    return `<div id="scene-${i}" class="masonry-item animate-fade-up" style="animation-delay:${(i%10)*.05}s">
-      <div class="relative group rounded-2xl overflow-hidden border border-gray-200/60 dark:border-white/5 bg-gray-100 dark:bg-zinc-900 shadow-sm">
-        <span class="absolute top-2.5 left-2.5 z-10 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider shadow-sm">${!snap ? 'หน้าปก' : 'ซีน ' + (currentHasCover ? i : i + 1)}</span>
-        <button data-action="open-scene" data-index="${i}" class="block w-full cursor-zoom-in">
-          <img src="${escapeHtml(src)}" alt="${escapeHtml(movie.title || movie.id)}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain img-lazy group-hover:scale-[1.02] transition-transform duration-500" onerror="this.style.opacity='.35'">
-        </button>
-        <div class="absolute bottom-2.5 right-2.5 flex gap-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            ${favButton}
-            <a href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors shadow-sm" title="เปิดภาพต้นฉบับ">
-              <i class="fas fa-external-link-alt text-[10px]"></i>
-            </a>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  
-  container.querySelectorAll('[data-action="open-scene"]').forEach(btn => btn.addEventListener('click', () => openViewer(images, Number(btn.dataset.index))));
-  container.querySelectorAll('[data-action="fav-scene"]').forEach(btn => btn.addEventListener('click', e => {
-    e.preventDefault(); e.stopPropagation();
-    const i = Number(btn.dataset.index);
-    if (!currentMovie || !images[i]) return;
-    const isScene = currentHasCover ? i > 0 : true;
-    const base = stripHash(currentMovie.url); 
-    toggleFavorite({id:currentMovie.id, code:currentMovie.code, title:currentMovie.title, thumb:images[i], url: isScene ? `${base}#gallery-${currentHasCover ? i : i + 1}` : base, isSnapshot:isScene, parentId:currentMovie.id, snapshotIndex:i}, btn);
-  }));
-}
-
-function isSceneLiked(movie, i, src) {
-  const snap = currentHasCover ? i > 0 : true;
-  return favoriteList.some(f => snap ? f.isSnapshot && f.parentId === movie.id && f.thumb === src : !f.isSnapshot && f.id === movie.id);
-}
-function syncHeartIcons() {
-  const set = (btn, liked) => { const ic = btn.querySelector('i'); if (ic) ic.className = (liked ? 'fas text-rose-500' : 'far') + ' fa-heart text-sm drop-shadow-sm'; };
-  if (currentMovie) document.querySelectorAll('#modal-images [data-action="fav-scene"]').forEach(btn => {
-    const i = Number(btn.dataset.index), src = currentImages[i];
-    if (src) set(btn, isSceneLiked(currentMovie, i, src));
-  });
-}
-function closeModal() {
-  movieRequestToken++; 
-  closeModalBox('modal');
-  if (currentUrl !== currentListUrl) updateActiveUrl(currentListUrl);
-  syncHeartIcons();
-}
-function toggleMovieDetailsToggle() { document.getElementById('movie-info-drawer').classList.toggle('hidden'); }
-
-function getVisibleFavorites() {
-  const query = (document.getElementById('fav-search-input')?.value || '').trim().toLowerCase();
-  const sort = document.getElementById('fav-sort-filter')?.value || 'newest';
-  const list = favoriteList.filter(f => `${f.id || ''} ${f.code || ''} ${f.title || ''}`.toLowerCase().includes(query));
-  list.sort((a,b) => sort === 'oldest' ? (a.timestamp||0)-(b.timestamp||0) : sort === 'title' ? String(a.title||'').localeCompare(String(b.title||'')) : (b.timestamp||0)-(a.timestamp||0));
-  return list;
-}
-function getFavoriteSlideshowImages() {
-  const seen = new Set();
-  return getVisibleFavorites().map(f => safeUrl(f.thumb)).filter(src => src && !seen.has(src) && seen.add(src));
-}
-function startFavoritesSlideshow() {
-  const images = getFavoriteSlideshowImages();
-  if (!images.length) { showToast('ไม่พบรูปภาพ', 'error'); return; }
-  stopSlideshow(); openViewer(images, 0); startSlideshow();
-}
-
-function openViewer(images, index) {
-  if (!images || !images.length) return;
-  viewerImages = images;
-  slideshowActiveIndex = Math.max(0, Math.min(Number(index) || 0, images.length - 1));
-  openModalBox('full-img-modal');
-  updateFullImgView();
-}
-function closeFullImgModal() { stopSlideshow(); closeModalBox('full-img-modal'); }
-function updateFullImgView() {
-  const img = document.getElementById('full-modal-target-img');
-  const info = document.getElementById('slideshow-info');
-  if (!img || !viewerImages.length) return;
-  const n = viewerImages.length;
-  slideshowActiveIndex = (slideshowActiveIndex % n + n) % n;
-  img.onload = () => { img.style.opacity = '1'; };
-  img.onerror = () => { img.style.opacity = '1'; };
-  img.style.opacity = '0.2';
-  img.src = viewerImages[slideshowActiveIndex];
-  if (info) info.textContent = `${slideshowActiveIndex + 1} / ${n}`;
-  if (n > 1) new Image().src = viewerImages[(slideshowActiveIndex + 1) % n]; 
-}
-function openCurrentImageSource() { if (viewerImages[slideshowActiveIndex]) window.open(viewerImages[slideshowActiveIndex], '_blank', 'noopener'); }
-function advanceViewer(d) { if (!viewerImages.length) return; slideshowActiveIndex += d; updateFullImgView(); }
-function stepViewer(d) { advanceViewer(d); if (slideshowInterval !== null) { stopSlideshow(); startSlideshow(); } } 
-function nextFullImg() { stepViewer(1); }
-function prevFullImg() { stepViewer(-1); }
-function toggleSlideshow() { if (slideshowInterval !== null) stopSlideshow(); else startSlideshow(); }
-function startSlideshow() {
-  if (slideshowInterval !== null || !viewerImages.length) return;
-  slideshowSpeed = Math.max(500, Number(document.getElementById('slideshow-speed')?.value) || 3000);
-  const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-pause';
-  slideshowInterval = window.setInterval(() => { if (document.getElementById('full-img-modal').classList.contains('hidden')) stopSlideshow(); else advanceViewer(1); }, slideshowSpeed);
-}
-function stopSlideshow() {
-  const icon = document.getElementById('play-icon'); if (icon) icon.className = 'fas fa-play';
-  if (slideshowInterval !== null) { window.clearInterval(slideshowInterval); slideshowInterval = null; }
-}
-function changeSlideshowSpeed() { if (slideshowInterval !== null) { stopSlideshow(); startSlideshow(); } }
-
-function sanitizeList(raw) {
-  return (Array.isArray(raw) ? raw : []).filter(x => x && typeof x === 'object' && !String(x.url || '').toLowerCase().includes('jav321'));
-}
-function saveFavorites() { try { localStorage.setItem('jav_favorites', JSON.stringify(favoriteList)); } catch (_) {} }
-function loadFavorites() {
-  try { favoriteList = sanitizeList(JSON.parse(localStorage.getItem('jav_favorites'))); } catch (_) { favoriteList = []; }
-  favoriteList.forEach(f => { if (!f.isSnapshot && typeof f.url === 'string') f.url = stripHash(f.url); });
-  saveFavorites(); updateFavCountBadge();
-  if (gasEndpoint) syncFromGoogleSheet();
-}
-function updateFavCountBadge() { 
-  const el = document.getElementById('fav-count');
-  if(el) el.textContent = favoriteList.length; 
-}
-
-function toggleFavorite(item) {
-  const isSnapshot = Boolean(item.isSnapshot);
-  const found = favoriteList.findIndex(f => isSnapshot ? Boolean(f.isSnapshot) && f.parentId === item.parentId && f.thumb === item.thumb : !f.isSnapshot && f.id === item.id);
-  const status = found >= 0 ? 'remove' : 'add';
-  favVersion++;
-  if (found >= 0) favoriteList.splice(found, 1);
-  else favoriteList.push({...item, isSnapshot, timestamp:Date.now()});
-  saveFavorites(); updateFavCountBadge();
-  syncHeartIcons();
-  
-  if (activeMainTab === 'favorites') {
-    const scrollY = window.scrollY;
-    filterFavorites();
-    window.scrollTo({top:scrollY, behavior:'auto'});
-    requestAnimationFrame(() => window.scrollTo({top:scrollY, behavior:'auto'}));
-  }
-  
-  if (gasEndpoint) {
-    const params = {action:'sync', id:item.id || '', code:item.code || '', title:item.title || '', thumb:item.thumb || '', url:item.url || '', status, isSnapshot:String(isSnapshot), parentId:item.parentId || '', snapshotIndex:String(item.snapshotIndex || 0), timestamp:String(Date.now())};
-    fetch(gasUrl(params), {mode:'no-cors'}).catch(()=>{});
-  }
-  showToast(status === 'add' ? 'บันทึกแล้ว' : 'นำออกแล้ว', 'success');
-}
-
-function filterFavorites() {
-  const list = getVisibleFavorites();
-  const grid = document.getElementById('gallery-grid');
-  if (!list.length) { grid.innerHTML = `<div class="py-24 flex flex-col items-center text-center col-span-full" style="column-span: all;"><div class="w-16 h-16 bg-gray-50 dark:bg-zinc-900/50 text-gray-300 dark:text-gray-600 rounded-full flex items-center justify-center mb-5"><i class="far fa-heart text-3xl"></i></div><p class="text-sm font-bold text-gray-500 dark:text-gray-400">${favoriteList.length ? 'ไม่พบรายการค้นหา' : 'ยังไม่มีรายการโปรด'}</p></div>`; return; }
-  
-  const cards = list.map(f => ({...f, isSnapshot:Boolean(f.isSnapshot)}));
-  grid.innerHTML = cards.map((item, idx) => `<div class="masonry-item animate-fade-up" style="animation-delay:${(idx%15)*.02}s">
-    <div class="relative group bg-white dark:bg-[#18181b] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200/60 dark:border-white/5">
-      <button data-action="fav-open" data-index="${idx}" class="block w-full cursor-pointer" aria-label="เปิดภาพที่บันทึกไว้">
-        <img src="${escapeHtml(item.thumb || '')}" alt="ภาพที่บันทึกไว้" loading="lazy" referrerpolicy="no-referrer" data-fallback="1" class="w-full h-auto group-hover:scale-105 transition-transform duration-500">
-      </button>
-      <button data-action="fav-remove" data-index="${idx}" class="absolute top-2.5 right-2.5 bg-black/50 backdrop-blur-md text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-500 shadow-sm" aria-label="นำออกจากรายการโปรด">
-        <i class="fas fa-trash text-[10px]"></i>
-      </button>
-    </div>
-  </div>`).join('');
-  
-  grid.querySelectorAll('[data-action="fav-open"]').forEach(btn => btn.addEventListener('click', () => {
-    const f = cards[Number(btn.dataset.index)]; if (!f) return;
-    if (!f.isSnapshot && /\/v\/[^/]+/.test(f.url || '')) openMovieModal(f.url, f);
-    else { const imgs = getFavoriteSlideshowImages(); openViewer(imgs, Math.max(0, imgs.indexOf(safeUrl(f.thumb)))); }
-  }));
-  grid.querySelectorAll('[data-action="fav-remove"]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const f = cards[Number(btn.dataset.index)]; if (f) toggleFavorite(f); }));
-}
-
-function loadBookmarks() {
-  try { bookmarkList = sanitizeList(JSON.parse(localStorage.getItem('jav_bookmarks'))); } catch (_) { bookmarkList = []; }
-  try { localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); } catch (_) {}
-  updateBookmarkBadgeUI(); renderBookmarkListUI();
-  if (gasEndpoint) syncBookmarksFromGoogleSheet();
-}
-function updateBookmarkBadgeUI() { 
-  const els = document.querySelectorAll('#bookmark-badge'); 
-  els.forEach(el => {
-    el.textContent = bookmarkList.length; 
-    el.classList.toggle('hidden', bookmarkList.length === 0); 
-    if(el.tagName === 'SPAN' && el.parentElement.tagName === 'BUTTON' && el.parentElement.classList.contains('justify-between')) {
-        el.classList.toggle('inline-block', bookmarkList.length > 0);
-    } else {
-        el.classList.toggle('flex', bookmarkList.length > 0); 
-    }
-  });
-}
-function updateCurrentPageBookmarkButtonUI() {
-  const saved = bookmarkList.some(b => b.url === currentUrl);
-  const currentBtn = document.getElementById('btn-bookmark-current');
-  if(currentBtn) {
-    currentBtn.innerHTML = saved ? '<i class="fas fa-star text-amber-500"></i> บันทึกแล้ว' : '<i class="far fa-star"></i> บันทึกหน้านี้';
-  }
-  const m = document.getElementById('btn-bookmark-modal');
-  if (m) m.innerHTML = saved ? '<i class="fas fa-star text-amber-500 text-lg"></i>' : '<i class="far fa-star text-lg"></i>';
-}
-function toggleCurrentPageBookmark() {
-  const idx = bookmarkList.findIndex(b => b.url === currentUrl); const title = getCurrentBookmarkTitle(); let status = 'add';
-  bookmarkVersion++;
-  if (idx >= 0) { bookmarkList.splice(idx, 1); status = 'remove'; }
-  else bookmarkList.push({title, url:currentUrl, timestamp:Date.now()});
-  try { localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); } catch (_) {}
-  updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI();
-  if (gasEndpoint) fetch(gasUrl({action:'syncBookmark', title, url:currentUrl, status, timestamp:String(Date.now())}), {mode:'no-cors'}).catch(()=>{});
-  showToast(status === 'add' ? 'บันทึกลิงก์แล้ว' : 'ลบลิงก์ที่บันทึกแล้ว', 'success');
-}
-function getCurrentBookmarkTitle() {
-  if (currentMovie && stripHash(currentMovie.url) === currentUrl) return currentMovie.title || currentMovie.id;
-  try {
-    const u = new URL(currentUrl), q = u.searchParams.get('q'), p = Number(u.searchParams.get('page')) || 1;
-    const base = q ? `ค้นหา: ${q}` : (u.pathname === '/' ? 'หน้าแรก' : decodeURIComponent(u.pathname));
-    return p > 1 ? `${base} (หน้า ${p})` : base;
-  } catch (_) { return 'หน้าเว็บไซต์'; }
-}
-function toggleBookmarkPanel() { document.getElementById('bookmark-panel').classList.toggle('translate-x-full'); }
-
-function renderBookmarkListUI() {
-  const list=document.getElementById('bookmark-list');
-  if(!list) return;
-  if (!bookmarkList.length) { list.innerHTML='<div class="py-20 flex flex-col items-center text-center"><div class="w-14 h-14 bg-gray-100 dark:bg-zinc-800 text-gray-300 dark:text-gray-600 rounded-full flex items-center justify-center mb-4"><i class="far fa-bookmark text-2xl"></i></div><p class="text-sm font-bold text-gray-500 dark:text-gray-400">ว่างเปล่า</p></div>'; return; }
-  
-  list.innerHTML=[...bookmarkList].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).map((b,i)=>`<div class="flex items-center gap-3 p-3.5 bg-white dark:bg-[#18181b] hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors rounded-xl border border-gray-100 dark:border-white/5 shadow-sm group animate-fade-up">
-    <button data-action="bookmark-open" data-index="${i}" class="flex-1 min-w-0 text-left">
-      <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-amber-500 transition-colors">${escapeHtml(b.title||'ลิงก์')}</p>
-      <p class="text-[10px] font-medium text-gray-400 truncate mt-1 tracking-wide">${escapeHtml(b.url)}</p>
-    </button>
-    <button data-action="bookmark-delete" data-index="${i}" class="text-gray-300 hover:text-red-500 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors shrink-0">
-      <i class="fas fa-trash-alt text-xs"></i>
-    </button>
-  </div>`).join('');
-  
-  const sorted=[...bookmarkList].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-  list.querySelectorAll('[data-action="bookmark-open"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)];if(b){toggleBookmarkPanel();setMainTab('home');loadPage(b.url);}}));
-  list.querySelectorAll('[data-action="bookmark-delete"]').forEach(btn=>btn.addEventListener('click',()=>{const b=sorted[Number(btn.dataset.index)];if(!b)return;bookmarkVersion++;bookmarkList=bookmarkList.filter(x=>x.url!==b.url);try{localStorage.setItem('jav_bookmarks',JSON.stringify(bookmarkList));}catch(_){};updateBookmarkBadgeUI();updateCurrentPageBookmarkButtonUI();renderBookmarkListUI();if(gasEndpoint){const p=new URLSearchParams({action:'syncBookmark',title:'',url:b.url,status:'remove',timestamp:String(Date.now())});fetch(gasUrl(Object.fromEntries(p)),{mode:'no-cors'}).catch(()=>{});}}));
-}
-
-function normTs(v) { return Number(v) || Date.parse(v) || 0; }
-async function syncFromGoogleSheet() {
-  if (!gasEndpoint) return false;
-  const version = favVersion;
-  try {
-    const res = await fetch(gasUrl({action:'getFavorites'})); const data = await res.json();
-    if (!(data?.success && Array.isArray(data.favorites))) return false;
-    if (version !== favVersion) return true; 
-    const remote = sanitizeList(data.favorites).map(f => ({...f, isSnapshot:f.isSnapshot === 'true' || f.isSnapshot === true, snapshotIndex:Number(f.snapshotIndex) || 0, timestamp:normTs(f.timestamp)}));
-    if (!remote.length && favoriteList.length) return true; 
-    favoriteList = remote; saveFavorites(); updateFavCountBadge(); syncHeartIcons();
-    if (activeMainTab === 'favorites') filterFavorites();
-    return true;
-  } catch (e) { return false; }
-}
-async function syncBookmarksFromGoogleSheet() {
-  if (!gasEndpoint) return false;
-  const version = bookmarkVersion;
-  try {
-    const res = await fetch(gasUrl({action:'getBookmarks'})); const data = await res.json();
-    if (!(data?.success && Array.isArray(data.bookmarks))) return false;
-    if (version !== bookmarkVersion) return true;
-    const remote = sanitizeList(data.bookmarks).map(b => ({...b, timestamp:normTs(b.timestamp)}));
-    if (!remote.length && bookmarkList.length) return true;
-    bookmarkList = remote;
-    try { localStorage.setItem('jav_bookmarks', JSON.stringify(bookmarkList)); } catch (_) {}
-    updateBookmarkBadgeUI(); updateCurrentPageBookmarkButtonUI(); renderBookmarkListUI();
-    return true;
-  } catch (e) { return false; }
-}
-function openConfigModal() { document.getElementById('gas-url-input').value=gasEndpoint; openModalBox('config-modal'); }
-function closeConfigModal() { closeModalBox('config-modal'); }
-async function testAndSaveGAS() {
-  const url = document.getElementById('gas-url-input').value.trim();
-  if (!url || !/^https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url)) { showToast('URL ไม่ถูกต้อง', 'warning'); return; }
-  gasEndpoint = url; try { localStorage.setItem('gas_url', url); } catch (_) {}
-  closeConfigModal();
-  const ok = await syncFromGoogleSheet(); syncBookmarksFromGoogleSheet();
-  showToast(ok ? 'เชื่อมต่อสำเร็จ' : 'บันทึก URL แล้ว แต่ซิงค์ไม่สำเร็จ', ok ? 'success' : 'warning');
-}
-function disconnectGAS() { gasEndpoint='';try{localStorage.removeItem('gas_url');}catch(_){}document.getElementById('gas-url-input').value='';closeConfigModal();showToast('ยกเลิกเชื่อมต่อแล้ว','success'); }
-
-function init() {
-  document.getElementById('gallery-grid').addEventListener('error', e => {
-    const img = e.target;
-    if (img.tagName !== 'IMG' || !img.dataset.fallback) return;
-    img.removeAttribute('data-fallback'); img.style.display = 'none';
-    img.parentElement.insertAdjacentHTML('beforeend', '<div class="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-zinc-800"><i class="fas fa-image text-gray-300 dark:text-gray-600 text-3xl"></i></div>');
-  }, true);
-  
-  updateThemeUI(); 
-  changeGridSize('medium'); 
-  loadFavorites(); 
-  loadBookmarks(); 
-  updateNavigationButtonsUI(); 
-  loadPage(TARGET_URL, {recordHistory:false});
-}
-init();
+(function init(){
+  S.fav=clean(ls.get('jav_favorites',[]));
+  S.fav.forEach(f=>{if(!f.isSnapshot&&typeof f.url==='string')f.url=noHash(f.url)});
+  S.bm=clean(ls.get('jav_bookmarks',[]));Q=ls.get('gas_q',[]);
+  S.gas=raw('gas_url')||'';$('#gas').value=S.gas;
+  setGrid(['small','medium','large'].includes(raw('grid'))?raw('grid'):'medium');
+  themeUI();badge();renderBm();slideStop();
+  history.replaceState({n:0,u:ROOT},'');
+  openList(ROOT,{push:false});
+  if(S.gas){pull();flush()}
+})();
 </script>
 </body>
 </html>

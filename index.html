@@ -108,6 +108,9 @@ main{padding:4px 12px calc(var(--bot) + var(--sab) + 72px)}
 .vnav{position:absolute;top:50%;margin-top:-28px;width:56px;height:56px;border-radius:50%;background:#0006;color:#fff;display:grid;place-items:center}
 .vnav.l{left:8px}.vnav.r{right:8px}
 .vsrc{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 20px)}
+.chips{display:flex;gap:8px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.chips button{flex:none;height:36px;padding:0 16px;border-radius:18px;background:var(--sf);font-weight:600}
+.chips .on{background:var(--fg);color:var(--bg)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -144,6 +147,7 @@ main{padding:4px 12px calc(var(--bot) + var(--sab) + 72px)}
     </form>
     <button class="ib d-only" data-menu aria-label="เมนู"><svg class="ic"><use href="#i-menu"/></svg></button>
   </header>
+  <div id="sites" class="chips"><button data-site="javdb">JAVDB</button><button data-site="jvr">JVR Library</button><button data-site="j321">JAV321</button></div>
   <div id="favbar" hidden>
     <input id="fq" placeholder="ค้นหาในโปรด" aria-label="ค้นหาในโปรด">
     <select id="fs" aria-label="เรียง"><option value="newest">ล่าสุด</option><option value="oldest">เก่าสุด</option><option value="title">ชื่อ</option></select>
@@ -166,7 +170,7 @@ main{padding:4px 12px calc(var(--bot) + var(--sab) + 72px)}
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="เมนู" tabindex="-1">
     <div class="dh"><b>เมนู</b><button class="ib" data-close aria-label="ปิด"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sec"><h4>ขนาดรูป</h4><div class="seg" id="seg"><button data-g="small">เล็ก</button><button data-g="medium">กลาง</button><button data-g="large">ใหญ่</button></div></div>
-    <div class="sec"><button class="row" id="b-theme"></button><button class="row" id="b-home"><svg class="ic"><use href="#i-home"/></svg>โหลดหน้าแรก JAVDB ใหม่</button></div>
+    <div class="sec"><button class="row" id="b-theme"></button><button class="row" id="b-home"><svg class="ic"><use href="#i-home"/></svg>โหลดหน้าแรกของเว็บนี้ใหม่</button></div>
     <div class="sec"><h4>หน้านี้</h4><a id="cur" target="_blank" rel="noopener noreferrer"></a><button class="btn" id="bm-cur" style="width:100%"></button></div>
     <div class="sec"><h4>ลิงก์ที่บันทึก <span id="bm-n"></span></h4><div id="bm-list"></div></div>
     <div class="sec"><h4>Google Apps Script (ซิงค์โปรด/ลิงก์)</h4><input id="gas" type="url" placeholder="https://script.google.com/macros/s/.../exec" aria-label="GAS URL"><div class="two"><button class="btn red" id="gas-save">บันทึก</button><button class="btn" id="gas-clear">ล้างค่า</button></div></div>
@@ -199,18 +203,23 @@ main{padding:4px 12px calc(var(--bot) + var(--sab) + 72px)}
 'use strict';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const ROOT='https://javdb.com/',IMG=/\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i,BLOCK=/Just a moment\.\.\.|cf-browser-verification|Attention Required/i;
-const S={tab:'home',cur:ROOT,movie:null,imgs:[],cover:true,grid:'medium',fav:[],bm:[],gas:'',tok:0,mtok:0};
+const S={tab:'home',cur:ROOT,movie:null,imgs:[],cover:true,grid:'medium',fav:[],bm:[],gas:'',tok:0,mtok:0,site:'javdb'};
+const DEFAULT_GAS='https://script.google.com/macros/s/AKfycbzPyhBDogJv42rqdWfZG5sjroghsWZwhHjz1xAxN1UpoIyWl5XkE8vsqt2ryvCOoga8/exec';
 let L={url:ROOT,base:ROOT,page:0,next:true,busy:false,seen:new Set(),items:[]},favVer=0,bmVer=0,Q=[];
 const tabPos={};
 const raw=k=>{try{return localStorage.getItem(k)}catch(_){return null}},setRaw=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}},rmRaw=k=>{try{localStorage.removeItem(k)}catch(_){}};
 const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(_){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const abs=(v,b=ROOT)=>{try{const u=new URL(v,b);return /^https?:$/.test(u.protocol)?u.href:''}catch(_){return ''}};
-const isJ=u=>{try{const h=new URL(u).hostname;return h==='javdb.com'||h.endsWith('.javdb.com')}catch(_){return false}};
+const abs=(v,b=ROOT)=>{try{const u=new URL(v,b);return /^https?:$/.test(u.protocol)?u.href.replace(/^http:\/\/pics\.dmm\.co\.jp\/+/,'https://pics.dmm.co.jp/'):''}catch(_){return ''}};
+const SITES={javdb:{root:'https://javdb.com/',ph:'ค้นหารหัส หรือวางลิงก์ JAVDB'},jvr:{root:'https://www.jvrlibrary.com/',ph:'พิมพ์รหัส เช่น DSVR-1615 หรือวางลิงก์'},j321:{root:'https://www.jav321.com/list/release_date/1',ph:'พิมพ์รหัส เช่น SNOS-489 หรือวางลิงก์'}};
+const HOSTS={'javdb.com':'javdb','jvrlibrary.com':'jvr','jav321.com':'j321'};
+const siteOf=u=>{try{const h=new URL(u).hostname.replace(/^www\./,'').toLowerCase();for(const d in HOSTS)if(h===d||h.endsWith('.'+d))return HOSTS[d]}catch(_){}return ''};
+const isJ=u=>!!siteOf(u);
+const home=()=>SITES[S.site].root;
 const noHash=u=>{try{const x=new URL(u);x.hash='';return x.href}catch(_){return u}};
 const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const el=h=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild};
-const clean=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x==='object'&&!String(x.url||'').toLowerCase().includes('jav321'));
+const clean=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x==='object');
 const ts=v=>Number(v)||Date.parse(v)||0;
 const near=()=>innerHeight+scrollY>document.documentElement.scrollHeight-1400;
 function toast(m,t=''){const d=el(`<div class="toast ${t}">${esc(m)}</div>`);$('#toasts').append(d);setTimeout(()=>{d.style.opacity=0;setTimeout(()=>d.remove(),250)},2800)}
@@ -284,7 +293,7 @@ const cache=new Map(),inflight=new Map();
 const timed=async(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.text()}finally{clearTimeout(t)}};
 const gasUrl=p=>{const u=new URL(S.gas);for(const k in p)u.searchParams.set(k,p[k]);return u.href};
 function fetchHtml(url){
-  const t=abs(url);if(!t||!isJ(t))return Promise.reject(Error('อนุญาตเฉพาะโดเมน JAVDB'));
+  const t=abs(url);if(!t||!isJ(t))return Promise.reject(Error('ไม่รองรับโดเมนนี้'));
   const target=noHash(t);
   if(cache.has(target))return Promise.resolve(cache.get(target));
   if(inflight.has(target))return inflight.get(target);
@@ -303,6 +312,7 @@ const parse=h=>new DOMParser().parseFromString(h,'text/html');
 const imgSrc=i=>i?(i.getAttribute('data-original')||i.getAttribute('data-src')||i.getAttribute('data-lazy-src')||i.getAttribute('src')||''):'';
 const bestImg=(img,a,b)=>{const h=a?.getAttribute('href')||'';return abs(IMG.test(h)?h:imgSrc(img),b)};
 function parseList(doc,page){
+  const sk=siteOf(page);if(sk==='jvr')return parseJvr(doc,page);if(sk==='j321')return parseJav321(doc,page);
   const out=[],seen=new Set();
   let links=[...doc.querySelectorAll('.movie-list .item a[href*="/v/"],.item a[href*="/v/"],a[href^="/v/"]')];
   if(!links.length)links=[...doc.querySelectorAll('a[href*="/v/"]')];
@@ -317,6 +327,110 @@ function parseList(doc,page){
   }
   return out;
 }
+
+/* ---------- multi-site adapters (JVR Library, JavTrailers) ---------- */
+function movieOf(U){
+  const k=siteOf(U.href);
+  if(k==='javdb'){const m=U.pathname.match(/^\/v\/([^/]+)/);return m&&{id:m[1],code:m[1]}}
+  if(k==='j321'){const m=U.pathname.match(/^\/video\/([^/]+)/);return m&&{id:'j321:'+m[1],code:m[1]}}
+  if(k==='jvr'&&/^\/jvr\/?$/.test(U.pathname)){const i=U.searchParams.get('id');return i&&{id:'jvr:'+i,code:i}}
+  return null;
+}
+function parseJav321(doc,page){
+  const out=[],seen=new Set();
+  for(const a of doc.querySelectorAll('a[href*="/video/"]')){
+    const href=abs(a.getAttribute('href'),page);if(!href||siteOf(href)!=='j321')continue;
+    const m=new URL(href).pathname.match(/^\/video\/([^/]+)/);if(!m||seen.has(m[1]))continue;
+    const img=a.querySelector('img'),thumb=abs(imgSrc(img),page);if(!thumb)continue;
+    const text=(a.textContent||'').replace(/\s+/g,' ').trim(),tk=text.split(' ').pop();
+    seen.add(m[1]);out.push({id:'j321:'+m[1],code:/\d/.test(tk)&&tk.length<=20?tk:m[1],title:text||m[1],thumb,url:href});
+  }
+  return out;
+}
+function parseJvr(doc,page){
+  const out=[],seen=new Set();
+  for(const a of doc.querySelectorAll('a[href*="/jvr?id="]')){
+    const href=abs(a.getAttribute('href'),page);if(!href)continue;
+    const id=new URL(href).searchParams.get('id'),img=a.querySelector('img');
+    if(!id||seen.has(id)||!img||/small cover/i.test(img.alt||''))continue;
+    const thumb=abs(imgSrc(img),page);if(!thumb)continue;
+    seen.add(id);out.push({id:'jvr:'+id,code:id,title:(a.textContent||'').replace(/\s+/g,' ').trim()||id,thumb,url:href});
+  }
+  return out;
+}
+function hasNext(doc,items,base){
+  const nx=[...doc.querySelectorAll('a[href]')].some(a=>a.matches('a.pagination-next,a[rel=next]')||/^(?:→\s*)?(?:next|次の|›|»)$/i.test(a.textContent.trim()));
+  return nx||(!doc.querySelector('.pagination')&&items.length>=({javdb:20,jvr:10}[siteOf(base)]||1e9));
+}
+/* load jp-1, jp-2, ... until the first missing image (6 at a time) */
+async function probe(tpl,max=60){
+  const out=[],ld=u=>new Promise(r=>{const i=new Image();i.referrerPolicy='no-referrer';i.onload=()=>r(1);i.onerror=()=>r(0);i.src=u});
+  for(let n=1;n<=max;n+=6){
+    const us=Array.from({length:6},(_,k)=>tpl(n+k)),ok=await Promise.all(us.map(ld));
+    for(let k=0;k<6;k++){if(!ok[k])return out;out.push(us[k])}
+  }
+  return out;
+}
+async function siteInfo(k,pu,it,cid){
+  let html='',doc=null;
+  try{html=await fetchHtml(pu);doc=parse(html)}catch(e){throw e}
+  const q=s=>doc?.querySelector(s)?.content||'',g={directors:[],makers:[],series:[],actors:[],tags:[]};
+  if(k==='jvr'){
+    const txt=(doc.body.textContent||'').replace(/\s+/g,' ');
+    const dr=(txt.match(/Director:\s*(.+?)\s+Casts:/)||[])[1]||'';
+    if(dr&&!/^-+$/.test(dr))g.directors.push({label:dr,url:''});
+    const seen=new Set(),map={'/cast':'actors','/studio':'makers','/genre':'tags','/lcode':'series'};
+    for(const a of doc.querySelectorAll('a[href]')){
+      const h=abs(a.getAttribute('href'),pu),kk=h&&map[new URL(h).pathname],lb=a.textContent.replace(/\s+/g,' ').trim();
+      if(kk&&lb&&!seen.has(h)){seen.add(h);g[kk].push({label:lb,url:h})}
+    }
+    let cover=abs(q('meta[property="og:image"]'),pu);
+    const ci=doc.querySelector('img[alt$="full cover image"]');if(ci)cover=abs(imgSrc(ci),pu)||cover;
+    let scenes=[];
+    for(const i of doc.querySelectorAll('img')){
+      const s=abs(imgSrc(i),pu);
+      if(s&&/jp-\d+\.(?:jpe?g|png|webp)/i.test(s)&&!/small cover/i.test(i.alt||'')&&!scenes.includes(s))scenes.push(s);
+    }
+    const dir=(cover.match(/\/video\/([^/]+)\//)||[])[1];
+    if(!scenes.length&&dir)scenes=await probe(n=>`${new URL(pu).origin}/static/digital/video/${dir}/${dir}jp-${n}.jpg`);
+    return {title:`${cid} ${q('meta[property="og:description"]')}`.trim(),code:cid,date:(txt.match(/Release Date:\s*(\d{4}-\d{2}-\d{2})/)||[])[1]||'',cover,scenes,g};
+  }
+  const txt=(doc.body.textContent||'').replace(/\s+/g,' '),seen=new Set(),map={star:'actors',company:'makers',snp:'series',series:'series',genre:'tags'};
+  for(const a of doc.querySelectorAll('a[href]')){
+    const h=abs(a.getAttribute('href'),pu),m=h&&new URL(h).pathname.match(/^\/(star|company|snp|genre|series)\//),lb=a.textContent.replace(/\s+/g,' ').trim();
+    if(m&&lb&&!seen.has(h)){seen.add(h);g[map[m[1]]].push({label:lb,url:h})}
+  }
+  let cover='';const sc=[];
+  for(const a of doc.querySelectorAll('a[href*="/snapshot/"]')){
+    const n=+(a.getAttribute('href').match(/\/(\d+)\/?$/)||[])[1],u=abs(imgSrc(a.querySelector('img')),pu);
+    if(!u||isNaN(n))continue;
+    if(n===0)cover=u;else if(!sc.includes(u))sc.push(u);
+  }
+  if(!sc.length&&/^[a-z0-9_]+$/i.test(cid))sc.push(...await probe(n=>`https://pics.dmm.co.jp/digital/video/${cid}/${cid}jp-${n}.jpg`));
+  return {title:(doc.querySelector('h3')?.textContent||doc.title||cid).replace(/\s+/g,' ').trim(),code:(txt.match(/品番[:：]?\s*(\S+)/)||[])[1]||cid,date:(txt.match(/配信開始日[:：]?\s*(\d{4}-\d{2}-\d{2})/)||[])[1]||'',cover:cover||it.thumb||'',scenes:sc,g};
+}
+async function siteDetail(k,pu,it,tok,hash){
+  const cid=k==='jvr'?new URL(pu).searchParams.get('id'):new URL(pu).pathname.split('/')[2];
+  const d=await siteInfo(k,pu,it,cid);if(tok!==S.mtok)return;
+  S.movie={...S.movie,code:d.code,title:d.title,thumb:d.cover||''};
+  $('#m-code').textContent=d.code;$('#m-short').textContent=d.title;
+  fillDrawer(d.title,d.code,d.date,d.g);
+  const imgs=d.cover?[d.cover]:[];for(const s of d.scenes)if(!imgs.includes(s))imgs.push(s);
+  S.imgs=imgs;S.cover=Boolean(d.cover);renderScenes();
+  if(!d.scenes.length)$('#m-note').textContent='ไม่พบภาพซีน (เว็บอาจกันบอต) กดปุ่ม ⓘ แล้วเปิดหน้าต้นฉบับ';
+  const m=String(hash||'').match(/gallery-(\d+)/i);
+  if(m&&imgs.length>1){const idx=Math.max(0,Math.min(S.cover?+m[1]:+m[1]-1,imgs.length-1));setTimeout(()=>$('#m-scroll').scrollTo({top:Math.max(0,(mm.items[idx]?.y||0)-8),behavior:'smooth'}),300)}
+}
+function setSite(k){
+  S.site=k;setRaw('site',k);
+  $$('#sites button').forEach(b=>b.classList.toggle('on',b.dataset.site===k));
+  $('#q').placeholder=SITES[k].ph;
+}
+$('#sites').onclick=e=>{
+  const b=e.target.closest('[data-site]');if(!b)return;const k=b.dataset.site;
+  if(k===S.site&&scrollY>60)return scrollTo({top:0,behavior:'smooth'});
+  setSite(k);openList(home());
+};
 
 /* ---------- favorites / bookmarks / GAS sync (queue + retry + merge) ---------- */
 const fk=f=>String(f.isSnapshot)==='true'?'S|'+f.parentId+'|'+f.thumb:'M|'+f.id;
@@ -336,7 +450,7 @@ async function flush(){
 addEventListener('online',flush);
 function merge(remote,local,action,key,mk){
   const m=new Map(remote.map(x=>[key(x),x])),lm=new Map(local.map(x=>[key(x),x]));
-  if(!remote.length)for(const [k,v] of lm){m.set(k,v);enqueue(mk(v,'add'))}
+  if(!remote.length||!raw('gas_merged'))for(const [k,v] of lm)if(!m.has(k)){m.set(k,v);enqueue(mk(v,'add'))}
   for(const q of Q)if(q.action===action){const k=qkey(q);if(q.status==='remove')m.delete(k);else if(lm.has(k))m.set(k,lm.get(k))}
   return [...m.values()];
 }
@@ -350,7 +464,7 @@ async function pull(){
     }
     if(b?.success&&Array.isArray(b.bookmarks)&&bv===bmVer){
       const r=clean(b.bookmarks).map(x=>({...x,timestamp:ts(x.timestamp)}));
-      S.bm=merge(r,S.bm,'syncBookmark',x=>'B|'+x.url,bmParams);ls.set('jav_bookmarks',S.bm);renderBm();syncUI();
+      S.bm=merge(r,S.bm,'syncBookmark',x=>'B|'+x.url,bmParams);ls.set('jav_bookmarks',S.bm);renderBm();syncUI();setRaw('gas_merged','1');
     }
     return true;
   }catch(_){return false}
@@ -393,23 +507,29 @@ function renderBm(){
 }
 
 /* ---------- list (infinite scroll) ---------- */
-function listUrl(base,p){const u=new URL(base);if(p>1)u.searchParams.set('page',p);return u.href}
+function listUrl(base,p){
+  const u=new URL(base);
+  if(siteOf(base)==='j321'){if(u.searchParams.has('np')){u.searchParams.delete('np');return u.href}u.pathname=u.pathname.replace(/\/?$/,'/')+p;return u.href}
+  if(p>1)u.searchParams.set('page',p);return u.href;
+}
 function skel(){main.add([1.3,1,1.5,1.2,1.6,1.1,1.4,1.2,1.5,1,1.3,1.6].map(r=>el(`<div class="card"><div class="thumb sk" style="aspect-ratio:1/${r}"></div></div>`)))}
 function cardEl(it){
-  const e=el(`<article class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:3/4" aria-label="${esc(it.title)}"><img src="${esc(it.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><button class="save"></button></div><div class="meta"><span class="t">${esc(it.title)}</span><a class="ib sm" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดหน้าต้นทาง">${ic('ext')}</a></div></article>`);
-  const th=e.querySelector('.thumb'),sv=e.querySelector('.save');
+  const e=el(`<article class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:3/4" aria-label="${esc(it.title)}"><img src="${esc(it.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button></div><div class="meta"><span class="t">${esc(it.title)}</span><a class="ib sm" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดหน้าต้นทาง">${ic('ext')}</a></div></article>`);
+  const th=e.querySelector('.thumb');
   fit(th.firstChild,th,main);
   th.onclick=()=>openMovie(it.url,it,'');
-  e._upd=()=>{const on=isFav(movieFav(it));sv.classList.toggle('on',on);sv.textContent=on?'บันทึกแล้ว':'บันทึก';sv.setAttribute('aria-label',on?'นำออกจากโปรด':'บันทึกลงโปรด')};
-  e._upd();sv.onclick=()=>toggleFav(movieFav(it));
   return e;
 }
 async function openList(url,o={}){
   const u=abs(url);if(!u||!isJ(u))return toast('ลิงก์ไม่ถูกต้อง','warn');
   const U=new URL(u);
-  if(/^\/v\/[^/]+/.test(U.pathname)){const id=U.pathname.split('/')[2];return openMovie(u,{id,code:id,title:id,thumb:''},U.hash)}
+  const mv=movieOf(U);
+  if(mv)return openMovie(u,{...mv,title:mv.code,thumb:''},U.hash);
+  setSite(siteOf(u));
   if(S.tab!=='home')setTab('home',true);
-  U.hash='';const page=Math.max(1,+U.searchParams.get('page')||1);U.searchParams.delete('page');
+  U.hash='';let page=1;
+  if(siteOf(u)==='j321'){const m=U.pathname.match(/^(.*\/)(\d+)\/?$/);if(m){page=+m[2];U.pathname=m[1]}else U.searchParams.set('np','1')}
+  else{page=Math.max(1,+U.searchParams.get('page')||1);U.searchParams.delete('page')}
   const tok=++S.tok;
   if(o.push!==false)history.pushState({n:0,u},'');
   L={url:u,base:U.href,page:page-1,next:true,busy:false,seen:new Set(),items:[]};
@@ -427,7 +547,7 @@ async function more(first,tok=S.tok){
     if(first)main.clear();
     if(items.length){
       items.forEach(i=>l.seen.add(i.id));l.items.push(...items);l.page=p;
-      l.next=doc.querySelector('.pagination')?!!doc.querySelector('a.pagination-next[href]'):items.length>=20;
+      l.next=hasNext(doc,items,l.base)&&!new URL(l.base).searchParams.has('np');
       main.add(items.map(cardEl));
     }else{l.next=false;if(first)throw Error('ไม่พบรายการ')}
     $('#state').innerHTML=l.next?'':'<p class="end">— สุดรายการ —</p>';
@@ -452,11 +572,11 @@ function setTab(t,quiet){
   if(t===S.tab&&!quiet)return;
   tabPos[S.tab]=scrollY;S.tab=t;S.tok++;
   $$('[data-tab]').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-current',on)});
-  $('#favbar').hidden=t!=='fav';$('#state').innerHTML='';
+  $('#favbar').hidden=t!=='fav';$('#sites').hidden=t!=='home';$('#state').innerHTML='';
   if(t==='fav')renderFavs();
   else if(!quiet){
     L.busy=false;main.clear();
-    if(L.items.length){main.add(L.items.map(cardEl));setActive(L.url)}else openList(ROOT,{push:false});
+    if(L.items.length){main.add(L.items.map(cardEl));setActive(L.url);setSite(siteOf(L.url))}else openList(home(),{push:false});
   }
   if(!quiet)scrollTo(0,tabPos[t]||0);
 }
@@ -468,7 +588,7 @@ function favList(){
 const favImgs=l=>[...new Set(l.map(f=>abs(f.thumb)).filter(Boolean))];
 function renderFavs(){
   const l=favList();main.clear();
-  $('#state').innerHTML=l.length?'':`<div class="empty">${ic('heart')}<p>${S.fav.length?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการโปรด กดปุ่ม “บันทึก” บนรูปที่ชอบ'}</p></div>`;
+  $('#state').innerHTML=l.length?'':`<div class="empty">${ic('heart')}<p>${S.fav.length?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการโปรด เปิดหนังแล้วกดหัวใจที่ซีนที่ชอบ'}</p></div>`;
   main.add(l.map(f=>favCard(f,l)));
   setActive(S.cur);
 }
@@ -496,11 +616,11 @@ function renderScenes(){
   mm.clear();
   mm.add(S.imgs.map((src,i)=>{
     const sc=S.cover?i>0:true;
-    const e=el(`<div class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:16/10" aria-label="ขยายภาพ"><img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><span class="tag">${sc?'ซีน '+(S.cover?i:i+1):'หน้าปก'}</span><div class="acts"><button class="chip" data-h></button><a class="chip" href="${esc(src)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดภาพต้นฉบับ">${ic('ext')}</a></div></div></div>`);
+    const e=el(`<div class="card"><div class="wrap"><button class="thumb" style="aspect-ratio:16/10" aria-label="ขยายภาพ"><img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer"></button><span class="tag">${sc?'ซีน '+(S.cover?i:i+1):'หน้าปก'}</span><div class="acts">${sc?'<button class="chip" data-h></button>':''}<a class="chip" href="${esc(src)}" target="_blank" rel="noopener noreferrer" aria-label="เปิดภาพต้นฉบับ">${ic('ext')}</a></div></div></div>`);
     const th=e.querySelector('.thumb'),h=e.querySelector('[data-h]');fit(th.firstChild,th,mm);
     th.onclick=()=>openViewer(S.imgs,i);
-    e._upd=()=>{const on=S.movie&&isFav(favFor(i));h.innerHTML=ic('heart',on?'on':'');h.setAttribute('aria-label',on?'นำออกจากโปรด':'บันทึกลงโปรด')};
-    e._upd();h.onclick=()=>toggleFav(favFor(i));
+    e._upd=()=>{if(!h)return;const on=S.movie&&isFav(favFor(i));h.innerHTML=ic('heart',on?'on':'');h.setAttribute('aria-label',on?'นำออกจากโปรด':'บันทึกลงโปรด')};
+    e._upd();if(h)h.onclick=()=>toggleFav(favFor(i));
     return e;
   }));
   $('#m-note').textContent=`ทั้งหมด ${S.imgs.length} ภาพ`;
@@ -528,7 +648,7 @@ function detailGroups(doc,base){
   return g;
 }
 function fillDrawer(title,code,date,g){
-  const ch=a=>a.length?a.map(x=>`<a class="c" href="${esc(x.url)}" data-u="${esc(x.url)}">${esc(x.label)}</a>`).join(''):'<span class="mut">—</span>';
+  const ch=a=>a.length?a.map(x=>x.url?`<a class="c" href="${esc(x.url)}" data-u="${esc(x.url)}">${esc(x.label)}</a>`:`<span class="c">${esc(x.label)}</span>`).join(''):'<span class="mut">—</span>';
   $('#m-drawer').innerHTML=`<h2>${esc(title)}</h2><dl><div><dt>รหัส</dt><dd>${esc(code)}</dd></div><div><dt>วันที่ออก</dt><dd>${esc(date||'—')}</dd></div><div><dt>ผู้กำกับ</dt><dd>${ch(g.directors)}</dd></div><div><dt>ค่าย</dt><dd>${ch(g.makers)}</dd></div><div><dt>ซีรีส์</dt><dd>${ch(g.series)}</dd></div><div><dt>นักแสดง</dt><dd>${ch(g.actors)}</dd></div><div style="grid-column:1/-1"><dt>แท็ก</dt><dd>${ch(g.tags)}</dd></div></dl><p><a class="btn red" href="${esc(S.movie.url)}" target="_blank" rel="noopener noreferrer">${ic('ext')} เปิดหน้าต้นฉบับ</a></p>`;
 }
 $('#m-drawer').onclick=e=>{const a=e.target.closest('[data-u]');if(a){e.preventDefault();closeAll(()=>openList(a.dataset.u))}};
@@ -542,6 +662,7 @@ async function openMovie(url,it,hash=''){
   $('#m-drawer').hidden=true;$('#m-scroll').scrollTop=0;$('#m-note').textContent='กำลังโหลดภาพ...';
   renderScenes();
   try{
+    const sk=siteOf(pu);if(sk!=='javdb')return await siteDetail(sk,pu,it,tok,hash);
     const doc=parse(await fetchHtml(pu));if(tok!==S.mtok)return;
     const T=s=>(doc.querySelector(s)?.textContent||'').replace(/\s+/g,' ').trim();
     const title=T('h2.title .current-title,h2.title strong,h2.title,.movie-panel-info h2,h1.title,.video-title')||doc.querySelector('meta[property="og:title"]')?.content||it.title||id;
@@ -653,7 +774,7 @@ function themeUI(){
   document.querySelector('meta[name=theme-color]').content=d?'#121212':'#ffffff';
 }
 $('#b-theme').onclick=()=>{const d=document.documentElement.classList.toggle('dark');setRaw('theme',d?'dark':'light');themeUI()};
-const goHome=()=>{setTab('home',true);openList(ROOT)};
+const goHome=()=>{setTab('home',true);openList(home())};
 $('#b-home').onclick=()=>closeAll(goHome);
 $('#logo').onclick=goHome;
 $('#b-search').onclick=()=>{scrollTo(0,0);$('#q').focus()};
@@ -664,27 +785,29 @@ $$('[data-tab]').forEach(b=>b.onclick=()=>{
 $('#sf').onsubmit=e=>{
   e.preventDefault();const q=$('#q').value.trim();if(!q)return;$('#q').blur();
   let u;
-  if(/^https?:\/\//i.test(q)||/javdb\.com/i.test(q)){u=abs(/^https?:/i.test(q)?q:'https://'+q);if(!u||!isJ(u))return toast('ลิงก์ JAVDB ไม่ถูกต้อง','warn')}
+  if(/^https?:\/\//i.test(q)||/javdb\.com|jvrlibrary\.com|jav321\.com/i.test(q)){u=abs(/^https?:/i.test(q)?q:'https://'+q);if(!u||!isJ(u))return toast('ลิงก์ไม่รองรับ','warn')}
+  else if(S.site==='j321'){const c=q.toLowerCase().replace(/\s+/g,''),m=c.match(/^([a-z]+)-?(\d+)$/);u='https://www.jav321.com/'+(m?'video/'+m[1]+m[2].padStart(5,'0'):/^[a-z]+$/.test(c)?'snp/'+c+'/1':'video/'+encodeURIComponent(c))}
+  else if(S.site==='jvr')u=SITES.jvr.root+'jvr?id='+encodeURIComponent(q.toUpperCase().replace(/\s+/g,'').replace(/^([A-Z]+)-?(\d+)$/,'$1-$2'));
   else{const x=new URL('/search',ROOT);x.searchParams.set('q',q);x.searchParams.set('f','all');u=x.href}
   openList(u);
 };
 $('#gas-save').onclick=async()=>{
   const u=$('#gas').value.trim();
   if(!/^https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(u))return toast('URL ไม่ถูกต้อง','warn');
-  S.gas=u;setRaw('gas_url',u);const ok=await pull();flush();
+  S.gas=u;setRaw('gas_url',u);rmRaw('gas_merged');const ok=await pull();flush();
   toast(ok?'เชื่อมต่อสำเร็จ':'บันทึก URL แล้ว แต่ซิงค์ไม่สำเร็จ',ok?'ok':'warn');
 };
-$('#gas-clear').onclick=()=>{S.gas='';rmRaw('gas_url');$('#gas').value='';toast('ยกเลิกเชื่อมต่อแล้ว','ok')};
+$('#gas-clear').onclick=()=>{S.gas='';setRaw('gas_url','');$('#gas').value='';toast('ยกเลิกเชื่อมต่อแล้ว','ok')};
 
 (function init(){
   S.fav=clean(ls.get('jav_favorites',[]));
   S.fav.forEach(f=>{if(!f.isSnapshot&&typeof f.url==='string')f.url=noHash(f.url)});
   S.bm=clean(ls.get('jav_bookmarks',[]));Q=ls.get('gas_q',[]);
-  S.gas=raw('gas_url')||'';$('#gas').value=S.gas;
+  const g0=raw('gas_url'),sv=raw('site');S.gas=g0===null?DEFAULT_GAS:g0;S.site=SITES[sv]?sv:'javdb';$('#gas').value=S.gas;
   setGrid(['small','medium','large'].includes(raw('grid'))?raw('grid'):'medium');
   themeUI();badge();renderBm();slideStop();
-  history.replaceState({n:0,u:ROOT},'');
-  openList(ROOT,{push:false});
+  setSite(S.site);history.replaceState({n:0,u:home()},'');
+  openList(home(),{push:false});
   if(S.gas){pull();flush()}
 })();
 </script>
